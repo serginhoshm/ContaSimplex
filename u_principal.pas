@@ -4,7 +4,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, Menus;
+  Dialogs, Menus, IdIOHandler, IdIOHandlerSocket, IdBaseComponent,
+  IdComponent, IdTCPConnection, IdTCPClient, IdHTTP, IdSSLOpenSSL;
 
 type
   TFormPrincipal = class(TForm)
@@ -14,6 +15,8 @@ type
     Marketing1: TMenuItem;
     Pesquisas1: TMenuItem;
     Lerresultadosenquete1: TMenuItem;
+    IdHTTP1: TIdHTTP;
+    IdSSLIOHandlerSocket1: TIdSSLIOHandlerSocket;
     procedure Lerresultadosenquete1Click(Sender: TObject);
   private
     { Private declarations }

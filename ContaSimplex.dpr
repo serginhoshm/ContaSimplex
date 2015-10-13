@@ -6,7 +6,8 @@ uses
   u_mailmarketing in 'u_mailmarketing.pas',
   u_mailsender in 'u_mailsender.pas',
   u_dm in 'u_dm.pas',
-  u_principal in 'u_principal.pas' {FormPrincipal};
+  u_principal in 'u_principal.pas' {FormPrincipal},
+  u_bibliotecas in 'u_bibliotecas.pas';
 
 {$R *.res}
 

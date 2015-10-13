@@ -36,4 +36,27 @@ object FormPrincipal: TFormPrincipal
       end
     end
   end
+  object IdHTTP1: TIdHTTP
+    MaxLineAction = maException
+    AllowCookies = True
+    ProxyParams.BasicAuthentication = False
+    ProxyParams.ProxyPort = 0
+    Request.ContentLength = -1
+    Request.ContentRangeEnd = 0
+    Request.ContentRangeStart = 0
+    Request.Accept = 'text/html, */*'
+    Request.BasicAuthentication = False
+    Request.UserAgent = 'Mozilla/3.0 (compatible; Indy Library)'
+    HTTPOptions = [hoForceEncodeParams]
+    Left = 448
+    Top = 224
+  end
+  object IdSSLIOHandlerSocket1: TIdSSLIOHandlerSocket
+    SSLOptions.Method = sslvSSLv2
+    SSLOptions.Mode = sslmUnassigned
+    SSLOptions.VerifyMode = []
+    SSLOptions.VerifyDepth = 0
+    Left = 456
+    Top = 232
+  end
 end
