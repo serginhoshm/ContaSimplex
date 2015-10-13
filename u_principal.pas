@@ -4,8 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, Menus, IdIOHandler, IdIOHandlerSocket, IdBaseComponent,
-  IdComponent, IdTCPConnection, IdTCPClient, IdHTTP, IdSSLOpenSSL;
+  Dialogs, Menus;
 
 type
   TFormPrincipal = class(TForm)
@@ -15,9 +14,11 @@ type
     Marketing1: TMenuItem;
     Pesquisas1: TMenuItem;
     Lerresultadosenquete1: TMenuItem;
-    IdHTTP1: TIdHTTP;
-    IdSSLIOHandlerSocket1: TIdSSLIOHandlerSocket;
+    Gerarfaturamentos1: TMenuItem;
+    Enviaremailfaturamentospend1: TMenuItem;
     procedure Lerresultadosenquete1Click(Sender: TObject);
+    procedure Gerarfaturamentos1Click(Sender: TObject);
+    procedure Enviaremailfaturamentospend1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -29,7 +30,7 @@ var
 
 implementation
 
-uses u_mailmarketing;
+uses u_mailmarketing, u_formfaturamento, u_formenviaemail;
 
 {$R *.dfm}
 
@@ -42,6 +43,27 @@ begin
     PesqSat.ImportarDadosPlanilha;
   finally
     FreeAndNil(PesqSat);
+  end;
+end;
+
+procedure TFormPrincipal.Gerarfaturamentos1Click(Sender: TObject);
+begin
+  FormFaturamento := TFormFaturamento.Create(nil);
+  try
+    FormFaturamento.ShowModal;
+  finally
+    FreeAndNil(FormFaturamento);
+  end;
+end;
+
+procedure TFormPrincipal.Enviaremailfaturamentospend1Click(
+  Sender: TObject);
+begin
+  FormEnviaEmails := TFormEnviaEmails.Create(nil);
+  try
+    FormEnviaEmails.ShowModal;
+  finally
+    FreeAndNil(FormEnviaEmails);
   end;
 end;
 
