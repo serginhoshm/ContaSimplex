@@ -68,7 +68,8 @@ var
     ACDSPesquisa.FieldDefs.Clear;
     ACDSPesquisa.FieldDefs.Add('Identificador', ftstring, 200);
     ACDSPesquisa.FieldDefs.Add('Indice', ftInteger);
-    ACDSPesquisa.FieldDefs.Add('Contagem', ftinteger);
+    ACDSPesquisa.FieldDefs.Add('Votos', ftinteger);
+    ACDSPesquisa.FieldDefs.Add('Estrelas', ftinteger);
     ACDSPesquisa.CreateDataSet;
     ACDSPesquisa.LogChanges := false;
   end;
@@ -118,7 +119,8 @@ begin
             if ACDSPesquisa.FindKey([j]) then
             begin
               ACDSPesquisa.Edit;
-              ACDSPesquisa.FieldByName('CONTAGEM').AsInteger := ACDSPesquisa.FieldByName('CONTAGEM').AsInteger + ConverteNotaIndice(ATemp);
+              ACDSPesquisa.FieldByName('Votos').AsInteger := ACDSPesquisa.FieldByName('Votos').AsInteger + 1;
+              ACDSPesquisa.FieldByName('Estrelas').AsInteger := ACDSPesquisa.FieldByName('Estrelas').AsInteger + ConverteNotaIndice(ATemp);
               ACDSPesquisa.Post;
             end;
           end;

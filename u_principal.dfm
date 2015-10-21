@@ -17,8 +17,8 @@ object FormPrincipal: TFormPrincipal
   PixelsPerInch = 96
   TextHeight = 13
   object MainMenu1: TMainMenu
-    Left = 64
-    Top = 24
+    Left = 32
+    Top = 16
     object Cadastros1: TMenuItem
       Caption = 'Cadastros'
     end
