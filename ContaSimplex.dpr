@@ -9,7 +9,8 @@ uses
   u_principal in 'u_principal.pas' {FormPrincipal},
   u_bibliotecas in 'u_bibliotecas.pas',
   u_formfaturamento in 'u_formfaturamento.pas' {FormFaturamento},
-  u_formenviaemail in 'u_formenviaemail.pas' {FormEnviaEmails};
+  u_formenviaemail in 'u_formenviaemail.pas' {FormEnviaEmails},
+  u_acess2pgsql in 'u_acess2pgsql.pas';
 
 {$R *.res}
 

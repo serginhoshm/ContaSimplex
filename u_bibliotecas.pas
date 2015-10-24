@@ -12,10 +12,9 @@ type
 
   function Explode(var a: TStrArray; Border, S: string): Integer;
   function explode2(cDelimiter,  sValue : string; iCount : integer) : TArray;
-function forceDeleteFile(pFileName:pAnsiChar):boolean;
-function downloadFile(pUrl,pFileName:pChar):boolean;
-function boolToStr(bl:boolean):ansiString;
-
+  function forceDeleteFile(pFileName:pAnsiChar):boolean;
+  function downloadFile(pUrl,pFileName:pChar):boolean;
+  function boolToStr(bl:boolean):ansiString;
 
 const
  NONE              = $00; //Blank number
