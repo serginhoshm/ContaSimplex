@@ -123,6 +123,12 @@ Private=0
 DLL=0
 Locale=1046
 CodePage=1252
+[Excluded Packages]
+c:\bd7\Projects\Bpl\odbcprovider70.bpl=UniDAC ODBC Provider
+c:\bd7\Projects\Bpl\liteprovider70.bpl=UniDAC SQLite Provider
+c:\bd7\Projects\Bpl\ibprovider70.bpl=(untitled)
+c:\bd7\Projects\Bpl\accessprovider70.bpl=UniDAC Access Provider
+c:\bd7\Projects\Bpl\oraprovider70.bpl=(untitled)
 [HistoryLists\hlUnitAliases]
 Count=1
 Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;

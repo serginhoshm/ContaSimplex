@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, Menus;
+  Dialogs, Menus, SkinCaption, WinSkinData;
 
 type
   TFormPrincipal = class(TForm)
@@ -16,9 +16,23 @@ type
     Lerresultadosenquete1: TMenuItem;
     Gerarfaturamentos1: TMenuItem;
     Enviaremailfaturamentospend1: TMenuItem;
+    este1: TMenuItem;
+    SkinData1: TSkinData;
+    SkinCaption1: TSkinCaption;
+    Produtod1: TMenuItem;
+    Unidadesmedida1: TMenuItem;
+    Departamentos1: TMenuItem;
+    Clientes1: TMenuItem;
+    Fornecedores1: TMenuItem;
+    Movimento1: TMenuItem;
+    Itenscomprados1: TMenuItem;
+    Itensvendidos1: TMenuItem;
+    Ativoimobilizado1: TMenuItem;
+    Emailsautomticos1: TMenuItem;
     procedure Lerresultadosenquete1Click(Sender: TObject);
     procedure Gerarfaturamentos1Click(Sender: TObject);
     procedure Enviaremailfaturamentospend1Click(Sender: TObject);
+    procedure Produtod1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -30,7 +44,8 @@ var
 
 implementation
 
-uses u_mailmarketing, u_formfaturamento, u_formenviaemail;
+uses u_mailmarketing, u_formfaturamento, u_formenviaemail,
+  u_formlistarprodutos;
 
 {$R *.dfm}
 
@@ -64,6 +79,16 @@ begin
     FormEnviaEmails.ShowModal;
   finally
     FreeAndNil(FormEnviaEmails);
+  end;
+end;
+
+procedure TFormPrincipal.Produtod1Click(Sender: TObject);
+begin
+  FormListarProdutos := TFormListarProdutos.Create(nil);
+  try
+    FormListarProdutos.ShowModal;
+  finally
+    FreeAndNil(FormListarProdutos);
   end;
 end;
 

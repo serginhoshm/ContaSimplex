@@ -40,13 +40,13 @@ begin
   if not FConexao.Connected then
   begin
     FConexao.Close;
-    FConexao.LoginPrompt := False;
+    FConexao.LoginPrompt := false;
     FConexao.IsolationLevel := ilReadCommitted;
     FConexao.Attributes := [xaCommitRetaining];
-    FConexao.ConnectionString := 'Provider=Microsoft.Jet.OLEDB.4.0;' +
-                                 'Jet OLEDB:Database Password=polchasa;' +
-                                 'Persist Security Info=False;' +
-                                 'Data Source=' + IncludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName)) + 'CSimplex.mdb';
+
+    //Migração para SQLServer
+    FConexao.ConnectionString := 'Provider=SQLOLEDB.1;Password=1unix()*;Persist Security Info=True;' +
+                                 'User ID=sa;Initial Catalog=dedomaria;Data Source=SERGIO-VAIO\SQLEXPRESS';
     try
       FConexao.Open;
     except

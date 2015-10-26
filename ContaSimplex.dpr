@@ -10,7 +10,10 @@ uses
   u_bibliotecas in 'u_bibliotecas.pas',
   u_formfaturamento in 'u_formfaturamento.pas' {FormFaturamento},
   u_formenviaemail in 'u_formenviaemail.pas' {FormEnviaEmails},
-  u_acess2pgsql in 'u_acess2pgsql.pas';
+  u_acess2pgsql in 'u_acess2pgsql.pas',
+  u_formcadastropadrao in 'u_formcadastropadrao.pas' {FormCadastroPadrao},
+  u_formalistarpadrao in 'u_formalistarpadrao.pas' {FormListarPadrao},
+  u_formlistarprodutos in 'u_formlistarprodutos.pas' {FormListarProdutos};
 
 {$R *.res}
 
