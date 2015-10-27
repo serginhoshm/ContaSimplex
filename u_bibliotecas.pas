@@ -15,6 +15,11 @@ type
   function forceDeleteFile(pFileName:pAnsiChar):boolean;
   function downloadFile(pUrl,pFileName:pChar):boolean;
   function boolToStr(bl:boolean):ansiString;
+  function MensagemSimNao(AMensagem: string): Integer;
+  function MensagemInfo(AMensagem: string): Integer;
+  function MensagemAtencao(AMensagem: string): Integer;
+  function MensagemErro(AMensagem: string): Integer;
+
 
 const
  NONE              = $00; //Blank number
@@ -108,6 +113,27 @@ end;
 function boolToStr(bl:boolean):ansiString;
 begin
  if bl then result:='yes' else result:='no';
+end;
+
+
+function MensagemSimNao(AMensagem: string): Integer;
+begin
+  Result := MessageBox (0, Pchar(AMensagem), 'Pergunta', MB_ICONINFORMATION + MB_YESNO);
+end;
+
+function MensagemInfo(AMensagem: string): Integer;
+begin
+  Result := MessageBox (0, Pchar(AMensagem), 'Informação', MB_ICONASTERISK + MB_OK);
+end;
+
+function MensagemAtencao(AMensagem: string): Integer;
+begin
+  Result := MessageBox (0, Pchar(AMensagem), 'Atenção', MB_ICONWARNING + MB_OK);
+end;
+
+function MensagemErro(AMensagem: string): Integer;
+begin
+  Result := MessageBox (0, Pchar(AMensagem), 'Erro', MB_ICONERROR + MB_OK);
 end;
 
 end.

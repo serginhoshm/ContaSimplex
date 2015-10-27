@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, Menus, SkinCaption, WinSkinData;
+  Dialogs, Menus, SkinCaption, WinSkinData, DB, ADODB;
 
 type
   TFormPrincipal = class(TForm)
@@ -29,10 +29,12 @@ type
     Itensvendidos1: TMenuItem;
     Ativoimobilizado1: TMenuItem;
     Emailsautomticos1: TMenuItem;
+    ADOConnection1: TADOConnection;
     procedure Lerresultadosenquete1Click(Sender: TObject);
     procedure Gerarfaturamentos1Click(Sender: TObject);
     procedure Enviaremailfaturamentospend1Click(Sender: TObject);
     procedure Produtod1Click(Sender: TObject);
+    procedure Itensvendidos1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -45,7 +47,7 @@ var
 implementation
 
 uses u_mailmarketing, u_formfaturamento, u_formenviaemail,
-  u_formlistarprodutos;
+  u_formlistarprodutos, u_formregistravenda;
 
 {$R *.dfm}
 
@@ -89,6 +91,16 @@ begin
     FormListarProdutos.ShowModal;
   finally
     FreeAndNil(FormListarProdutos);
+  end;
+end;
+
+procedure TFormPrincipal.Itensvendidos1Click(Sender: TObject);
+begin
+  FormRegistraVenda := TFormRegistraVenda.Create(nil);
+  try
+    FormRegistraVenda.ShowModal;
+  finally
+    FreeAndNil(FormRegistraVenda);
   end;
 end;
 

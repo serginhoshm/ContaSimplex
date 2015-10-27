@@ -13,7 +13,9 @@ uses
   u_acess2pgsql in 'u_acess2pgsql.pas',
   u_formcadastropadrao in 'u_formcadastropadrao.pas' {FormCadastroPadrao},
   u_formalistarpadrao in 'u_formalistarpadrao.pas' {FormListarPadrao},
-  u_formlistarprodutos in 'u_formlistarprodutos.pas' {FormListarProdutos};
+  u_formlistarprodutos in 'u_formlistarprodutos.pas' {FormListarProdutos},
+  u_formregistravenda in 'u_formregistravenda.pas' {FormRegistraVenda},
+  u_registrovenda in 'u_registrovenda.pas';
 
 {$R *.res}
 
@@ -22,5 +24,6 @@ begin
   DM := TDM.Create;
   Application.Title := 'ContaSimples';
   Application.CreateForm(TFormPrincipal, FormPrincipal);
+  Application.CreateForm(TFormRegistraVenda, FormRegistraVenda);
   Application.Run;
 end.

@@ -45,8 +45,18 @@ begin
     FConexao.Attributes := [xaCommitRetaining];
 
     //Migração para SQLServer
+    {
     FConexao.ConnectionString := 'Provider=SQLOLEDB.1;Password=1unix()*;Persist Security Info=True;' +
                                  'User ID=sa;Initial Catalog=dedomaria;Data Source=SERGIO-VAIO\SQLEXPRESS';
+
+    }
+
+    FConexao.ConnectionString := 'Provider=Microsoft.Jet.OLEDB.4.0;' +
+      'Jet OLEDB:Database Password=polchasa;' +
+      'Persist Security Info=False;' +
+      'Data Source=' + IncludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName)) + 'CSimplex.mdb';
+
+
     try
       FConexao.Open;
     except

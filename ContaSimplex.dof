@@ -31,7 +31,7 @@ ShowHints=1
 ShowWarnings=1
 UnitAliases=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
 NamespacePrefix=
-SymbolDeprecated=1
+SymbolDeprecated=0
 SymbolLibrary=1
 SymbolPlatform=1
 UnitLibrary=1
@@ -76,7 +76,7 @@ LocaleToUnicode=1
 ImagebaseMultiple=1
 SuspiciousTypecast=1
 PrivatePropAccessor=1
-UnsafeType=1
+UnsafeType=0
 UnsafeCode=1
 UnsafeCast=1
 [Linker]
