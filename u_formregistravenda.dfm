@@ -1,8 +1,8 @@
 object FormRegistraVenda: TFormRegistraVenda
-  Left = 249
-  Top = 125
-  Width = 704
-  Height = 357
+  Left = 229
+  Top = 119
+  Width = 1002
+  Height = 593
   Caption = 'Registrar vendas'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -13,6 +13,7 @@ object FormRegistraVenda: TFormRegistraVenda
   KeyPreview = True
   OldCreateOrder = False
   Position = poScreenCenter
+  WindowState = wsMaximized
   OnCreate = FormCreate
   OnShow = FormShow
   PixelsPerInch = 96
@@ -20,7 +21,7 @@ object FormRegistraVenda: TFormRegistraVenda
   object PanelTopo: TPanel
     Left = 0
     Top = 0
-    Width = 696
+    Width = 994
     Height = 57
     Align = alTop
     BevelOuter = bvNone
@@ -58,8 +59,8 @@ object FormRegistraVenda: TFormRegistraVenda
   object PanelDigita: TPanel
     Left = 0
     Top = 57
-    Width = 696
-    Height = 269
+    Width = 994
+    Height = 505
     Align = alClient
     BevelOuter = bvNone
     Ctl3D = False
@@ -69,8 +70,8 @@ object FormRegistraVenda: TFormRegistraVenda
     object RzDBGridItens: TRzDBGrid
       Left = 0
       Top = 0
-      Width = 696
-      Height = 228
+      Width = 994
+      Height = 464
       Align = alClient
       Ctl3D = False
       DataSource = DS_Itens
@@ -91,8 +92,16 @@ object FormRegistraVenda: TFormRegistraVenda
       Columns = <
         item
           Expanded = False
+          FieldName = 'ItemNro'
+          ReadOnly = True
+          Title.Caption = 'Ord.'
+          Width = 39
+          Visible = True
+        end
+        item
+          Expanded = False
           FieldName = 'ProdutoNome'
-          Width = 240
+          Width = 350
           Visible = True
         end
         item
@@ -101,34 +110,34 @@ object FormRegistraVenda: TFormRegistraVenda
           PickList.Strings = (
             'Mayara Kaloa dos Santos'
             'Patr'#237'cia Saraiva')
-          Width = 240
+          Width = 350
           Visible = True
         end
         item
           Expanded = False
           FieldName = 'RegVenQtde'
-          Width = 60
+          Width = 80
           Visible = True
         end
         item
           Expanded = False
           FieldName = 'RegVenVlrUnit'
           ReadOnly = True
-          Width = 60
+          Width = 80
           Visible = True
         end
         item
           Expanded = False
           FieldName = 'RegVenVlrTot'
           ReadOnly = True
-          Width = 60
+          Width = 80
           Visible = True
         end>
     end
     object Panel1: TPanel
       Left = 0
-      Top = 228
-      Width = 696
+      Top = 464
+      Width = 994
       Height = 41
       Align = alBottom
       BevelOuter = bvNone
@@ -204,16 +213,21 @@ object FormRegistraVenda: TFormRegistraVenda
         DataType = ftInteger
       end
       item
+        Name = 'ItemNro'
+        Attributes = [faReadonly]
+        DataType = ftAutoInc
+      end
+      item
         Name = 'RegVenQtde'
         DataType = ftFloat
       end
       item
         Name = 'RegVenVlrUnit'
-        DataType = ftCurrency
+        DataType = ftFloat
       end
       item
         Name = 'RegVenVlrTot'
-        DataType = ftCurrency
+        DataType = ftFloat
       end
       item
         Name = 'RegVenDataRef'
@@ -240,16 +254,17 @@ object FormRegistraVenda: TFormRegistraVenda
       DisplayLabel = 'Qtde.'
       DisplayWidth = 20
       FieldName = 'RegVenQtde'
+      DisplayFormat = '#0.00'
     end
-    object CDSItensRegVenVlrUnit: TCurrencyField
+    object CDSItensRegVenVlrUnit: TFloatField
       DisplayLabel = 'Unit.'
-      DisplayWidth = 20
       FieldName = 'RegVenVlrUnit'
+      DisplayFormat = '#0.00'
     end
-    object CDSItensRegVenVlrTot: TCurrencyField
+    object CDSItensRegVenVlrTot: TFloatField
       DisplayLabel = 'Total'
-      DisplayWidth = 20
       FieldName = 'RegVenVlrTot'
+      DisplayFormat = '#0.00'
     end
     object CDSItensRegVenDataRef: TDateField
       FieldName = 'RegVenDataRef'
@@ -277,6 +292,9 @@ object FormRegistraVenda: TFormRegistraVenda
       Size = 255
       Lookup = True
     end
+    object CDSItensItemNro: TAutoIncField
+      FieldName = 'ItemNro'
+    end
   end
   object DS_Itens: TDataSource
     DataSet = CDSItens
@@ -284,6 +302,7 @@ object FormRegistraVenda: TFormRegistraVenda
     Top = 184
   end
   object QProdutos: TADOQuery
+    Active = True
     Connection = FormPrincipal.ADOConnection1
     CursorType = ctStatic
     Parameters = <>
@@ -313,6 +332,7 @@ object FormRegistraVenda: TFormRegistraVenda
     end
   end
   object QClientes: TADOQuery
+    Active = True
     Connection = FormPrincipal.ADOConnection1
     CursorType = ctStatic
     Parameters = <>

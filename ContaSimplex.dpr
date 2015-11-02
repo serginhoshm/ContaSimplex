@@ -15,7 +15,8 @@ uses
   u_formalistarpadrao in 'u_formalistarpadrao.pas' {FormListarPadrao},
   u_formlistarprodutos in 'u_formlistarprodutos.pas' {FormListarProdutos},
   u_formregistravenda in 'u_formregistravenda.pas' {FormRegistraVenda},
-  u_registrovenda in 'u_registrovenda.pas';
+  u_registrovenda in 'u_registrovenda.pas',
+  u_formlistaremail in 'u_formlistaremail.pas' {FormListaEmail};
 
 {$R *.res}
 
@@ -24,6 +25,5 @@ begin
   DM := TDM.Create;
   Application.Title := 'ContaSimples';
   Application.CreateForm(TFormPrincipal, FormPrincipal);
-  Application.CreateForm(TFormRegistraVenda, FormRegistraVenda);
   Application.Run;
 end.

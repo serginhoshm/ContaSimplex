@@ -14,8 +14,6 @@ type
     CDSItensProdutoID: TIntegerField;
     CDSItensClienteID: TIntegerField;
     CDSItensRegVenQtde: TFloatField;
-    CDSItensRegVenVlrUnit: TCurrencyField;
-    CDSItensRegVenVlrTot: TCurrencyField;
     QProdutos: TADOQuery;
     CDSItensProdutoNome: TStringField;
     QClientes: TADOQuery;
@@ -37,6 +35,9 @@ type
     BitBtnOk: TBitBtn;
     BitBtnCancel: TBitBtn;
     CDSItensRegVenDataRef: TDateField;
+    CDSItensRegVenVlrUnit: TFloatField;
+    CDSItensRegVenVlrTot: TFloatField;
+    CDSItensItemNro: TAutoIncField;
     procedure FormCreate(Sender: TObject);
     procedure CDSItensNewRecord(DataSet: TDataSet);
     procedure BitBtnOkClick(Sender: TObject);
@@ -58,7 +59,7 @@ var
 
 implementation
 
-uses u_principal, u_dm, u_bibliotecas, u_registrovenda;
+uses u_principal, u_dm, u_bibliotecas, u_registrovenda, Math;
 
 {$R *.dfm}
 

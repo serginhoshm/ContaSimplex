@@ -30,11 +30,13 @@ type
     Ativoimobilizado1: TMenuItem;
     Emailsautomticos1: TMenuItem;
     ADOConnection1: TADOConnection;
+    Listaremaill1: TMenuItem;
     procedure Lerresultadosenquete1Click(Sender: TObject);
     procedure Gerarfaturamentos1Click(Sender: TObject);
     procedure Enviaremailfaturamentospend1Click(Sender: TObject);
     procedure Produtod1Click(Sender: TObject);
     procedure Itensvendidos1Click(Sender: TObject);
+    procedure Listaremaill1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -47,7 +49,7 @@ var
 implementation
 
 uses u_mailmarketing, u_formfaturamento, u_formenviaemail,
-  u_formlistarprodutos, u_formregistravenda;
+  u_formlistarprodutos, u_formregistravenda, u_formlistaremail;
 
 {$R *.dfm}
 
@@ -101,6 +103,16 @@ begin
     FormRegistraVenda.ShowModal;
   finally
     FreeAndNil(FormRegistraVenda);
+  end;
+end;
+
+procedure TFormPrincipal.Listaremaill1Click(Sender: TObject);
+begin
+  FormListaEmail := TFormListaEmail.Create(nil);
+  try
+    FormListaEmail.ShowModal;
+  finally
+    FreeAndNil(FormListaEmail);
   end;
 end;
 

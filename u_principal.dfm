@@ -77,6 +77,10 @@ object FormPrincipal: TFormPrincipal
       object Emailsautomticos1: TMenuItem
         Caption = 'E-mails autom'#225'ticos'
       end
+      object Listaremaill1: TMenuItem
+        Caption = 'Listar e-mails'
+        OnClick = Listaremaill1Click
+      end
     end
   end
   object SkinData1: TSkinData
