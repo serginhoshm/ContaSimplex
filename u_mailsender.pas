@@ -24,7 +24,7 @@ type
     procedure SetTextoEmail(const Value: TStringList);
     procedure SetAssuntoEmail(const Value: string);
   public
-    constructor Create; 
+    constructor Create;
     destructor Destroy; override;
     property DestinatarioNome: string read FDestinatarioNome write SetDestinatarioNome;
     property DestinatarioEmail: string read FDestinatarioEmail write SetDestinatarioEmail;
@@ -44,7 +44,7 @@ begin
     FMailClient.AuthenticationType := atLogin;
     FMailClient.Host := 'smtp.gmail.com';
     FMailClient.IOHandler := FIOHandler;
-    FMailClient.Password := '1unix()*';
+    FMailClient.Password := '2unix()*';
     FMailClient.Port := 465;
     FMailClient.Username := 'serginhoshm@gmail.com'; //não esqueça o @gmail.com!!
 

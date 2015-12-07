@@ -3,19 +3,19 @@ unit u_dm;
 interface
 
 uses
-  Forms, SysUtils, Classes, DB, ADODB, Dialogs;
+  Forms, SysUtils, Classes, DB, ADODB, Dialogs, DBAccess, Uni, UniProvider, PostgreSQLUniProvider;
 
 type
   TDM = class
   private
     { Private declarations }
-    FConexao: TADOConnection;
+    FConexao: TUniConnection;
     function ConectarBase: Boolean;
   public
     { Public declarations }
     constructor Create;
     destructor Destroy; override;
-    function GetConexao: TADOConnection;
+    function GetConexao: TUniConnection; overload;
   end;
 
 var
@@ -26,7 +26,7 @@ implementation
 
 { TDM }
 
-function TDM.GetConexao: TADOConnection;
+function TDM.GetConexao: TUniConnection;
 begin
   if ConectarBase then
     Result := FConexao
@@ -39,26 +39,19 @@ function TDM.ConectarBase: Boolean;
 begin
   if not FConexao.Connected then
   begin
-    FConexao.Close;
+    FConexao.Disconnect;
     FConexao.LoginPrompt := false;
-    FConexao.IsolationLevel := ilReadCommitted;
-    FConexao.Attributes := [xaCommitRetaining];
-
-    //Migração para SQLServer
-    {
-    FConexao.ConnectionString := 'Provider=SQLOLEDB.1;Password=1unix()*;Persist Security Info=True;' +
-                                 'User ID=sa;Initial Catalog=dedomaria;Data Source=SERGIO-VAIO\SQLEXPRESS';
-
-    }
-
-    FConexao.ConnectionString := 'Provider=Microsoft.Jet.OLEDB.4.0;' +
-      'Jet OLEDB:Database Password=polchasa;' +
-      'Persist Security Info=False;' +
-      'Data Source=' + IncludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName)) + 'CSimplex.mdb';
-
-
+    FConexao.ProviderName := 'PostgreSQL';
+    FConexao.Server := 'localhost';
+    FConexao.Port := 5432;
+    FConexao.Username := 'postgres';
+    FConexao.Password := 'pgsql81';
+    FConexao.Database := 'dedomaria';
+    FConexao.SpecificOptions.Clear;
+    FConexao.SpecificOptions.Add('PostgreSQL.UseUnicode=True');
+    
     try
-      FConexao.Open;
+      FConexao.Connect;
     except
       on E:Exception do
       begin
@@ -71,7 +64,7 @@ end;
 
 constructor TDM.Create;
 begin
-  FConexao :=  TADOConnection.Create(nil);
+  FConexao :=  TUniConnection.Create(nil);
 end;
 
 destructor TDM.Destroy;
@@ -80,4 +73,6 @@ begin
   inherited;
 end;
 
+
 end.
+

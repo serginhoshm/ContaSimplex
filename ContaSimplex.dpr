@@ -16,7 +16,10 @@ uses
   u_formlistarprodutos in 'u_formlistarprodutos.pas' {FormListarProdutos},
   u_formregistravenda in 'u_formregistravenda.pas' {FormRegistraVenda},
   u_registrovenda in 'u_registrovenda.pas',
-  u_formlistaremail in 'u_formlistaremail.pas' {FormListaEmail};
+  u_formlistaremail in 'u_formlistaremail.pas' {FormListaEmail},
+  u_dmclientes in 'u_dmclientes.pas' {DMClientes: TDataModule},
+  u_formcadclientes in 'u_formcadclientes.pas' {FormCadastroClientes},
+  u_formlistarclientes in 'u_formlistarclientes.pas' {FormListarClientes};
 
 {$R *.res}
 

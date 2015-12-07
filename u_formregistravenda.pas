@@ -5,7 +5,13 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, DB, DBClient, ADODB, Grids, DBGrids, RzDBGrid, ExtCtrls,
-  StdCtrls, Buttons, ComCtrls, RzDTP, DateUtils;
+  StdCtrls, Buttons, ComCtrls, RzDTP, DateUtils, Uni, UniProvider, PostgreSQLUniProvider,
+  MemDS, DBAccess, cxGraphics, cxControls, cxLookAndFeels,
+  cxLookAndFeelPainters, cxStyles, dxSkinsCore, dxSkinBlack,
+  dxSkinDarkRoom, dxSkinFoggy, dxSkinSeven, dxSkinSharp, dxSkinSpringTime,
+  dxSkinscxPCPainter, cxCustomData, cxFilter, cxData, cxDataStorage,
+  cxEdit, cxDBData, cxGridCustomTableView, cxGridTableView,
+  cxGridDBTableView, cxGridLevel, cxClasses, cxGridCustomView, cxGrid;
 
 type
   TFormRegistraVenda = class(TForm)
@@ -14,17 +20,10 @@ type
     CDSItensProdutoID: TIntegerField;
     CDSItensClienteID: TIntegerField;
     CDSItensRegVenQtde: TFloatField;
-    QProdutos: TADOQuery;
-    CDSItensProdutoNome: TStringField;
-    QClientes: TADOQuery;
-    QProdutosProdutoID: TAutoIncField;
-    QProdutosProdutoNome: TWideStringField;
-    QClientesClienteID: TAutoIncField;
-    QClientesClienteNome: TWideStringField;
+    QProdutos: TUniQuery;
+    CDSItensProdutoNome: TStringField; 
+    QClientes: TUniQuery;
     CDSItensClienteNome: TStringField;
-    QProdutosProdPrecoVenData: TDateTimeField;
-    QProdutosMaxDeProdPrecoVenData: TDateTimeField;
-    QProdutosProdPrecoVenValor: TBCDField;
     PanelTopo: TPanel;
     RzDateTimePickerReg: TRzDateTimePicker;
     Label1: TLabel;
@@ -38,6 +37,14 @@ type
     CDSItensRegVenVlrUnit: TFloatField;
     CDSItensRegVenVlrTot: TFloatField;
     CDSItensItemNro: TAutoIncField;
+    QProdutosprodprecovendata: TDateTimeField;
+    QProdutosprodutoid: TIntegerField;
+    QProdutosprodutonome: TWideStringField;
+    QProdutosmaxdeprodprecovendata: TDateTimeField;
+    QProdutosprodprecovenvalor: TFloatField;
+    QClientesclienteid: TIntegerField;
+    QClientesclientenome: TWideStringField;
+    Button1: TButton;
     procedure FormCreate(Sender: TObject);
     procedure CDSItensNewRecord(DataSet: TDataSet);
     procedure BitBtnOkClick(Sender: TObject);
@@ -45,6 +52,7 @@ type
     procedure BitBtnCancelClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure CDSItensBeforePost(DataSet: TDataSet);
+    procedure Button1Click(Sender: TObject);
   private
     { Private declarations }
     procedure CalculaItem;
@@ -59,7 +67,8 @@ var
 
 implementation
 
-uses u_principal, u_dm, u_bibliotecas, u_registrovenda, Math;
+uses u_principal, u_dm, u_bibliotecas, u_registrovenda, Math, Printers,
+  u_formlistarclientes;
 
 {$R *.dfm}
 
@@ -71,7 +80,8 @@ begin
   QClientes.Open;
   CDSItens.CreateDataSet;
   CDSItens.LogChanges := False;
-  RzDateTimePickerReg.MaxDate := DateOf(Now);
+  RzDateTimePickerReg.Date := DateOf(Now);
+  RzDateTimePickerReg.MaxDate := IncYear( DateOf(Now), 1);
 end;
 
 procedure TFormRegistraVenda.CDSItensNewRecord(DataSet: TDataSet);
@@ -168,6 +178,19 @@ end;
 procedure TFormRegistraVenda.CDSItensBeforePost(DataSet: TDataSet);
 begin
   CalculaItem;
+end;
+
+procedure TFormRegistraVenda.Button1Click(Sender: TObject);
+begin
+  FormListarClientes := TFormListarClientes.Create(nil);
+  try
+    FormListarClientes.ShowModal;
+    QClientes.Close;
+    QClientes.Open;
+  finally
+    FreeAndNil(FormListarClientes);
+  end;
+
 end;
 
 end.

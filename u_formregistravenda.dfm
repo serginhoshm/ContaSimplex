@@ -21,7 +21,7 @@ object FormRegistraVenda: TFormRegistraVenda
   object PanelTopo: TPanel
     Left = 0
     Top = 0
-    Width = 994
+    Width = 986
     Height = 57
     Align = alTop
     BevelOuter = bvNone
@@ -59,8 +59,8 @@ object FormRegistraVenda: TFormRegistraVenda
   object PanelDigita: TPanel
     Left = 0
     Top = 57
-    Width = 994
-    Height = 505
+    Width = 986
+    Height = 497
     Align = alClient
     BevelOuter = bvNone
     Ctl3D = False
@@ -70,14 +70,14 @@ object FormRegistraVenda: TFormRegistraVenda
     object RzDBGridItens: TRzDBGrid
       Left = 0
       Top = 0
-      Width = 994
-      Height = 464
+      Width = 986
+      Height = 456
       Align = alClient
       Ctl3D = False
       DataSource = DS_Itens
       Font.Charset = ANSI_CHARSET
       Font.Color = clWindowText
-      Font.Height = -11
+      Font.Height = -13
       Font.Name = 'Courier New'
       Font.Style = []
       Options = [dgEditing, dgAlwaysShowEditor, dgTitles, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit]
@@ -136,8 +136,8 @@ object FormRegistraVenda: TFormRegistraVenda
     end
     object Panel1: TPanel
       Left = 0
-      Top = 464
-      Width = 994
+      Top = 456
+      Width = 986
       Height = 41
       Align = alBottom
       BevelOuter = bvNone
@@ -198,6 +198,15 @@ object FormRegistraVenda: TFormRegistraVenda
           3333333333333333333888330000333333333333333333333333333333333333
           0000}
         NumGlyphs = 2
+      end
+      object Button1: TButton
+        Left = 896
+        Top = 8
+        Width = 75
+        Height = 25
+        Caption = 'Clientes'
+        TabOrder = 2
+        OnClick = Button1Click
       end
     end
   end
@@ -301,53 +310,43 @@ object FormRegistraVenda: TFormRegistraVenda
     Left = 424
     Top = 184
   end
-  object QProdutos: TADOQuery
-    Active = True
-    Connection = FormPrincipal.ADOConnection1
-    CursorType = ctStatic
-    Parameters = <>
+  object QProdutos: TUniQuery
     SQL.Strings = (
       'select *'
-      'from ListaPrecoAtual'
-      'order by ProdutoNome ')
+      'from listaprecoatual'
+      'order by produtonome')
     Left = 368
     Top = 72
-    object QProdutosProdutoID: TAutoIncField
-      FieldName = 'ProdutoID'
-      ReadOnly = True
+    object QProdutosprodprecovendata: TDateTimeField
+      FieldName = 'prodprecovendata'
     end
-    object QProdutosProdutoNome: TWideStringField
-      FieldName = 'ProdutoNome'
+    object QProdutosprodutoid: TIntegerField
+      FieldName = 'produtoid'
+    end
+    object QProdutosprodutonome: TWideStringField
+      FieldName = 'produtonome'
       Size = 255
     end
-    object QProdutosProdPrecoVenData: TDateTimeField
-      FieldName = 'ProdPrecoVenData'
+    object QProdutosmaxdeprodprecovendata: TDateTimeField
+      FieldName = 'maxdeprodprecovendata'
     end
-    object QProdutosMaxDeProdPrecoVenData: TDateTimeField
-      FieldName = 'MaxDeProdPrecoVenData'
-    end
-    object QProdutosProdPrecoVenValor: TBCDField
-      FieldName = 'ProdPrecoVenValor'
-      Precision = 19
+    object QProdutosprodprecovenvalor: TFloatField
+      FieldName = 'prodprecovenvalor'
     end
   end
-  object QClientes: TADOQuery
-    Active = True
-    Connection = FormPrincipal.ADOConnection1
-    CursorType = ctStatic
-    Parameters = <>
+  object QClientes: TUniQuery
     SQL.Strings = (
-      'select ClienteID, ClienteNome'
-      'from Clientes'
-      'order by ClienteNome')
+      'select clienteid, clientenome'
+      'from clientes'
+      'order by clientenome')
     Left = 368
     Top = 128
-    object QClientesClienteID: TAutoIncField
-      FieldName = 'ClienteID'
-      ReadOnly = True
+    object QClientesclienteid: TIntegerField
+      FieldName = 'clienteid'
     end
-    object QClientesClienteNome: TWideStringField
-      FieldName = 'ClienteNome'
+    object QClientesclientenome: TWideStringField
+      FieldName = 'clientenome'
+      Required = True
       Size = 255
     end
   end

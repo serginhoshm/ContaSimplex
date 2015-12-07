@@ -57,14 +57,10 @@ object FormListaEmail: TFormListaEmail
       0000}
     NumGlyphs = 2
   end
-  object QueryCli: TADOQuery
-    Parameters = <>
+  object QueryCli: TUniQuery
     SQL.Strings = (
-      'select ClienteEmail '
-      'from clientes '
-      'where ClienteMktMail = true'
-      'order by 1')
-    Left = 256
-    Top = 24
+      'select clienteemail from clientes where (clientemktmail = true )')
+    Left = 200
+    Top = 112
   end
 end

@@ -1,24 +1,25 @@
 inherited FormListarProdutos: TFormListarProdutos
+  Width = 690
   Caption = 'Listar produtos'
+  Position = poScreenCenter
   PixelsPerInch = 96
   TextHeight = 13
+  inherited RzDBGridLista: TRzDBGrid
+    Width = 674
+  end
   inherited RzToolbar1: TRzToolbar
+    Width = 674
     ToolbarControls = (
       RzToolButton1
       RzToolButton2
       RzSpacer1
       RzToolButton3)
-    inherited RzToolButton1: TRzToolButton
-      Width = 58
-    end
-    inherited RzToolButton2: TRzToolButton
-      Left = 62
-    end
-    inherited RzSpacer1: TRzSpacer
-      Left = 87
-    end
-    inherited RzToolButton3: TRzToolButton
-      Left = 95
-    end
+  end
+  inherited RzPanel1: TRzPanel
+    Width = 674
+  end
+  inherited QLista: TUniQuery
+    Left = 384
+    Top = 152
   end
 end

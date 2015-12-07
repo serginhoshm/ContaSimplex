@@ -4,7 +4,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, Menus, SkinCaption, WinSkinData, DB, ADODB;
+  Dialogs, Menus, SkinCaption, WinSkinData, DB, ADODB, MemDS,
+  DBAccess, Uni, UniProvider, PostgreSQLUniProvider, ImgList;
 
 type
   TFormPrincipal = class(TForm)
@@ -29,14 +30,18 @@ type
     Itensvendidos1: TMenuItem;
     Ativoimobilizado1: TMenuItem;
     Emailsautomticos1: TMenuItem;
-    ADOConnection1: TADOConnection;
     Listaremaill1: TMenuItem;
+    PostgreSQLUniProvider1: TPostgreSQLUniProvider;
+    UniConnection1: TUniConnection;
+    UniQuery1: TUniQuery;
+    Img: TImageList;
     procedure Lerresultadosenquete1Click(Sender: TObject);
     procedure Gerarfaturamentos1Click(Sender: TObject);
     procedure Enviaremailfaturamentospend1Click(Sender: TObject);
     procedure Produtod1Click(Sender: TObject);
     procedure Itensvendidos1Click(Sender: TObject);
     procedure Listaremaill1Click(Sender: TObject);
+    procedure Clientes1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -49,7 +54,8 @@ var
 implementation
 
 uses u_mailmarketing, u_formfaturamento, u_formenviaemail,
-  u_formlistarprodutos, u_formregistravenda, u_formlistaremail;
+  u_formlistarprodutos, u_formregistravenda, u_formlistaremail, 
+  u_formlistarclientes;
 
 {$R *.dfm}
 
@@ -114,6 +120,17 @@ begin
   finally
     FreeAndNil(FormListaEmail);
   end;
+end;
+
+procedure TFormPrincipal.Clientes1Click(Sender: TObject);
+begin
+  FormListarClientes := TFormListarClientes.Create(nil);
+  try
+    FormListarClientes.ShowModal;
+  finally
+    FreeAndNil(FormListarClientes);
+  end;
+
 end;
 
 end.

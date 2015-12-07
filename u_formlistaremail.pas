@@ -4,13 +4,14 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, Buttons, DB, ADODB, Clipbrd;
+  Dialogs, StdCtrls, Buttons, DB, ADODB, Clipbrd, Uni, UniProvider,
+  PostgreSQLUniProvider, MemDS, DBAccess;
 
 type
   TFormListaEmail = class(TForm)
     MemoLista: TMemo;
-    QueryCli: TADOQuery;
     BitBtn1: TBitBtn;
+    QueryCli: TUniQuery;
     procedure FormCreate(Sender: TObject);
   private
     { Private declarations }

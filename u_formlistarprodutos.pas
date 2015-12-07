@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, u_formalistarpadrao, DB, ADODB, RzPanel, ExtCtrls, Grids,
-  DBGrids, RzDBGrid, RzButton;
+  DBGrids, RzDBGrid, RzButton, MemDS, DBAccess, Uni;
 
 type
   TFormListarProdutos = class(TFormListarPadrao)
@@ -31,12 +31,9 @@ uses u_dm;
 procedure TFormListarProdutos.SQLConsultaPadrao;
 begin
   inherited;
-  QueryLista.Connection := DM.GetConexao;
-  QueryLista.SQL.Text := 'select * from Produtos';
-  QueryLista.Open;
-
-
-
+  QLista.Connection := DM.GetConexao;
+  QLista.SQL.Text := 'select * from Produtos';
+  QLista.Open;
 end;
 
 procedure TFormListarProdutos.RzToolButton1Click(Sender: TObject);

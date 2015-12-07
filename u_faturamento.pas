@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, ADODB;
+  Dialogs, ADODB, Uni, UniProvider, PostgreSQLUniProvider;
 
 type
   TFatOpeTipo = (opeInclusao, OpeBaixa, OpeCancelamento, OpeEstorno);
@@ -59,7 +59,7 @@ end;
 procedure TFatObj.Exec;
 var
   QTotalVenda,
-  QItemVend: TADOQuery;
+  QItemVend: TUniQuery;
   ATotalFatura: Currency;
   ADataGer: TDateTime;
   ANovaFatur: integer;
@@ -67,29 +67,29 @@ var
 
   procedure PrepararConsultas;
   begin
-    QTotalVenda.SQL.Clear;
-    QTotalVenda.SQL.Add('SELECT DISTINCTROW Departamentos.DeptoDescricao,');
-    QTotalVenda.SQL.Add('Clientes.ClienteNome,ItensVendidos.ClienteID,');
-    QTotalVenda.SQL.Add('Sum(ItensVendidos.ItemValorTotal) AS TotalEmAberto');
-    QTotalVenda.SQL.Add('FROM Departamentos');
-    QTotalVenda.SQL.Add('INNER JOIN (ItensVendidos');
-    QTotalVenda.SQL.Add('INNER JOIN Clientes ON ItensVendidos.ClienteID = Clientes.ClienteID) ON Departamentos.DeptoID = Clientes.DeptoID');
-    QTotalVenda.SQL.Add('WHERE (((ItensVendidos.FaturamentoID) Is Null))');
-    QTotalVenda.SQL.Add('AND (ItensVendidos.DataReferencia>= :DataInicial and ItensVendidos.DataReferencia<= :DataFinal)');
-    QTotalVenda.SQL.Add('GROUP BY Departamentos.DeptoDescricao, Clientes.ClienteNome, ItensVendidos.ClienteID');
-    QTotalVenda.SQL.Add('ORDER BY Departamentos.DeptoDescricao, Clientes.ClienteNome');
+    qtotalvenda.sql.clear;
+    qtotalvenda.sql.add('select distinct departamentos.deptodescricao,');
+    qtotalvenda.sql.add('clientes.clientenome,itensvendidos.clienteid,');
+    qtotalvenda.sql.add('sum(itensvendidos.itemvalortotal) as totalemaberto');
+    qtotalvenda.sql.add('from departamentos');
+    qtotalvenda.sql.add('inner join (itensvendidos');
+    qtotalvenda.sql.add('inner join clientes on itensvendidos.clienteid = clientes.clienteid) on departamentos.deptoid = clientes.deptoid');
+    qtotalvenda.sql.add('where (((itensvendidos.faturamentoid) is null))');
+    qtotalvenda.sql.add('and (itensvendidos.datareferencia>= :datainicial and itensvendidos.datareferencia<= :datafinal)');
+    qtotalvenda.sql.add('group by departamentos.deptodescricao, clientes.clientenome, itensvendidos.clienteid');
+    qtotalvenda.sql.add('order by departamentos.deptodescricao, clientes.clientenome');
 
-    QItemVend.SQL.Clear;
-    QItemVend.SQL.Add('SELECT * FROM ItensVendidos');
-    QItemVend.SQL.Add('WHERE ItensVendidos.ClienteID = :ClienteID');
-    QItemVend.SQL.Add('AND (((ItensVendidos.FaturamentoID) Is Null))');
-    QItemVend.SQL.Add('AND (ItensVendidos.DataReferencia>= :DataInicial and ItensVendidos.DataReferencia<= :DataFinal)');
+    qitemvend.sql.clear;
+    qitemvend.sql.add('select * from itensvendidos');
+    qitemvend.sql.add('where itensvendidos.clienteid = :clienteid');
+    qitemvend.sql.add('and (((itensvendidos.faturamentoid) is null))');
+    qitemvend.sql.add('and (itensvendidos.datareferencia>= :datainicial and itensvendidos.datareferencia<= :datafinal)');
 
   end;
 
 begin
-  QTotalVenda := TADOQuery.Create(nil);
-  QItemVend := TADOQuery.Create(nil);
+  QTotalVenda := TUniQuery.Create(nil);
+  QItemVend := TUniQuery.Create(nil);
   AListaItensFat := TStringList.Create;
   try
     try
@@ -102,8 +102,8 @@ begin
 
       //Filtramos somente aqueles clientes que possuem itens com faturamento pendente
       QTotalVenda.Close;
-      QTotalVenda.Parameters.ParamByName('DataInicial').Value := StartOfTheDay(DataInicial);
-      QTotalVenda.Parameters.ParamByName('DataFinal').Value := EndOfTheDay(DataFinal);
+      QTotalVenda.ParamByName('DataInicial').Value := StartOfTheDay(DataInicial);
+      QTotalVenda.ParamByName('DataFinal').Value := EndOfTheDay(DataFinal);
       QTotalVenda.Open;
 
       if QTotalVenda.Eof then
@@ -118,9 +118,9 @@ begin
                   QTotalVenda.FieldByName('ClienteNome').AsString + ' R$ ' +
                   FormatCurr('#0.00', QTotalVenda.FieldByName('TotalEmAberto').AsFloat));
           QItemVend.Close;
-          QItemVend.Parameters.ParamByName('ClienteID').Value := QTotalVenda.FieldByName('ClienteID').AsInteger;
-          QItemVend.Parameters.ParamByName('DataInicial').Value := StartOfTheDay(DataInicial);
-          QItemVend.Parameters.ParamByName('DataFinal').Value := EndOfTheDay(DataFinal);
+          QItemVend.ParamByName('ClienteID').Value := QTotalVenda.FieldByName('ClienteID').AsInteger;
+          QItemVend.ParamByName('DataInicial').Value := StartOfTheDay(DataInicial);
+          QItemVend.ParamByName('DataFinal').Value := EndOfTheDay(DataFinal);
           QItemVend.Open;
           ATotalFatura := 0;
           AListaItensFat.Clear;
@@ -188,32 +188,33 @@ end;
 function TFatObj.InserirNovaFatura(ClienteID: Integer; DataGer: TDateTime; TotalFatura: Currency; ValorBaixado: Currency = 0; ValorCancelado: Currency = 0): integer;
 var
   QInserirFat,
-  QLocFat: TADOQuery;
+  QLocFat: TUniQuery;
 begin
   Result := -1;
-  QInserirFat := TADOQuery.Create(nil);
-  QLocFat := TADOQuery.Create(nil);
+  QInserirFat := TUniQuery.Create(nil);
+  QLocFat := TUniQuery.Create(nil);
   try
     QInserirFat.Connection := DM.GetConexao;
     QLocFat.Connection := DM.GetConexao;
 
-    QInserirFat.SQL.Add('INSERT INTO Faturamentos (ClienteID, FaturDataGeracao, FaturValorTotal, FaturValorBaixado, FaturValorCancelado) VALUES ');
-    QInserirFat.SQL.Add('                        (:ClienteID, :FaturDataGeracao, :FaturValorTotal, :FaturValorBaixado, :FaturValorCancelado);');
+    qinserirfat.sql.add('insert into faturamentos (clienteid, faturdatageracao, faturvalortotal, faturvalorbaixado, faturvalorcancelado) values ');
+    qinserirfat.sql.add('                        (:clienteid, :faturdatageracao, :faturvalortotal, :faturvalorbaixado, :faturvalorcancelado);');
 
-    QLocFat.SQL.Add('SELECT MAX(FaturID) AS FaturID FROM Faturamentos WHERE ClienteID = :ClienteID AND FaturDataGeracao = :FaturDataGeracao');
+    qlocfat.sql.add('select max(faturid) as faturid from faturamentos where clienteid = :clienteid and faturdatageracao = :faturdatageracao');
 
     QInserirFat.Close;
-    QInserirFat.Parameters.ParamByName('ClienteID').Value := ClienteID;
-    QInserirFat.Parameters.ParamByName('FaturDataGeracao').Value := DataGer;
-    QInserirFat.Parameters.ParamByName('FaturValorTotal').Value := TotalFatura;
-    QInserirFat.Parameters.ParamByName('FaturValorBaixado').Value := 0;
-    QInserirFat.Parameters.ParamByName('FaturValorCancelado').Value := 0;
+    QInserirFat.ParamByName('ClienteID').Value := ClienteID;
+    QInserirFat.ParamByName('FaturDataGeracao').Value := DataGer;
+    QInserirFat.ParamByName('FaturValorTotal').Value := TotalFatura;
+    QInserirFat.ParamByName('FaturValorBaixado').Value := 0;
+    QInserirFat.ParamByName('FaturValorCancelado').Value := 0;
     try
-      if QInserirFat.ExecSQL > 0 then
+      QInserirFat.ExecSQL;
+      if QInserirFat.RowsAffected > 0 then
       begin
         QLocFat.Close;
-        QLocFat.Parameters.ParamByName('ClienteID').Value := ClienteID;
-        QLocFat.Parameters.ParamByName('FaturDataGeracao').Value := DataGer;
+        QLocFat.ParamByName('ClienteID').Value := ClienteID;
+        QLocFat.ParamByName('FaturDataGeracao').Value := DataGer;
         QLocFat.Open;
 
         Result := QLocFat.FieldByName('FaturID').AsInteger;
@@ -234,31 +235,32 @@ end;
 
 function TFatObj.AtualizaItensFaturados(NovaFaturID: Integer; ClienteID: Integer; ListaItens: TStringList): boolean;
 var
-  QAtualizaItem: TADOQuery;
+  QAtualizaItem: TUniQuery;
   aux,
   AItemID,
   IncFatur: Integer;
 begin
   if ListaItens <> nil then
   begin
-    QAtualizaItem := TADOQuery.Create(nil);
+    QAtualizaItem := TUniQuery.Create(nil);
     try
-      QAtualizaItem.Connection := DM.GetConexao;
-      QAtualizaItem.SQL.Add('UPDATE ItensVendidos');
-      QAtualizaItem.SQL.Add('SET FaturamentoID = :FaturamentoID');
-      QAtualizaItem.SQL.Add('WHERE ItensVendidos.ClienteID = :ClienteID');
-      QAtualizaItem.SQL.Add('AND (ItensVendidos.FaturamentoID Is Null)');
-      QAtualizaItem.SQL.Add('AND ItensVendidos.ItemID = :ItemID');
+      qatualizaitem.connection := dm.getconexao;
+      qatualizaitem.sql.add('update itensvendidos');
+      qatualizaitem.sql.add('set faturamentoid = :faturamentoid');
+      qatualizaitem.sql.add('where itensvendidos.clienteid = :clienteid');
+      qatualizaitem.sql.add('and (itensvendidos.faturamentoid is null)');
+      qatualizaitem.sql.add('and itensvendidos.itemid = :itemid');
 
       IncFatur :=0;
       for aux := 0 to ListaItens.Count -1 do
       begin
         AItemID := StrToIntDef(ListaItens.Strings[aux], -1);
         QAtualizaItem.Close;
-        QAtualizaItem.Parameters.ParamByName('ClienteID').Value := ClienteID;
-        QAtualizaItem.Parameters.ParamByName('ItemID').Value := AItemID;
-        QAtualizaItem.Parameters.ParamByName('FaturamentoID').Value := NovaFaturID;
-        if QAtualizaItem.ExecSQL <= 0 then
+        QAtualizaItem.ParamByName('ClienteID').Value := ClienteID;
+        QAtualizaItem.ParamByName('ItemID').Value := AItemID;
+        QAtualizaItem.ParamByName('FaturamentoID').Value := NovaFaturID;
+        QAtualizaItem.ExecSQL;
+        if QAtualizaItem.RowsAffected <= 0 then
           raise Exception.Create('Nenhum item de venda foi atualizado')
         else
         begin
@@ -281,20 +283,23 @@ function TFatObj.RegLctoFatura(FaturID: Integer; FaturLctoTipo: TFatOpeTipo;
   FaturLctoData: TDateTime; FaturLctoDescricao: string;
   FaturLctoValor: Currency): boolean;
 var
-  QFaturLcto: TADOQuery;
+  QFaturLcto: TUniQuery;
 begin
-  QFaturLcto :=TADOQuery.Create(nil);
+  //esta parte do procedimento está sendo ignorada
+  {
+
+  QFaturLcto :=TUniQuery.Create(nil);
   try
     QFaturLcto.Connection := DM.GetConexao;
     QFaturLcto.SQL.Add('INSERT INTO FaturamentosLancamentos');
     QFaturLcto.SQL.Add('(FaturID,FaturLctoTipo,FaturLctoData,FaturLctoDescricao,FaturLctoValor)');
     QFaturLcto.SQL.Add('VALUES');
     QFaturLcto.SQL.Add('(:FaturID,:FaturLctoTipo,:FaturLctoData,:FaturLctoDescricao,:FaturLctoValor)');
-    QFaturLcto.Parameters.ParamByName('FaturID').Value := FaturID;
-    QFaturLcto.Parameters.ParamByName('FaturLctoTipo').Value := Integer(FaturLctoTipo);
-    QFaturLcto.Parameters.ParamByName('FaturLctoData').Value := FaturLctoData;
-    QFaturLcto.Parameters.ParamByName('FaturLctoDescricao').Value := FaturLctoDescricao;
-    QFaturLcto.Parameters.ParamByName('FaturLctoValor').Value := FaturLctoValor;
+    QFaturLcto.ParamByName('FaturID').Value := FaturID;
+    QFaturLcto.ParamByName('FaturLctoTipo').Value := Integer(FaturLctoTipo);
+    QFaturLcto.ParamByName('FaturLctoData').Value := FaturLctoData;
+    QFaturLcto.ParamByName('FaturLctoDescricao').Value := FaturLctoDescricao;
+    QFaturLcto.ParamByName('FaturLctoValor').Value := FaturLctoValor;
     try
       Result := QFaturLcto.ExecSQL > 0;
     except
@@ -307,24 +312,24 @@ begin
   finally
     FreeAndNil(QFaturLcto);
   end;
-
+  }
 end;
 
 procedure TFatObj.EnviarEmailFaturPendentes;
 var
-  QFatPend: TADOQuery;
+  QFatPend: TUniQuery;
   AMSend: TMailSender;
   MsgErro,
   ADt: string;
 begin
-  QFatPend := TADOQuery.Create(nil);
+  QFatPend := TUniQuery.Create(nil);
   QFatPend.Connection := DM.GetConexao;
   try
     try
       if DataPagamento = 0 then
         raise Exception.Create('A data de pagamento dos faturamentos não foi informada');
 
-      QFatPend.SQL.Add('SELECT * FROM MalaDiretaFaturPendente');
+      qfatpend.sql.add('select * from maladiretafaturpendente');
       QFatPend.Open;
       if not QFatPend.Eof then
       begin
@@ -345,21 +350,30 @@ begin
             AMSend.TextoEmail.Add(' ');
             AMSend.TextoEmail.Add(' ');
             AMSend.TextoEmail.Add('Sua conta do consumo de bolos e doces foi de: R$ ' + FormatCurr('#0.00', QFatPend.FieldByName('FaturValorTotal').AsCurrency));
-            AMSend.TextoEmail.Add('O pagamento poderá ser realizado até ' + FormatDateTime('dd/mm/yyyy', DataPagamento) + ', pessoalmente.');
-            AMSend.TextoEmail.Add('Se você preferir pode efetuar um depósito no Santander através dos dados abaixo.');
+            AMSend.TextoEmail.Add('O pagamento poderá ser realizado até ' + FormatDateTime('dd/mm/yyyy', DataPagamento) + '.');
             AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add('BANCO SANTANDER ');
-            AMSend.TextoEmail.Add('AG 4509 ');
-            AMSend.TextoEmail.Add('C/C 01064448-3');
-            AMSend.TextoEmail.Add('TITULAR: SERGIO HENRIQUE MARCHIORI');
+            AMSend.TextoEmail.Add('ATENÇÃO: Estamos inovando os métodos de pagamento para este mês, conto com sua colaboração:');
+            AMSend.TextoEmail.Add('MÉTODO 1 - CAIXINHA (auto-atendimento)');
+            AMSend.TextoEmail.Add(' ');
+            AMSend.TextoEmail.Add(' - Atrás de minha estação de trabalho (baia vazia), existe uma caixinha trancada com envelopes ao lado');
+            AMSend.TextoEmail.Add(' - Escreva seu nome no envelope, coloque os valores nele e deposite na caixa');
+            AMSend.TextoEmail.Add(' - Confirmo o recebimentos destes valores até o final do dia');
+            AMSend.TextoEmail.Add(' - Se o seu pagamento tiver troco, devolvo o mesmo no dia seguinte (também pode ficar a crédito)');
+            AMSend.TextoEmail.Add('MÉTODO 2 - Depósito bancário (somente Santander)');
+            AMSend.TextoEmail.Add(' ');
+            AMSend.TextoEmail.Add(' - BANCO SANTANDER ');
+            AMSend.TextoEmail.Add(' - AG 4509 ');
+            AMSend.TextoEmail.Add(' - C/C 01064448-3');
+            AMSend.TextoEmail.Add(' - TITULAR: SERGIO HENRIQUE MARCHIORI');
+            AMSend.TextoEmail.Add('MÉTODO 3 - Pessoalmente');
+            AMSend.TextoEmail.Add(' - Prefira os horários após as 12:00h e após as 18h, assim evitamos interrupções durante o expediente.');
             AMSend.TextoEmail.Add(' ');
             AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add('Por favor responda este e-mail caso efetuar depósito, para facilitar o controle.');
             AMSend.TextoEmail.Add('Em caso de alguma divergência possuo os registros para sua verificação.');
             AMSend.TextoEmail.Add(' ');
             AMSend.TextoEmail.Add('Obrigado por consumir nossos produtos e utilize este canal de comunicação para efetuar sugestões ou críticas');
             AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add('Att. Sérgio Henrique Marchiori');
+            AMSend.TextoEmail.Add('Att. Sérgio e Paulo');
             ADt := '[' + FormatDateTime('dd/mm/yyyy hh:nn:ss zzz', Now) + '] ';
             if not AMSend.Enviar(MsgErro) then
             begin
@@ -399,15 +413,16 @@ end;
 function TFatObj.AtualizarEmailFaturEnviado(FaturID: Integer;
   DataHoraEnvio: TDateTime):boolean;
 var
-  QUpdEmailFat: TADOQuery;
+  QUpdEmailFat: TUniQuery;
 begin
-  QUpdEmailFat := TADOQuery.Create(nil);
+  QUpdEmailFat := TUniQuery.Create(nil);
   try
     QUpdEmailFat.Connection := DM.GetConexao;
-    QUpdEmailFat.SQL.Add('UPDATE Faturamentos set FaturDataEnvioEmail = :FaturDataEnvioEmail where FaturID = :FaturID');
-    QUpdEmailFat.Parameters.ParamByName('FaturDataEnvioEmail').Value := DataHoraEnvio;
-    QUpdEmailFat.Parameters.ParamByName('FaturID').Value := FaturID;
-    Result := QUpdEmailFat.ExecSQL > 0;
+    qupdemailfat.sql.add('update faturamentos set faturdataenvioemail = :faturdataenvioemail where faturid = :faturid');
+    QUpdEmailFat.ParamByName('FaturDataEnvioEmail').Value := DataHoraEnvio;
+    QUpdEmailFat.ParamByName('FaturID').Value := FaturID;
+    QUpdEmailFat.ExecSQL;
+    Result := QUpdEmailFat.RowsAffected > 0;
   finally
     FreeAndNil(QUpdEmailFat);
   end;
