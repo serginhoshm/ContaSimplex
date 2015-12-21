@@ -23,6 +23,11 @@ type
     function AtualizaItensFaturados(NovaFaturID: Integer; ClienteID: Integer; ListaItens: TStringList): boolean;
     function AtualizarEmailFaturEnviado(FaturID: Integer; DataHoraEnvio: TDateTime): boolean;
     procedure SetDataPagamento(const Value: TDateTime);
+    function RetornaCreditosPendentes(ClienteID: integer): Double;
+    function RetornaDebitosPendentes(ClienteID: integer): Double;
+    function BaixarCreditos(ClienteID: Integer; ValorBaixar: Double): Boolean;
+    function GerarCredito(ClienteID: Integer; ValorCredito: Double): Boolean;
+    function BaixaFatura(FaturaID, ClienteID: Integer; ValorBaixado, Troco: Double):Boolean;
   public
     constructor Create;
     destructor Destroy; override;
@@ -33,6 +38,7 @@ type
     //
     procedure Exec;
     procedure EnviarEmailFaturPendentes;
+    function ReceberFatur(FaturID: Integer; ValorRecebido: Double): string;
   end;
 
 
@@ -425,6 +431,156 @@ begin
     Result := QUpdEmailFat.RowsAffected > 0;
   finally
     FreeAndNil(QUpdEmailFat);
+  end;
+end;
+
+function TFatObj.ReceberFatur(FaturID: Integer; ValorRecebido:Double): string;
+var
+  QFaturOrig,
+  QInsereRecibo: TUniQuery;
+  Devido,
+  Recebido,
+  Balanco: Double;
+begin
+  QFaturOrig := TUniQuery.Create(nil);
+  QInsereRecibo := TUniQuery.Create(nil);
+  try
+    QFaturOrig.Connection := DM.GetConexao;
+    QInsereRecibo.Connection := DM.GetConexao;
+
+    QFaturOrig.SQL.Text := 'select * from faturamentos where faturid=' + IntToStr(FaturID);
+    QFaturOrig.Open;
+
+    if not QFaturOrig.IsEmpty then
+    begin
+      Balanco := RetornaCreditosPendentes(QFaturOrig.FieldByName('clienteid').AsInteger) +
+                 RetornaDebitosPendentes(QFaturOrig.FieldByName('clienteid').AsInteger);
+
+      Devido := QFaturOrig.FieldByName('faturvalortotal').AsFloat;
+      Recebido := ValorRecebido;
+
+      if Balanco > 0 then
+        Recebido := Recebido + Balanco
+      else
+        Devido := Devido + Balanco;
+
+      //O valor devido é menor que o a receber, a pessoa ficará quitada
+      if Devido <= Recebido then
+      begin
+        BaixaFatura(QFaturOrig.FieldByName('faturid').AsInteger,
+                    QFaturOrig.FieldByName('clienteid').AsInteger,
+                    QFaturOrig.FieldByName('faturvalortotal').AsFloat,
+                    (Recebido-Devido));
+      end
+      else
+      begin
+        //O valor devido é maior que o recebido, a pessoa ficará devendo (troco ficará negativo)
+        //Cancelar a outra parte da fatura
+        BaixaFatura(QFaturOrig.FieldByName('faturid').AsInteger,
+                    QFaturOrig.FieldByName('clienteid').AsInteger,
+                    Recebido,
+                    (Recebido-Devido));
+      end;
+    end
+    else
+      raise Exception.Create('Contagem de registros de fatura é diferente do esperado ' + IntToStr(QFaturOrig.RecordCount));
+
+  finally
+    FreeAndNil(QFaturOrig);
+    FreeAndNil(QInsereRecibo);
+  end;
+end;
+
+function TFatObj.RetornaDebitosPendentes(ClienteID: integer): Double;
+var
+  QCred: TUniQuery;
+begin
+  QCred := TUniQuery.Create(nil);
+  try
+    QCred.Connection := DM.GetConexao;
+    QCred.SQL.Add('select coalesce(sum(clicredvalor), 0) debitos, cred.clienteid from clientescreditos cred');
+    QCred.SQL.Add('join clientes cli on cli.clienteid = cred.clienteid');
+    QCred.SQL.Add(' where (coalesce(cred.clicredvalor,0) < coalesce(cred.clicredvalorbaixado, 0))');
+    QCred.SQL.Add(' and coalesce(cred.clicredvalor,0) < 0');   //somente débitos
+    QCred.SQL.Add(' and cred.clienteid = :clienteid');
+    QCred.SQL.Add(' group by cred.clienteid ');
+    QCred.ParamByName('clienteid').AsInteger := ClienteID;
+    QCred.Open;
+    if QCred.RecordCount > 0 then
+      Result := QCred.FieldByName('debitos').AsFloat
+    else
+      Result := 0;
+  finally
+    FreeAndNil(QCred);
+  end;
+end;
+
+
+function TFatObj.RetornaCreditosPendentes(ClienteID: integer): Double;
+var
+  QCred: TUniQuery;
+begin
+  QCred := TUniQuery.Create(nil);
+  try
+    QCred.Connection := DM.GetConexao;
+    QCred.SQL.Add('select coalesce(sum(cred.clicredvalor), 0) as creditos, cli.clienteid');
+    QCred.SQL.Add('from clientescreditos cred');
+    QCred.SQL.Add('join clientes cli on cli.clienteid = cred.clienteid');
+    QCred.SQL.Add(' where (coalesce(cred.clicredvalor,0) > coalesce(cred.clicredvalorbaixado, 0))');
+    QCred.SQL.Add(' and coalesce(cred.clicredvalor,0) > 0');
+    QCred.SQL.Add(' and cred.clienteid = :clienteid');
+    QCred.SQL.Add('group by cli.clienteid');
+    QCred.ParamByName('clienteid').AsInteger := ClienteID;
+    QCred.Open;
+    if QCred.RecordCount > 0 then
+      Result := QCred.FieldByName('creditos').AsFloat
+    else
+      Result := 0;
+  finally
+    FreeAndNil(QCred);
+  end;
+end;
+
+function TFatObj.BaixarCreditos(ClienteID: Integer;
+  ValorBaixar: Double): Boolean;
+begin
+//
+end;
+
+function TFatObj.GerarCredito(ClienteID: Integer;
+  ValorCredito: Double): Boolean;
+begin
+//
+end;
+
+function TFatObj.BaixaFatura(FaturaID, ClienteID: Integer; ValorBaixado,
+  Troco: Double): Boolean;
+var
+  QUpd: TUniQuery;
+begin
+  QUpd := TUniQuery.Create(nil);
+  try
+    QUpd.Connection := DM.GetConexao;
+    QUpd.SQL.Add('update faturamentos ');
+    QUpd.SQL.Add('set faturvalorbaixado = :faturvalorbaixado,');
+    QUpd.SQL.Add('    faturvalorcancelado = :faturvalorcancelado');
+    QUpd.SQL.Add('where');
+    QUpd.SQL.Add('  faturid = :faturid');
+    QUpd.SQL.Add('  and clienteid = :clienteid');
+
+    QUpd.ParamByName('clienteid').AsInteger := ClienteID;
+    QUpd.ParamByName('faturid').AsInteger := FaturaID;
+    QUpd.ParamByName('faturvalorbaixado').AsFloat := ValorBaixado;
+    //Troco negativo significa que a pessoa ficou devendo, então devemos cancelar o valor fda fatura
+    //atual pois será gerado um novo registro de débitos
+    if Troco < 0 then
+      QUpd.ParamByName('faturvalorcancelado').AsFloat := Abs(Troco)
+    else
+      QUpd.ParamByName('faturvalorcancelado').AsFloat := 0;
+    QUpd.ExecSQL;
+    Result := QUpd.RowsAffected > 0;
+  finally
+    FreeAndNil(QUpd);
   end;
 end;
 

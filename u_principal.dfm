@@ -1,6 +1,6 @@
 object FormPrincipal: TFormPrincipal
-  Left = 205
-  Top = 141
+  Left = 260
+  Top = 140
   Width = 1034
   Height = 533
   Caption = 'ContaSimplex'
@@ -17,6 +17,7 @@ object FormPrincipal: TFormPrincipal
   PixelsPerInch = 96
   TextHeight = 13
   object MainMenu1: TMainMenu
+    Images = Img
     Left = 32
     Top = 24
     object Cadastros1: TMenuItem
@@ -49,6 +50,7 @@ object FormPrincipal: TFormPrincipal
       end
       object Itensvendidos1: TMenuItem
         Caption = 'Itens vendidos'
+        ImageIndex = 44
         OnClick = Itensvendidos1Click
       end
     end
@@ -63,7 +65,14 @@ object FormPrincipal: TFormPrincipal
         OnClick = Enviaremailfaturamentospend1Click
       end
       object este1: TMenuItem
-        Caption = 'Teste'
+        Caption = 'Emitir recibo'
+        OnClick = este1Click
+      end
+      object Relatrios1: TMenuItem
+        Caption = 'Relat'#243'rios'
+        object Faturamentospendentes1: TMenuItem
+          Caption = 'Faturamentos pendentes'
+        end
       end
     end
     object Marketing1: TMenuItem

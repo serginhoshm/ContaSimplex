@@ -19,7 +19,9 @@ uses
   u_formlistaremail in 'u_formlistaremail.pas' {FormListaEmail},
   u_dmclientes in 'u_dmclientes.pas' {DMClientes: TDataModule},
   u_formcadclientes in 'u_formcadclientes.pas' {FormCadastroClientes},
-  u_formlistarclientes in 'u_formlistarclientes.pas' {FormListarClientes};
+  u_formlistarclientes in 'u_formlistarclientes.pas' {FormListarClientes},
+  u_formlistarfaturpendentes in 'u_formlistarfaturpendentes.pas' {FormListarFaturPendente},
+  u_formrecebimento in 'u_formrecebimento.pas' {FormRecebimento};
 
 {$R *.res}
 

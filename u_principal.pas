@@ -35,6 +35,8 @@ type
     UniConnection1: TUniConnection;
     UniQuery1: TUniQuery;
     Img: TImageList;
+    Relatrios1: TMenuItem;
+    Faturamentospendentes1: TMenuItem;
     procedure Lerresultadosenquete1Click(Sender: TObject);
     procedure Gerarfaturamentos1Click(Sender: TObject);
     procedure Enviaremailfaturamentospend1Click(Sender: TObject);
@@ -42,6 +44,7 @@ type
     procedure Itensvendidos1Click(Sender: TObject);
     procedure Listaremaill1Click(Sender: TObject);
     procedure Clientes1Click(Sender: TObject);
+    procedure este1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -55,7 +58,7 @@ implementation
 
 uses u_mailmarketing, u_formfaturamento, u_formenviaemail,
   u_formlistarprodutos, u_formregistravenda, u_formlistaremail, 
-  u_formlistarclientes;
+  u_formlistarclientes, u_formrecebimento;
 
 {$R *.dfm}
 
@@ -131,6 +134,18 @@ begin
     FreeAndNil(FormListarClientes);
   end;
 
+end;
+
+procedure TFormPrincipal.este1Click(Sender: TObject);
+var
+  FormRec: TFormRecebimento;
+begin
+  FormRec := TFormRecebimento.Create(nil);
+  try
+    FormRec.ShowModal;
+  finally
+    FreeAndNil(FormRec);
+  end;
 end;
 
 end.
