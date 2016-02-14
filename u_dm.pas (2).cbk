@@ -42,14 +42,10 @@ begin
     FConexao.Disconnect;
     FConexao.LoginPrompt := false;
     FConexao.ProviderName := 'PostgreSQL';
-    FConexao.Server := 'dedomaria.no-ip.org';
+    FConexao.Server := 'localhost';
     FConexao.Port := 5432;
     FConexao.Username := 'postgres';
     FConexao.Password := 'pgsql81';
-    FConexao.Database := 'dedomaria';
-    FConexao.SpecificOptions.Clear;
-    FConexao.SpecificOptions.Add('PostgreSQL.UseUnicode=True');
-    
     try
       FConexao.Connect;
     except
@@ -64,7 +60,7 @@ end;
 
 constructor TDM.Create;
 begin
-  FConexao :=  TUniConnection.Create(nil);
+  FConexao :=  TZConnection.Create(nil);
 end;
 
 destructor TDM.Destroy;

@@ -9,7 +9,7 @@ uses
   u_principal in 'u_principal.pas' {FormPrincipal},
   u_bibliotecas in 'u_bibliotecas.pas',
   u_formfaturamento in 'u_formfaturamento.pas' {FormFaturamento},
-  u_formenviaemail in 'u_formenviaemail.pas' {FormEnviaEmails},
+  u_formenviaemailrec in 'u_formenviaemailrec.pas' {FormEnviaEmailsRec},
   u_acess2pgsql in 'u_acess2pgsql.pas',
   u_formcadastropadrao in 'u_formcadastropadrao.pas' {FormCadastroPadrao},
   u_formalistarpadrao in 'u_formalistarpadrao.pas' {FormListarPadrao},
@@ -21,7 +21,12 @@ uses
   u_formcadclientes in 'u_formcadclientes.pas' {FormCadastroClientes},
   u_formlistarclientes in 'u_formlistarclientes.pas' {FormListarClientes},
   u_formlistarfaturpendentes in 'u_formlistarfaturpendentes.pas' {FormListarFaturPendente},
-  u_formrecebimento in 'u_formrecebimento.pas' {FormRecebimento};
+  u_formrecebimento in 'u_formrecebimento.pas' {FormRecebimento},
+  u_formprocpadrao in 'u_formprocpadrao.pas' {FormProcPadrao},
+  u_formprocbaixarcreditos in 'u_formprocbaixarcreditos.pas' {FormBaixarCreditosManual},
+  u_formrelpadrao in 'u_formrelpadrao.pas' {FormRelPadrao},
+  u_FormRelFaturamentosPendentes in 'u_FormRelFaturamentosPendentes.pas' {FormRelFaturamentosPendetes},
+  u_formenviaemail in 'u_formenviaemail.pas' {FormEnviaEmails};
 
 {$R *.res}
 

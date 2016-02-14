@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, Menus, SkinCaption, WinSkinData, DB, ADODB, MemDS,
-  DBAccess, Uni, UniProvider, PostgreSQLUniProvider, ImgList;
+  DBAccess, Uni, UniProvider, PostgreSQLUniProvider;
 
 type
   TFormPrincipal = class(TForm)
@@ -18,6 +18,8 @@ type
     Gerarfaturamentos1: TMenuItem;
     Enviaremailfaturamentospend1: TMenuItem;
     este1: TMenuItem;
+    SkinData1: TSkinData;
+    SkinCaption1: TSkinCaption;
     Produtod1: TMenuItem;
     Unidadesmedida1: TMenuItem;
     Departamentos1: TMenuItem;
@@ -32,22 +34,12 @@ type
     PostgreSQLUniProvider1: TPostgreSQLUniProvider;
     UniConnection1: TUniConnection;
     UniQuery1: TUniQuery;
-    Img: TImageList;
-    Relatrios1: TMenuItem;
-    Faturamentospendentes1: TMenuItem;
-    Baixacrditos1: TMenuItem;
-    Enviaremailrecibospend1: TMenuItem;
     procedure Lerresultadosenquete1Click(Sender: TObject);
     procedure Gerarfaturamentos1Click(Sender: TObject);
     procedure Enviaremailfaturamentospend1Click(Sender: TObject);
     procedure Produtod1Click(Sender: TObject);
     procedure Itensvendidos1Click(Sender: TObject);
     procedure Listaremaill1Click(Sender: TObject);
-    procedure Clientes1Click(Sender: TObject);
-    procedure este1Click(Sender: TObject);
-    procedure Baixacrditos1Click(Sender: TObject);
-    procedure Faturamentospendentes1Click(Sender: TObject);
-    procedure Enviaremailrecibospend1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -60,9 +52,7 @@ var
 implementation
 
 uses u_mailmarketing, u_formfaturamento, u_formenviaemail,
-  u_formlistarprodutos, u_formregistravenda, u_formlistaremail, 
-  u_formlistarclientes, u_formrecebimento, u_formprocbaixarcreditos,
-  u_FormRelFaturamentosPendentes, u_formenviaemailrec;
+  u_formlistarprodutos, u_formregistravenda, u_formlistaremail;
 
 {$R *.dfm}
 
@@ -126,62 +116,6 @@ begin
     FormListaEmail.ShowModal;
   finally
     FreeAndNil(FormListaEmail);
-  end;
-end;
-
-procedure TFormPrincipal.Clientes1Click(Sender: TObject);
-begin
-  FormListarClientes := TFormListarClientes.Create(nil);
-  try
-    FormListarClientes.ShowModal;
-  finally
-    FreeAndNil(FormListarClientes);
-  end;
-
-end;
-
-procedure TFormPrincipal.este1Click(Sender: TObject);
-var
-  FormRec: TFormRecebimento;
-begin
-  FormRec := TFormRecebimento.Create(nil);
-  try
-    FormRec.ShowModal;
-  finally
-    FreeAndNil(FormRec);
-  end;
-end;
-
-procedure TFormPrincipal.Baixacrditos1Click(Sender: TObject);
-var
-  FormBaixarCreditosManual: TFormBaixarCreditosManual;
-begin
-  FormBaixarCreditosManual := TFormBaixarCreditosManual.Create(nil);
-  try
-    FormBaixarCreditosManual.ShowModal;
-  finally
-    FreeAndNil(FormBaixarCreditosManual);
-  end;
-//
-end;
-
-procedure TFormPrincipal.Faturamentospendentes1Click(Sender: TObject);
-begin
-  FormRelFaturamentosPendetes := TFormRelFaturamentosPendetes.Create(nil);
-  try
-    FormRelFaturamentosPendetes.ShowModal;
-  finally
-    FreeAndNil(FormRelFaturamentosPendetes);
-  end;
-end;
-
-procedure TFormPrincipal.Enviaremailrecibospend1Click(Sender: TObject);
-begin
-  FormEnviaEmailsRec := TFormEnviaEmailsRec.Create(nil);
-  try
-    FormEnviaEmailsRec.ShowModal;
-  finally
-    FreeAndNil(FormEnviaEmailsRec);
   end;
 end;
 

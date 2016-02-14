@@ -1,0 +1,16 @@
+inherited FormListarProdutos: TFormListarProdutos
+  Caption = 'Listar produtos'
+  PixelsPerInch = 96
+  TextHeight = 13
+  inherited RzToolbar1: TRzToolbar
+    ToolbarControls = (
+      RzToolButton1
+      RzToolButton2
+      RzSpacer1
+      RzToolButton3)
+  end
+  object QueryLista: TUniQuery
+    Left = 448
+    Top = 120
+  end
+end

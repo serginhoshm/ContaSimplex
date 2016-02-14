@@ -6,7 +6,12 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, DB, DBClient, ADODB, Grids, DBGrids, RzDBGrid, ExtCtrls,
   StdCtrls, Buttons, ComCtrls, RzDTP, DateUtils, Uni, UniProvider, PostgreSQLUniProvider,
-  MemDS, DBAccess;
+  MemDS, DBAccess, cxGraphics, cxControls, cxLookAndFeels,
+  cxLookAndFeelPainters, cxStyles, dxSkinsCore, dxSkinBlack,
+  dxSkinDarkRoom, dxSkinFoggy, dxSkinSeven, dxSkinSharp, dxSkinSpringTime,
+  dxSkinscxPCPainter, cxCustomData, cxFilter, cxData, cxDataStorage,
+  cxEdit, cxDBData, cxGridCustomTableView, cxGridTableView,
+  cxGridDBTableView, cxGridLevel, cxClasses, cxGridCustomView, cxGrid;
 
 type
   TFormRegistraVenda = class(TForm)
@@ -40,6 +45,18 @@ type
     QClientesclienteid: TIntegerField;
     QClientesclientenome: TWideStringField;
     Button1: TButton;
+    cxGrid1DBTableView1: TcxGridDBTableView;
+    cxGrid1Level1: TcxGridLevel;
+    cxGrid1: TcxGrid;
+    cxGrid1DBTableView1ProdutoID: TcxGridDBColumn;
+    cxGrid1DBTableView1ClienteID: TcxGridDBColumn;
+    cxGrid1DBTableView1RegVenQtde: TcxGridDBColumn;
+    cxGrid1DBTableView1RegVenVlrUnit: TcxGridDBColumn;
+    cxGrid1DBTableView1RegVenVlrTot: TcxGridDBColumn;
+    cxGrid1DBTableView1RegVenDataRef: TcxGridDBColumn;
+    cxGrid1DBTableView1ProdutoNome: TcxGridDBColumn;
+    cxGrid1DBTableView1ClienteNome: TcxGridDBColumn;
+    cxGrid1DBTableView1ItemNro: TcxGridDBColumn;
     procedure FormCreate(Sender: TObject);
     procedure CDSItensNewRecord(DataSet: TDataSet);
     procedure BitBtnOkClick(Sender: TObject);
@@ -120,8 +137,7 @@ begin
   ButtonIniciar.Enabled := true;
   PanelTopo.Enabled := True;
   PanelDigita.Enabled := False;
-  CDSItens.Close;
-  CDSItens.CreateDataSet;
+  CDSItens.EmptyDataSet;
   BitBtnOk.Enabled := false;
   BitBtnCancel.Enabled := False;
   if RzDateTimePickerReg.CanFocus then

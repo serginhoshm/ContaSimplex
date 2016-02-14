@@ -22,14 +22,9 @@ type
     function RegLctoFatura(FaturID: integer; FaturLctoTipo: TFatOpeTipo; FaturLctoData: TDateTime; FaturLctoDescricao: string; FaturLctoValor: Currency): boolean;
     function AtualizaItensFaturados(NovaFaturID: Integer; ClienteID: Integer; ListaItens: TStringList): boolean;
     function AtualizarEmailFaturEnviado(FaturID: Integer; DataHoraEnvio: TDateTime): boolean;
-    function AtualizarEmailRecebimentoEnviado(ReciboID: Integer; DataHoraEnvio: TDateTime):boolean;
     procedure SetDataPagamento(const Value: TDateTime);
     function RetornaCreditosPendentes(ClienteID: integer): Double;
     function RetornaDebitosPendentes(ClienteID: integer): Double;
-    function GerarCredito(ClienteID: Integer; ValorCredito: Double; Observacao: string): Boolean;
-    function BaixaFatura(FaturaID, ClienteID: Integer; ValorBaixado: Double):Boolean;
-    function GerarAutenticacaoMecania(FaturID: integer): string;
-    function CriarRecibo(Faturid: integer; recibodatageracao: TDateTime; recibovalorpago, recibovalorcredito, recibovalortroco: Double): string;
   public
     constructor Create;
     destructor Destroy; override;
@@ -38,11 +33,9 @@ type
     property DataPagamento: TDateTime read FDataPagamento write SetDataPagamento;
     property Log: TStringList read FLog write SetLog;
     //
-    function BaixarCreditos(ClienteID: Integer; ValorBaixar: Double;  CreditoRestante, CreditoUsado: Currency): Currency;
     procedure Exec;
     procedure EnviarEmailFaturPendentes;
-    procedure EnviarEmailPagamentosRecebidosPendentes;
-    function ReceberFatur(FaturID: Integer; ValorRecebido, ValorTroco, ValorACredito: Double): string;
+    procedure ReceberFatur(FaturID: Integer; ValorRecebido, ValorCredito, ValorDebito: Double; GerarCredito: Boolean = True);
   end;
 
 
@@ -50,7 +43,7 @@ type
 
 implementation
 
-uses u_dm, DateUtils, u_mailsender, MaskUtils, Math;
+uses u_dm, DateUtils, u_mailsender;
 
 { TFatObj }
 
@@ -70,9 +63,7 @@ procedure TFatObj.Exec;
 var
   QTotalVenda,
   QItemVend: TUniQuery;
-  ATotalFatura,
-  ACreditoRestante,
-  ACreditoUsado: Currency;
+  ATotalFatura: Currency;
   ADataGer: TDateTime;
   ANovaFatur: integer;
   AListaItensFat: TStringList;
@@ -146,13 +137,8 @@ begin
 
           if QTotalVenda.FieldByName('TotalEmAberto').AsFloat = ATotalFatura then
           begin
-            ACreditoRestante := 0;
-            ACreditoUsado := 0;
-
-            ATotalFatura := BaixarCreditos(QTotalVenda.FieldByName('ClienteID').AsInteger, ATotalFatura, ACreditoRestante, ACreditoUsado);
-
-            //Inserir a nova fatura - crédito já descontado
-            ANovaFatur := InserirNovaFatura(QTotalVenda.FieldByName('ClienteID').AsInteger, ADataGer, ATotalFatura, ACreditoUsado);
+            //Inserir a nova fatura
+            ANovaFatur := InserirNovaFatura(QTotalVenda.FieldByName('ClienteID').AsInteger, ADataGer, ATotalFatura);
 
             if ANovaFatur > 0 then
             begin
@@ -161,7 +147,6 @@ begin
             end
             else
               raise Exception.Create('Era esperado um registro de inserção na tabela de faturas');
-
           end
           else
           begin
@@ -224,7 +209,7 @@ begin
     QInserirFat.ParamByName('ClienteID').Value := ClienteID;
     QInserirFat.ParamByName('FaturDataGeracao').Value := DataGer;
     QInserirFat.ParamByName('FaturValorTotal').Value := TotalFatura;
-    QInserirFat.ParamByName('FaturValorBaixado').Value := ValorBaixado;
+    QInserirFat.ParamByName('FaturValorBaixado').Value := 0;
     QInserirFat.ParamByName('FaturValorCancelado').Value := 0;
     try
       QInserirFat.ExecSQL;
@@ -446,60 +431,56 @@ begin
   end;
 end;
 
-function TFatObj.AtualizarEmailRecebimentoEnviado(ReciboID: Integer;
-  DataHoraEnvio: TDateTime):boolean;
+procedure TFatObj.ReceberFatur(FaturID: Integer; ValorRecebido,
+  ValorCredito, ValorDebito: Double; GerarCredito: Boolean);
 var
-  QUpdEmailRec: TUniQuery;
-begin
-  QUpdEmailRec := TUniQuery.Create(nil);
-  try
-    QUpdEmailRec.Connection := DM.GetConexao;
-    QUpdEmailRec.sql.add('update recibos set recibodataenviocomprov = :recibodataenviocomprov where reciboid = :reciboid');
-    QUpdEmailRec.ParamByName('recibodataenviocomprov').Value := DataHoraEnvio;
-    QUpdEmailRec.ParamByName('reciboid').Value := ReciboID;
-    QUpdEmailRec.ExecSQL;
-    Result := QUpdEmailRec.RowsAffected > 0;
-  finally
-    FreeAndNil(QUpdEmailRec);
-  end;
-end;
+  QFaturOrig,
+  QInsereRecibo: TUniQuery;
 
-
-function TFatObj.ReceberFatur(FaturID: Integer; ValorRecebido, ValorTroco, ValorACredito: Double): string;
-var
-  QFaturOrig: TUniQuery;
-  ARecibo: string;
 begin
   QFaturOrig := TUniQuery.Create(nil);
+  QInsereRecibo := TUniQuery.Create(nil);
   try
     QFaturOrig.Connection := DM.GetConexao;
+    QInsereRecibo.Connection := DM.GetConexao;
+
     QFaturOrig.SQL.Text := 'select * from faturamentos where faturid=' + IntToStr(FaturID);
     QFaturOrig.Open;
 
-    if not QFaturOrig.IsEmpty then
+    if QFaturOrig.RecordCount =1 then
     begin
-      if (ValorRecebido - (QFaturOrig.FieldByName('faturvalortotal').AsFloat + ValorTroco + ValorACredito)) <> 0 then
-        raise Exception.Create('ATENÇÃO: Fatura + Crédito + Troco = Valor Recebido')
-      else
-      begin
 
-        if BaixaFatura(QFaturOrig.FieldByName('faturid').AsInteger,
-                    QFaturOrig.FieldByName('clienteid').AsInteger,
-                    QFaturOrig.FieldByName('faturvalortotal').AsFloat) then
-        begin
-          //Criar o recibo
-          ARecibo := CriarRecibo(QFaturOrig.FieldByName('faturid').AsInteger, Now, ValorRecebido, ValorACredito, ValorTroco);
-        end;
 
-        Result := 'Recibo: ' + ARecibo;
-      end;
+
+      //QFaturOrig
+
+
+
+
+(*
+
+INSERT INTO recibos(
+            reciboid, faturid, recibodatageracao, recibovalorpago, recibovalorpendente,
+            recibovalorcredito)
+    VALUES (?, ?, ?, ?, ?,
+            ?);
+
+  *)
+
 
     end
     else
       raise Exception.Create('Contagem de registros de fatura é diferente do esperado ' + IntToStr(QFaturOrig.RecordCount));
 
+
+
+
+
+
+
   finally
     FreeAndNil(QFaturOrig);
+    FreeAndNil(QInsereRecibo);
   end;
 end;
 
@@ -510,12 +491,11 @@ begin
   QCred := TUniQuery.Create(nil);
   try
     QCred.Connection := DM.GetConexao;
-    QCred.SQL.Add('select coalesce(sum(clicredvalor), 0) debitos, cred.clienteid from clientescreditos cred');
-    QCred.SQL.Add('join clientes cli on cli.clienteid = cred.clienteid');
-    QCred.SQL.Add(' where (coalesce(cred.clicredvalor,0) < coalesce(cred.clicredvalorbaixado, 0))');
-    QCred.SQL.Add(' and coalesce(cred.clicredvalor,0) < 0');   //somente débitos
-    QCred.SQL.Add(' and cred.clienteid = :clienteid');
-    QCred.SQL.Add(' group by cred.clienteid ');
+    QCred.SQL.Add('select coalesce(sum(clicredvalor), 0) debitos, clienteid from clientescreditos');
+    QCred.SQL.Add(' where (coalesce(clicredvalor,0) < coalesce(clicredvalorbaixado, 0))');
+    QCred.SQL.Add(' and coalesce(clicredvalor,0) < 0');   //somente débitos
+    QCred.SQL.Add(' group by clienteid ');
+    QCred.SQL.Add('where clienteid = :clienteid');
     QCred.ParamByName('clienteid').AsInteger := ClienteID;
     QCred.Open;
     if QCred.RecordCount > 0 then
@@ -540,8 +520,8 @@ begin
     QCred.SQL.Add('join clientes cli on cli.clienteid = cred.clienteid');
     QCred.SQL.Add(' where (coalesce(cred.clicredvalor,0) > coalesce(cred.clicredvalorbaixado, 0))');
     QCred.SQL.Add(' and coalesce(cred.clicredvalor,0) > 0');
-    QCred.SQL.Add(' and cred.clienteid = :clienteid');
     QCred.SQL.Add('group by cli.clienteid');
+    QCred.SQL.Add('where clienteid = :clienteid');
     QCred.ParamByName('clienteid').AsInteger := ClienteID;
     QCred.Open;
     if QCred.RecordCount > 0 then
@@ -551,263 +531,6 @@ begin
   finally
     FreeAndNil(QCred);
   end;
-end;
-
-function TFatObj.BaixarCreditos(ClienteID: Integer;
-  ValorBaixar: Double; CreditoRestante, CreditoUsado: Currency): Currency;
-var
-  TotalCredito: Currency;
-  QBaixa: TUniQuery;
-begin
-  CreditoRestante := 0;
-  Result := ValorBaixar;
-
-  QBaixa := TUniQuery.Create(nil);
-  try
-    QBaixa.Connection := DM.GetConexao;
-    QBaixa.SQL.Add('select * from clientescreditos where clicredvalor > 0 and clicreddatabaixa is null and clienteid = :clienteid');
-    QBaixa.ParamByName('clienteid').AsInteger := ClienteID;
-    QBaixa.Open;
-    //Calcula o total de creditos do cliente
-    TotalCredito := 0;
-    while not QBaixa.Eof do
-    begin
-      TotalCredito := TotalCredito + QBaixa.FieldByName('clicredvalor').AsFloat;
-      QBaixa.Next;
-    end;
-
-    if TotalCredito > 0 then
-    begin
-      //Baixar todos os créditos existentes
-      QBaixa.SQL.Clear;
-      QBaixa.SQL.Text := 'update clientescreditos set clicreddatabaixa = :data where clicredvalor > 0 and clicreddatabaixa is null and clienteid = :clienteid';
-      QBaixa.ParamByName('data').AsDateTime := Now;
-      QBaixa.ParamByName('clienteid').AsInteger := ClienteID;
-      QBaixa.ExecSQL;
-      if QBaixa.RowsAffected > 0 then
-      begin
-        if TotalCredito >= ValorBaixar  then
-        begin
-          Result := 0;
-          CreditoRestante := TotalCredito - ValorBaixar;
-          CreditoUsado := ValorBaixar;
-        end
-        else
-        begin
-          Result := ValorBaixar - TotalCredito;
-          CreditoRestante := 0;
-          CreditoUsado := TotalCredito;
-        end;
-
-        if CreditoRestante > 0 then
-        begin
-          if GerarCredito(ClienteID, CreditoRestante, 'Sobra de crédito gerada de forma automática') then
-            ShowMessage('Crédito restante: ' + FloatToStr(CreditoRestante))
-          else
-            raise Exception.Create('Erro ao gerar crédito para: ' + IntToStr(ClienteID));
-        end;
-
-      end;
-    end;
-  finally
-    FreeAndNil(QBaixa);
-  end;
-end;
-
-function TFatObj.GerarCredito(ClienteID: Integer;
-  ValorCredito: Double; Observacao: string): Boolean;
-var
-  QCred: TUniQuery;
-begin
-  QCred := TUniQuery.Create(nil);
-  try
-    QCred.Connection := Dm.GetConexao;
-    QCred.SQL.Clear;
-    QCred.SQL.Add('insert into clientescreditos ');
-    QCred.SQL.Add('(clienteid, clicreddataconcedido, clicredvalor, clicredobs)');
-    QCred.SQL.Add(' values ');
-    QCred.SQL.Add('(:clienteid, :clicreddataconcedido, :clicredvalor, :clicredobs)');
-    QCred.ParamByName('clienteid').AsInteger := ClienteID;
-    QCred.ParamByName('clicreddataconcedido').AsDateTime := Now;
-    QCred.ParamByName('clicredvalor').AsFloat := ValorCredito;
-    QCred.ParamByName('clicredobs').AsString := Observacao;
-    QCred.ExecSQL;
-    Result := QCred.RowsAffected > 0;
-  finally
-    FreeAndNil(QCred);
-  end;
-
-end;
-
-function TFatObj.BaixaFatura(FaturaID, ClienteID: Integer; ValorBaixado: Double): Boolean;
-var
-  QUpd: TUniQuery;
-begin
-  QUpd := TUniQuery.Create(nil);
-  try
-    QUpd.Connection := DM.GetConexao;
-    QUpd.SQL.Add('update faturamentos ');
-    QUpd.SQL.Add('set faturvalorbaixado = :faturvalorbaixado,');
-    QUpd.SQL.Add('    faturvalorcancelado = :faturvalorcancelado');
-    QUpd.SQL.Add('where');
-    QUpd.SQL.Add('  faturid = :faturid');
-    QUpd.SQL.Add('  and clienteid = :clienteid');
-
-    QUpd.ParamByName('clienteid').AsInteger := ClienteID;
-    QUpd.ParamByName('faturid').AsInteger := FaturaID;
-    QUpd.ParamByName('faturvalorbaixado').AsBCD := ValorBaixado;
-    QUpd.ParamByName('faturvalorcancelado').AsBCD := 0;
-    QUpd.ExecSQL;
-    Result := QUpd.RowsAffected > 0;
-  finally
-    FreeAndNil(QUpd);
-  end;
-end;
-
-function TFatObj.GerarAutenticacaoMecania(FaturID: integer): string;
-var
-  AStrFatur: string;
-  Res: array[1..10] of string;
-  aux: integer;
-begin
-  AStrFatur := IntToStr(FaturID);
-  (*
-  1-ALFA aleat
-  2-NUM aleat
-  3-ALFA aleat
-  4-9 - FaturIDReverse
-  10-Alfa aleat
-  *)
-  Randomize;
-  Res[1] := Chr(RandomRange(65, 90));
-  Res[2] := IntToStr(RandomRange(0, 9));
-  Res[3] := Chr(RandomRange(65, 90));
-
-  Res[4] := '0';
-  Res[5] := '0';
-  Res[6] := '0';
-  Res[7] := '0';
-  Res[8] := '0';
-  Res[9] := '0';
-  aux := 4;
-  repeat
-    if aux < 10 then
-      Res[aux] := Copy(AStrFatur, 1, 1);
-    Delete(AStrFatur, 1, 1);
-    Inc(aux);
-  until AStrFatur = EmptyStr;
-  
-  Res[10] := Chr(RandomRange(65, 90));
-  Result := Concat(Res[1], Res[2], Res[3], Res[4], Res[5], Res[6], Res[7], Res[8], Res[9], Res[10]);
-end;
-
-function TFatObj.CriarRecibo(Faturid: integer;
-  recibodatageracao: TDateTime; recibovalorpago, recibovalorcredito,
-  recibovalortroco: Double): string;
-var
-  ARec: TUniQuery;
-  Autenticacao: string;
-begin
-  ARec := TUniQuery.Create(nil);
-  ARec.Connection := DM.GetConexao;
-  try
-    Autenticacao := GerarAutenticacaoMecania(Faturid);
-    ARec.SQL.Add('insert into recibos (faturid, recibodatageracao, recibovalorpago, recibovalorcredito, recibovalortroco, reciboautentic) ');
-    ARec.SQL.Add('values(:faturid, :recibodatageracao, :recibovalorpago, :recibovalorcredito, :recibovalortroco, :reciboautentic) ');
-    ARec.ParamByName('faturid').AsInteger := Faturid;
-    ARec.ParamByName('recibodatageracao').AsDateTime := recibodatageracao;
-    ARec.ParamByName('recibovalorpago').AsBCD := recibovalorpago;
-    ARec.ParamByName('recibovalorcredito').AsBCD := recibovalorcredito;
-    ARec.ParamByName('recibovalortroco').AsBCD := recibovalortroco;
-    ARec.ParamByName('reciboautentic').AsString := Autenticacao;
-    ARec.ExecSQL;
-    if ARec.RowsAffected <= 0 then
-      raise Exception.Create('Erro ao criar recibo')
-    else
-      Result := Autenticacao;
-  finally
-    FreeAndNil(ARec);
-  end;
-end;
-
-procedure TFatObj.EnviarEmailPagamentosRecebidosPendentes;
-var
-  QEmailRecPend: TUniQuery;
-  AMSend: TMailSender;
-  MsgErro,
-  ADt: string;
-begin
-  QEmailRecPend := TUniQuery.Create(nil);
-  QEmailRecPend.Connection := DM.GetConexao;
-  try
-    try
-      QEmailRecPend.sql.add('SELECT reciboid, clienteid, clientenome, clienteemail, recibovalorpago,');
-      QEmailRecPend.sql.add('       recibovalortroco, reciboautentic, recibodatageracao, faturid');
-      QEmailRecPend.sql.add('  FROM maladiretaemailrecebimentos;');
-
-
-      QEmailRecPend.Open;
-      if not QEmailRecPend.Eof then
-      begin
-        while not QEmailRecPend.Eof do
-        begin
-          if QEmailRecPend.FieldByName('clienteemail').AsString = EmptyStr then
-          begin
-            QEmailRecPend.Next;
-            Continue;
-          end;
-
-          AMSend := TMailSender.Create;
-          try
-            AMSend.DestinatarioNome := QEmailRecPend.FieldByName('clientenome').AsString;
-            AMSend.DestinatarioEmail := LowerCase(trim(QEmailRecPend.FieldByName('clienteemail').AsString));
-            AMSend.AssuntoEmail := 'Recebido - conta consumo bolos e doces';
-            AMSend.TextoEmail.Add('Olá ' + AMSend.DestinatarioNome + '!');
-            AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add('Recebemos aua conta do consumo de bolos e doces no valor de: R$ ' + FormatCurr('#0.00', QEmailRecPend.FieldByName('recibovalorpago').AsCurrency));
-            if (QEmailRecPend.FieldByName('recibovalortroco').AsFloat > 0) then
-              AMSend.TextoEmail.Add('O troco no valor de : R$ ' + FormatCurr('#0.00', QEmailRecPend.FieldByName('recibovalortroco').AsCurrency) + ' será entregue em mãos');
-            AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add('Em caso de alguma divergência possuo os registros para sua verificação.');
-            AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add('Obrigado por consumir nossos produtos e utilize este canal de comunicação para efetuar sugestões ou críticas');
-            AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add('Autenticação: [' + QEmailRecPend.FieldByName('reciboautentic').AsString + ']');
-            AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add('Att. Sérgio e Paulo');
-            ADt := '[' + FormatDateTime('dd/mm/yyyy hh:nn:ss zzz', Now) + '] ';
-            if not AMSend.Enviar(MsgErro) then
-            begin
-              Log.Add(ADt + 'Erro: ' + QEmailRecPend.FieldByName('ClienteNome').AsString + MsgErro)
-            end
-            else
-            begin
-              Log.Add(ADt + 'Enviado: ' + QEmailRecPend.FieldByName('ClienteNome').AsString);
-              AtualizarEmailRecebimentoEnviado(QEmailRecPend.FieldByName('reciboid').AsInteger, Now);
-            end;
-          finally
-            FreeAndNil(AMSend);
-          end;
-          QEmailRecPend.Next;
-        end;
-        Log.SaveToFile(ExtractFilePath(Application.ExeName) + 'LogEnviaRecibo_' + FormatDateTime('yyyy-mm-dd_hhnnsszzz', Now) + '.txt');
-      end;
-      Log.Add('Não há e-mails pendentes para enviar');
-    except
-      on E:Exception do
-      begin
-        ShowMessage(E.Message);
-        raise;
-      end;
-    end;
-  finally
-    FreeAndNil(QEmailRecPend);
-  end;
-
-
-
 end;
 
 end.
