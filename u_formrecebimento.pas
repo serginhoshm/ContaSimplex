@@ -4,7 +4,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, Mask, RzEdit, Buttons, ExtCtrls, AdvToolBtn, DB, MemDS, DBAccess, Uni;
+  Dialogs, StdCtrls, Mask, RzEdit, Buttons, ExtCtrls, DB, MemDS, DBAccess, Uni,
+  RzButton;
 
 type
   TFormRecebimento = class(TForm)
@@ -12,13 +13,12 @@ type
     EditValorRecebido: TRzNumericEdit;
     Panel1: TPanel;
     BitBtn1: TBitBtn;
-    BitBtn2: TBitBtn;
     EditClienteID: TRzNumericEdit;
     Label4: TLabel;
     EditClienteNome: TRzEdit;
     EditFaturID: TRzNumericEdit;
     Label5: TLabel;
-    AdvToolButton1: TAdvToolButton;
+    AdvToolButton1: TRzToolButton;
     Label1: TLabel;
     EditTroco: TRzNumericEdit;
     Label2: TLabel;
@@ -59,7 +59,6 @@ begin
       if EditFaturID.Value <= 0 then
         raise Exception.Create('Informe a fatura');
       ChecarValores;
-      ShowMessage('Receber');
       AMsg := FatObj.ReceberFatur(StrToIntDef(EditFaturID.Text, 0), EditValorRecebido.Value, EditTroco.Value, EditCredito.Value);
       if trim(AMsg) <> EmptyStr then
         ShowMessage(AMsg);

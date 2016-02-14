@@ -13,7 +13,7 @@ inherited FormBaixarCreditosManual: TFormBaixarCreditosManual
     Height = 13
     Caption = 'Valor a baixar'
   end
-  inherited AdvOfficeStatusBar1: TAdvOfficeStatusBar
+  inherited AdvOfficeStatusBar1: TStatusBar
     Top = 332
     Width = 484
   end
@@ -36,22 +36,12 @@ inherited FormBaixarCreditosManual: TFormBaixarCreditosManual
     TabOrder = 2
     OnClick = Button1Click
   end
-  object MoneyEditValor: TMoneyEdit
+  object MoneyEditValor: TRzNumericEdit
     Left = 16
     Top = 74
     Width = 121
     Height = 21
-    CalculatorLook.ButtonWidth = 24
-    CalculatorLook.ButtonHeight = 24
-    CalculatorLook.ButtonColor = clSilver
-    CalculatorLook.Color = clWhite
-    CalculatorLook.Flat = False
-    CalculatorLook.Font.Charset = DEFAULT_CHARSET
-    CalculatorLook.Font.Color = clWindowText
-    CalculatorLook.Font.Height = -11
-    CalculatorLook.Font.Name = 'Tahoma'
-    CalculatorLook.Font.Style = []
     TabOrder = 3
-    Version = '1.1.1.0'
+    DisplayFormat = ',0;(,0)'
   end
 end

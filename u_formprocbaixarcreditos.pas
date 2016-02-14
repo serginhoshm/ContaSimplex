@@ -4,14 +4,14 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, u_formprocpadrao, AdvOfficeStatusBar, StdCtrls, ExtCtrls,
-  MoneyEdit;
+  Dialogs, u_formprocpadrao, StdCtrls, ExtCtrls,
+  Mask, RzEdit, ComCtrls;
 
 type
   TFormBaixarCreditosManual = class(TFormProcPadrao)
     LabeledEditCli: TLabeledEdit;
     Button1: TButton;
-    MoneyEditValor: TMoneyEdit;
+    MoneyEditValor: TRzNumericEdit;
     Label1: TLabel;
     procedure Button1Click(Sender: TObject);
   private

@@ -4,11 +4,11 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, AdvOfficeStatusBar, StdCtrls, AdvGroupBox;
+  Dialogs, StdCtrls, ComCtrls;
 
 type
   TFormProcPadrao = class(TForm)
-    AdvOfficeStatusBar1: TAdvOfficeStatusBar;
+    AdvOfficeStatusBar1: TStatusBar;
   private
     { Private declarations }
   public

@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, Menus, SkinCaption, WinSkinData, DB, ADODB, MemDS,
+  Dialogs, Menus, DB, ADODB, MemDS,
   DBAccess, Uni, UniProvider, PostgreSQLUniProvider, ImgList;
 
 type
