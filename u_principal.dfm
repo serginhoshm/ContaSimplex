@@ -24,6 +24,7 @@ object FormPrincipal: TFormPrincipal
       Caption = 'Cadastros'
       object Ativoimobilizado1: TMenuItem
         Caption = 'Ativo imobilizado'
+        Enabled = False
       end
       object Clientes1: TMenuItem
         Caption = 'Clientes'
@@ -31,22 +32,27 @@ object FormPrincipal: TFormPrincipal
       end
       object Departamentos1: TMenuItem
         Caption = 'Departamentos'
+        Enabled = False
       end
       object Fornecedores1: TMenuItem
         Caption = 'Fornecedores'
+        Enabled = False
       end
       object Produtod1: TMenuItem
         Caption = 'Produtos'
+        Enabled = False
         OnClick = Produtod1Click
       end
       object Unidadesmedida1: TMenuItem
         Caption = 'Unidades medida'
+        Enabled = False
       end
     end
     object Movimento1: TMenuItem
       Caption = 'Movimento'
       object Itenscomprados1: TMenuItem
         Caption = 'Itens comprados'
+        Enabled = False
       end
       object Itensvendidos1: TMenuItem
         Caption = 'Itens vendidos'
@@ -81,6 +87,7 @@ object FormPrincipal: TFormPrincipal
       end
       object Baixacrditos1: TMenuItem
         Caption = 'Baixa cr'#233'ditos'
+        Enabled = False
         OnClick = Baixacrditos1Click
       end
     end
@@ -95,6 +102,7 @@ object FormPrincipal: TFormPrincipal
       end
       object Emailsautomticos1: TMenuItem
         Caption = 'E-mails autom'#225'ticos'
+        Enabled = False
       end
       object Listaremaill1: TMenuItem
         Caption = 'Listar e-mails'

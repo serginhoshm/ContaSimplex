@@ -26,7 +26,8 @@ uses
   u_formprocbaixarcreditos in 'u_formprocbaixarcreditos.pas' {FormBaixarCreditosManual},
   u_formrelpadrao in 'u_formrelpadrao.pas' {FormRelPadrao},
   u_FormRelFaturamentosPendentes in 'u_FormRelFaturamentosPendentes.pas' {FormRelFaturamentosPendetes},
-  u_formenviaemail in 'u_formenviaemail.pas' {FormEnviaEmails};
+  u_formenviaemail in 'u_formenviaemail.pas' {FormEnviaEmails},
+  u_dmregvenda in 'u_dmregvenda.pas' {DMRegVenda: TDataModule};
 
 {$R *.res}
 

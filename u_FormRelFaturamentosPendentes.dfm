@@ -11,7 +11,7 @@ inherited FormRelFaturamentosPendetes: TFormRelFaturamentosPendetes
   end
   inherited frxReportPadrao: TfrxReport
     ReportOptions.CreateDate = 42380.925057395800000000
-    ReportOptions.LastChange = 42380.937508588000000000
+    ReportOptions.LastChange = 42414.838948182870000000
     Left = 144
     Top = 64
     Datasets = <
@@ -386,6 +386,9 @@ inherited FormRelFaturamentosPendetes: TFormRelFaturamentosPendetes
           Top = 3.779530000000000000
           Width = 113.385900000000000000
           Height = 18.897650000000000000
+          DisplayFormat.DecimalSeparator = ','
+          DisplayFormat.FormatStr = '%2.2f'
+          DisplayFormat.Kind = fkNumeric
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -12
@@ -415,6 +418,9 @@ inherited FormRelFaturamentosPendetes: TFormRelFaturamentosPendetes
           Top = 3.779530000000000000
           Width = 113.385900000000000000
           Height = 18.897650000000000000
+          DisplayFormat.DecimalSeparator = ','
+          DisplayFormat.FormatStr = '%2.2f'
+          DisplayFormat.Kind = fkNumeric
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -12

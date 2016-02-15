@@ -14,6 +14,7 @@ type
     destructor Destroy; override;
     function RegistroVendaExiste(DataReg: TDate): Boolean;
     function RegistrarVenda(AXMLData: string): Boolean;
+    function GetXMLRegistroVenda(DataRef: TDate): string;
   end;
 
 
@@ -21,7 +22,7 @@ type
 
 implementation
 
-uses u_dm, DateUtils, u_mailsender, DB, u_bibliotecas;
+uses u_dm, DateUtils, u_mailsender, DB, u_bibliotecas, u_dmregvenda;
 
 { TRegistraVenda }
 
@@ -35,6 +36,70 @@ begin
   inherited;
 end;
 
+
+function TRegistraVenda.GetXMLRegistroVenda(DataRef: TDate): string;
+var
+  QItens: TUniQuery;
+  AFileName: string;
+  DMReg: TDMRegVenda;
+begin
+  Result := EmptyStr;
+  QItens := TUniQuery.Create(nil);
+  DMReg := TDMRegVenda.Create(nil);
+  try
+    try
+      DMReg.CDSItens.Close;
+      DMReg.CDSItens.CreateDataSet;
+
+      QItens.Connection := DM.GetConexao;
+      QItens.sql.add('select ');
+      QItens.sql.add('itemid, produtoid, clienteid, itemquantidade, itemvalorunitario, itemvalortotal, datareferencia, faturamentoid');
+      QItens.sql.add('from itensvendidos');
+      QItens.sql.add('where datareferencia = :datareferencia');
+      QItens.ParamByName('DataReferencia').DataType := ftDate;
+      QItens.ParamByName('DataReferencia').Value := DataRef;
+      QItens.Open;
+
+      QItens.First;
+      while not QItens.Eof do
+      begin
+        if QItens.FieldByName('faturamentoid').AsInteger > 0 then
+          raise Exception.Create('Não é possível editar, pois este dia possui um ou mais itens já faturados');
+
+        QItens.Next;
+      end;
+
+      QItens.First;
+      while not QItens.Eof do
+      begin
+        DMReg.CDSItens.Append;
+        DMReg.CDSItensProdutoID.AsInteger := QItens.FieldByName('ProdutoID').AsInteger;
+        DMReg.CDSItensClienteID.AsInteger := QItens.FieldByName('ClienteID').AsInteger;
+        DMReg.CDSItensRegVenQtde.Value := QItens.FieldByName('itemquantidade').AsFloat;
+        DMReg.CDSItensRegVenVlrUnit.Value := QItens.FieldByName('itemvalorunitario').AsFloat;
+        DMReg.CDSItensRegVenVlrTot.Value := QItens.FieldByName('itemvalortotal').AsFloat;
+        DMReg.CDSItensRegVenDataRef.Value := DateOf(QItens.FieldByName('datareferencia').AsDateTime);
+        DMReg.CDSItensItemNro.AsInteger := QItens.RecNo;
+        DMReg.CDSItens.Post;
+        QItens.Next;
+      end;
+      Result := DMReg.CDSItens.XMLData;
+    except
+      on E:Exception do
+      begin
+        if DM.GetConexao.InTransaction then
+          DM.GetConexao.Rollback;
+        Result := EmptyStr;
+        raise;
+      end;
+    end;
+  finally
+    FreeAndNil(QItens);
+    FreeAndNil(DMReg);
+  end;
+
+
+end;
 
 function TRegistraVenda.RegistrarVenda(AXMLData: string): Boolean;
 var

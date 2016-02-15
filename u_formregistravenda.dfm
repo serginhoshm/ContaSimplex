@@ -1,6 +1,6 @@
 object FormRegistraVenda: TFormRegistraVenda
-  Left = 229
-  Top = 119
+  Left = 270
+  Top = 112
   Width = 1002
   Height = 593
   Caption = 'Registrar vendas'
@@ -15,6 +15,7 @@ object FormRegistraVenda: TFormRegistraVenda
   Position = poScreenCenter
   WindowState = wsMaximized
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
@@ -74,11 +75,11 @@ object FormRegistraVenda: TFormRegistraVenda
       Height = 456
       Align = alClient
       Ctl3D = False
-      DataSource = DS_Itens
+      DataSource = DMRegVenda.DS_Itens
       Font.Charset = ANSI_CHARSET
       Font.Color = clWindowText
-      Font.Height = -13
-      Font.Name = 'Courier New'
+      Font.Height = -12
+      Font.Name = 'Consolas'
       Font.Style = []
       Options = [dgEditing, dgAlwaysShowEditor, dgTitles, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit]
       ParentCtl3D = False
@@ -86,8 +87,8 @@ object FormRegistraVenda: TFormRegistraVenda
       TabOrder = 0
       TitleFont.Charset = ANSI_CHARSET
       TitleFont.Color = clWindowText
-      TitleFont.Height = -11
-      TitleFont.Name = 'Courier New'
+      TitleFont.Height = -12
+      TitleFont.Name = 'Consolas'
       TitleFont.Style = [fsBold]
       Columns = <
         item
@@ -144,6 +145,9 @@ object FormRegistraVenda: TFormRegistraVenda
       Ctl3D = False
       ParentCtl3D = False
       TabOrder = 1
+      DesignSize = (
+        986
+        41)
       object BitBtnOk: TBitBtn
         Left = 8
         Top = 8
@@ -204,150 +208,21 @@ object FormRegistraVenda: TFormRegistraVenda
         Top = 8
         Width = 75
         Height = 25
+        Anchors = [akTop, akRight]
         Caption = 'Clientes'
         TabOrder = 2
         OnClick = Button1Click
       end
-    end
-  end
-  object CDSItens: TClientDataSet
-    Aggregates = <>
-    FieldDefs = <
-      item
-        Name = 'ProdutoID'
-        DataType = ftInteger
+      object Button2: TButton
+        Left = 808
+        Top = 8
+        Width = 75
+        Height = 25
+        Anchors = [akTop, akRight]
+        Caption = 'Adic. linhas'
+        TabOrder = 3
+        OnClick = Button2Click
       end
-      item
-        Name = 'ClienteID'
-        DataType = ftInteger
-      end
-      item
-        Name = 'ItemNro'
-        Attributes = [faReadonly]
-        DataType = ftAutoInc
-      end
-      item
-        Name = 'RegVenQtde'
-        DataType = ftFloat
-      end
-      item
-        Name = 'RegVenVlrUnit'
-        DataType = ftFloat
-      end
-      item
-        Name = 'RegVenVlrTot'
-        DataType = ftFloat
-      end
-      item
-        Name = 'RegVenDataRef'
-        DataType = ftDate
-      end>
-    IndexDefs = <>
-    Params = <>
-    StoreDefs = True
-    BeforePost = CDSItensBeforePost
-    OnNewRecord = CDSItensNewRecord
-    Left = 368
-    Top = 184
-    object CDSItensProdutoID: TIntegerField
-      DisplayLabel = 'Prod.Cd.'
-      DisplayWidth = 20
-      FieldName = 'ProdutoID'
-    end
-    object CDSItensClienteID: TIntegerField
-      DisplayLabel = 'Cliente cd.'
-      DisplayWidth = 20
-      FieldName = 'ClienteID'
-    end
-    object CDSItensRegVenQtde: TFloatField
-      DisplayLabel = 'Qtde.'
-      DisplayWidth = 20
-      FieldName = 'RegVenQtde'
-      DisplayFormat = '#0.00'
-    end
-    object CDSItensRegVenVlrUnit: TFloatField
-      DisplayLabel = 'Unit.'
-      FieldName = 'RegVenVlrUnit'
-      DisplayFormat = '#0.00'
-    end
-    object CDSItensRegVenVlrTot: TFloatField
-      DisplayLabel = 'Total'
-      FieldName = 'RegVenVlrTot'
-      DisplayFormat = '#0.00'
-    end
-    object CDSItensRegVenDataRef: TDateField
-      FieldName = 'RegVenDataRef'
-      Visible = False
-    end
-    object CDSItensProdutoNome: TStringField
-      DisplayLabel = 'Produto'
-      FieldKind = fkLookup
-      FieldName = 'ProdutoNome'
-      LookupDataSet = QProdutos
-      LookupKeyFields = 'ProdutoID'
-      LookupResultField = 'ProdutoNome'
-      KeyFields = 'ProdutoID'
-      Size = 255
-      Lookup = True
-    end
-    object CDSItensClienteNome: TStringField
-      DisplayLabel = 'Cliente'
-      FieldKind = fkLookup
-      FieldName = 'ClienteNome'
-      LookupDataSet = QClientes
-      LookupKeyFields = 'ClienteID'
-      LookupResultField = 'ClienteNome'
-      KeyFields = 'ClienteID'
-      Size = 255
-      Lookup = True
-    end
-    object CDSItensItemNro: TAutoIncField
-      FieldName = 'ItemNro'
-    end
-  end
-  object DS_Itens: TDataSource
-    DataSet = CDSItens
-    Left = 424
-    Top = 184
-  end
-  object QProdutos: TUniQuery
-    SQL.Strings = (
-      'select *'
-      'from listaprecoatual'
-      'order by produtonome')
-    Left = 368
-    Top = 72
-    object QProdutosprodprecovendata: TDateTimeField
-      FieldName = 'prodprecovendata'
-    end
-    object QProdutosprodutoid: TIntegerField
-      FieldName = 'produtoid'
-    end
-    object QProdutosprodutonome: TWideStringField
-      FieldName = 'produtonome'
-      Size = 255
-    end
-    object QProdutosmaxdeprodprecovendata: TDateTimeField
-      FieldName = 'maxdeprodprecovendata'
-    end
-    object QProdutosprodprecovenvalor: TFloatField
-      FieldName = 'prodprecovenvalor'
-    end
-  end
-  object QClientes: TUniQuery
-    SQL.Strings = (
-      'select clienteid, clientenome'
-      'from clientes'
-      'order by clientenome')
-    Left = 368
-    Top = 128
-    object QClientesclienteid: TIntegerField
-      FieldName = 'clienteid'
-    end
-    object QClientesclientenome: TWideStringField
-      FieldName = 'clientenome'
-      Required = True
-      Size = 255
     end
   end
 end

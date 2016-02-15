@@ -6,19 +6,10 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, DB, DBClient, ADODB, Grids, DBGrids, RzDBGrid, ExtCtrls,
   StdCtrls, Buttons, ComCtrls, RzDTP, DateUtils, Uni, UniProvider, PostgreSQLUniProvider,
-  MemDS, DBAccess;
+  MemDS, DBAccess, u_dmregvenda;
 
 type
   TFormRegistraVenda = class(TForm)
-    CDSItens: TClientDataSet;
-    DS_Itens: TDataSource;
-    CDSItensProdutoID: TIntegerField;
-    CDSItensClienteID: TIntegerField;
-    CDSItensRegVenQtde: TFloatField;
-    QProdutos: TUniQuery;
-    CDSItensProdutoNome: TStringField; 
-    QClientes: TUniQuery;
-    CDSItensClienteNome: TStringField;
     PanelTopo: TPanel;
     RzDateTimePickerReg: TRzDateTimePicker;
     Label1: TLabel;
@@ -28,29 +19,19 @@ type
     Panel1: TPanel;
     BitBtnOk: TBitBtn;
     BitBtnCancel: TBitBtn;
-    CDSItensRegVenDataRef: TDateField;
-    CDSItensRegVenVlrUnit: TFloatField;
-    CDSItensRegVenVlrTot: TFloatField;
-    CDSItensItemNro: TAutoIncField;
-    QProdutosprodprecovendata: TDateTimeField;
-    QProdutosprodutoid: TIntegerField;
-    QProdutosprodutonome: TWideStringField;
-    QProdutosmaxdeprodprecovendata: TDateTimeField;
-    QProdutosprodprecovenvalor: TFloatField;
-    QClientesclienteid: TIntegerField;
-    QClientesclientenome: TWideStringField;
     Button1: TButton;
+    Button2: TButton;
     procedure FormCreate(Sender: TObject);
-    procedure CDSItensNewRecord(DataSet: TDataSet);
     procedure BitBtnOkClick(Sender: TObject);
     procedure ButtonIniciarClick(Sender: TObject);
     procedure BitBtnCancelClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure CDSItensBeforePost(DataSet: TDataSet);
     procedure Button1Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
   private
     { Private declarations }
-    procedure CalculaItem;
+    DMReg: TDMRegVenda;
     procedure ModoInicial;
     procedure ModoDigitacao;
   public
@@ -69,27 +50,17 @@ uses u_principal, u_dm, u_bibliotecas, u_registrovenda, Math, Printers,
 
 procedure TFormRegistraVenda.FormCreate(Sender: TObject);
 begin
-  QProdutos.Connection := DM.GetConexao;
-  QProdutos.Open;
-  QClientes.Connection := DM.GetConexao;
-  QClientes.Open;
-  CDSItens.CreateDataSet;
-  CDSItens.LogChanges := False;
+  DMReg := TDMRegVenda.Create(nil);
+  DMReg.QProdutos.Connection := DM.GetConexao;
+  DMReg.QProdutos.Open;
+  DMReg.QClientes.Connection := DM.GetConexao;
+  DMReg.QClientes.Open;
+  DMReg.CDSItens.CreateDataSet;
+  DMReg.CDSItens.LogChanges := False;
   RzDateTimePickerReg.Date := DateOf(Now);
   RzDateTimePickerReg.MaxDate := IncYear( DateOf(Now), 1);
 end;
 
-procedure TFormRegistraVenda.CDSItensNewRecord(DataSet: TDataSet);
-begin
-  CDSItensRegVenQtde.AsFloat := 1;
-  CDSItensRegVenDataRef.AsDateTime := RzDateTimePickerReg.Date;
-end;
-
-procedure TFormRegistraVenda.CalculaItem;
-begin
-  CDSItensRegVenVlrUnit.AsCurrency := QProdutosProdPrecoVenValor.AsCurrency;
-  CDSItensRegVenVlrTot.AsCurrency := CDSItensRegVenQtde.AsFloat * CDSItensRegVenVlrUnit.AsCurrency;
-end;
 
 procedure TFormRegistraVenda.BitBtnOkClick(Sender: TObject);
 var
@@ -99,13 +70,13 @@ begin
   begin
     AReg := TRegistraVenda.Create;
     try
-      if AReg.RegistrarVenda(CDSItens.XMLData) then
+      if AReg.RegistrarVenda(DMReg.CDSItens.XMLData) then
       begin
         ModoInicial;
       end
       else
       begin
-        CDSItens.First;
+        DMReg.CDSItens.First;
       end;
     finally
       FreeAndNil(AReg);
@@ -120,8 +91,8 @@ begin
   ButtonIniciar.Enabled := true;
   PanelTopo.Enabled := True;
   PanelDigita.Enabled := False;
-  CDSItens.Close;
-  CDSItens.CreateDataSet;
+  DMReg.CDSItens.Close;
+  DMReg.CDSItens.CreateDataSet;
   BitBtnOk.Enabled := false;
   BitBtnCancel.Enabled := False;
   if RzDateTimePickerReg.CanFocus then
@@ -136,7 +107,8 @@ begin
   PanelDigita.Enabled := True;
   BitBtnOk.Enabled := True;
   BitBtnCancel.Enabled := True;
-  CDSItens.First;
+  DMReg.GlobalDataRef := RzDateTimePickerReg.DateTime;
+  DMReg.CDSItens.First;
   if RzDBGridItens.CanFocus then
     RzDBGridItens.SetFocus;
 end;
@@ -144,6 +116,7 @@ end;
 procedure TFormRegistraVenda.ButtonIniciarClick(Sender: TObject);
 var
   AReg: TRegistraVenda;
+  AXML: string;
 begin
   AReg := TRegistraVenda.Create;
   try
@@ -151,8 +124,21 @@ begin
       ModoDigitacao
     else
     begin
-      ModoInicial;
-      MensagemAtencao('O registro de venda para a data informada já existe!') ;
+      try
+        AXML := AReg.GetXMLRegistroVenda(RzDateTimePickerReg.Date);
+        DMReg.CDSItens.EmptyDataSet;
+        DMReg.CDSItens.XMLData := AXML;
+        ModoDigitacao;
+      except
+        on E:Exception do
+        begin
+          ShowMessage('Erro ao carregar o registro de venda existente: ' + E.Message);
+        end;
+      end;
+
+
+      //ModoInicial;
+      //MensagemAtencao('O registro de venda para a data informada já existe!') ;
     end;
   finally
     FreeAndNil(AReg);
@@ -171,22 +157,50 @@ begin
 
 end;
 
-procedure TFormRegistraVenda.CDSItensBeforePost(DataSet: TDataSet);
-begin
-  CalculaItem;
-end;
-
 procedure TFormRegistraVenda.Button1Click(Sender: TObject);
 begin
   FormListarClientes := TFormListarClientes.Create(nil);
   try
     FormListarClientes.ShowModal;
-    QClientes.Close;
-    QClientes.Open;
+    DMReg.QClientes.Close;
+    DMReg.QClientes.Open;
   finally
     FreeAndNil(FormListarClientes);
   end;
 
+end;
+
+procedure TFormRegistraVenda.Button2Click(Sender: TObject);
+var
+  ANumLinhas,
+  aux,
+  Ultimo: Integer;
+  ABmk: TBookmark;
+begin
+  ANumLinhas := StrToIntDef(InputBox('Adicionar linhas', 'Número de linhas', '1'),0);
+  ABmk := DMReg.CDSItens.GetBookmark;
+  try
+    for aux := 1 to ANumLinhas do
+    begin
+      DMReg.CDSItens.Append;
+      DMReg.CDSItensRegVenQtde.AsFloat := 1;
+      DMReg.CDSItensRegVenVlrUnit.AsFloat := 1;
+      DMReg.CDSItensRegVenVlrTot.AsFloat := 1;
+      DMReg.CDSItens.Post;
+    end;
+  finally
+    if ABmk <> nil then
+    begin
+      if DMReg.CDSItens.BookmarkValid(ABmk) then
+        DMReg.CDSItens.GotoBookmark(ABmk);
+    end;
+  end;
+end;
+
+
+procedure TFormRegistraVenda.FormDestroy(Sender: TObject);
+begin
+  FreeAndNil(DMReg);
 end;
 
 end.
