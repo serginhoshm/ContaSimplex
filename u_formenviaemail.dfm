@@ -23,6 +23,19 @@ object FormEnviaEmails: TFormEnviaEmails
     Height = 13
     Caption = 'Data pgto'
   end
+  object LabelProgresso: TLabel
+    Left = 112
+    Top = 216
+    Width = 9
+    Height = 19
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clMaroon
+    Font.Height = -16
+    Font.Name = 'Consolas'
+    Font.Style = [fsBold]
+    ParentFont = False
+    Visible = False
+  end
   object Memo1: TMemo
     Left = 8
     Top = 48

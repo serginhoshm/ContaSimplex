@@ -12,6 +12,7 @@ type
     Button1: TButton;
     DateTimePicker1: TDateTimePicker;
     Label1: TLabel;
+    LabelProgresso: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
   private
@@ -39,12 +40,15 @@ var
   FatObj: TFatObj;
 begin
   FatObj := TFatObj.Create;
+  LabelProgresso.Show;
   try
     FatObj.DataPagamento := StartOfTheDay(DateTimePicker1.DateTime);
+    FatObj.LabelProgresso := LabelProgresso;
     FatObj.EnviarEmailFaturPendentes;
     Memo1.Lines := FatObj.Log;
   finally
     FreeAndNil(FatObj);
+    LabelProgresso.Hide;
   end;
 end;
 

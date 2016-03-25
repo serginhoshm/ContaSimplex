@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, ADODB, Uni, UniProvider, PostgreSQLUniProvider;
+  Dialogs, ADODB, Uni, UniProvider, PostgreSQLUniProvider, StdCtrls;
 
 type
   TFatOpeTipo = (opeInclusao, OpeBaixa, OpeCancelamento, OpeEstorno);
@@ -31,6 +31,7 @@ type
     function GerarAutenticacaoMecania(FaturID: integer): string;
     function CriarRecibo(Faturid: integer; recibodatageracao: TDateTime; recibovalorpago, recibovalorcredito, recibovalortroco: Double): string;
   public
+    LabelProgresso: TLabel;
     constructor Create;
     destructor Destroy; override;
     property DataInicial: TDateTime read FDataInicial write SetDataInicial;
@@ -353,6 +354,12 @@ begin
       begin
         while not QFatPend.Eof do
         begin
+          if LabelProgresso <> nil then
+          begin
+            LabelProgresso.Caption := 'Enviado: ' + IntToStr(QFatPend.RecNo) + ' de ' + IntToStr(QFatPend.RecordCount);
+            LabelProgresso.Refresh;
+          end;
+
           if QFatPend.FieldByName('ClienteEmail').AsString = EmptyStr then
           begin
             QFatPend.Next;
@@ -363,26 +370,27 @@ begin
           try
             AMSend.DestinatarioNome := QFatPend.FieldByName('ClienteNome').AsString;
             AMSend.DestinatarioEmail := LowerCase(trim(QFatPend.FieldByName('ClienteEmail').AsString));
-            AMSend.AssuntoEmail := 'Resumo conta consumo bolos e doces';
+            AMSend.AssuntoEmail := 'Resumo conta consumo bolos e doces [' + FormatDateTime('dd/mm/yyyy', QFatPend.FieldByName('faturdatageracao').AsDateTime) +']';
             AMSend.TextoEmail.Add('Olá ' + AMSend.DestinatarioNome + '!');
             AMSend.TextoEmail.Add(' ');
             AMSend.TextoEmail.Add(' ');
             AMSend.TextoEmail.Add('Sua conta do consumo de bolos e doces foi de: R$ ' + FormatCurr('#0.00', QFatPend.FieldByName('FaturValorTotal').AsCurrency));
             AMSend.TextoEmail.Add('O pagamento poderá ser realizado até ' + FormatDateTime('dd/mm/yyyy', DataPagamento) + '.');
             AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add('ATENÇÃO: Estamos inovando os métodos de pagamento para este mês, conto com sua colaboração:');
+            AMSend.TextoEmail.Add('Métodos de pagamento:');
+            AMSend.TextoEmail.Add(' ');
             AMSend.TextoEmail.Add('MÉTODO 1 - CAIXINHA (auto-atendimento)');
             AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add(' - Atrás de minha estação de trabalho (baia vazia), existe uma caixinha trancada com envelopes ao lado');
-            AMSend.TextoEmail.Add(' - Escreva seu nome no envelope, coloque os valores nele e deposite na caixa');
-            AMSend.TextoEmail.Add(' - Confirmo o recebimentos destes valores até o final do dia');
-            AMSend.TextoEmail.Add(' - Se o seu pagamento tiver troco, devolvo o mesmo no dia seguinte (também pode ficar a crédito)');
+            AMSend.TextoEmail.Add(' - Fileira da TV, estação 097, seguir as intruções presentes no local');
+            AMSend.TextoEmail.Add(' ');
             AMSend.TextoEmail.Add('MÉTODO 2 - Depósito bancário (somente Santander)');
             AMSend.TextoEmail.Add(' ');
             AMSend.TextoEmail.Add(' - BANCO SANTANDER ');
             AMSend.TextoEmail.Add(' - AG 4509 ');
             AMSend.TextoEmail.Add(' - C/C 01064448-3');
             AMSend.TextoEmail.Add(' - TITULAR: SERGIO HENRIQUE MARCHIORI');
+            AMSend.TextoEmail.Add(' - CPF: 047.034.269-27');
+            AMSend.TextoEmail.Add(' ');
             AMSend.TextoEmail.Add('MÉTODO 3 - Pessoalmente');
             AMSend.TextoEmail.Add(' - Prefira os horários após as 12:00h e após as 18h, assim evitamos interrupções durante o expediente.');
             AMSend.TextoEmail.Add(' ');
@@ -406,6 +414,7 @@ begin
             FreeAndNil(AMSend);
           end;
           QFatPend.Next;
+          Application.ProcessMessages;
         end;
         Log.SaveToFile(ExtractFilePath(Application.ExeName) + 'LogEnviaEmail_' + FormatDateTime('yyyy-mm-dd_hhnnsszzz', Now) + '.txt');
       end;
