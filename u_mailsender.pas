@@ -44,9 +44,9 @@ begin
     FMailClient.AuthenticationType := atLogin;
     FMailClient.Host := 'smtp.gmail.com';
     FMailClient.IOHandler := FIOHandler;
-    FMailClient.Password := '2unix()*';
+    FMailClient.Password := '1unix()*';
     FMailClient.Port := 465;
-    FMailClient.Username := 'serginhoshm@gmail.com'; //não esqueça o @gmail.com!!
+    FMailClient.Username := 'dedosdemariabolos@gmail.com'; //não esqueça o @gmail.com!!
 
     FIOHandler.SSLOptions.Method := sslvTLSv1;
     FIOHandler.SSLOptions.Mode := sslmClient;
@@ -80,15 +80,29 @@ begin
 end;
 
 function TMailSender.Enviar(var RetMsg: string): Boolean;
+
+  procedure AdicionaTextoFormatado;
+  var
+    i: Integer;
+  begin
+    //Adiciona quebras de linha <br> ao texto
+    FMessage.Body.Clear;
+    for i:= 0 to TextoEmail.Count -1 do
+      FMessage.Body.Add('<br>' + TextoEmail.Strings[i]);
+  end;
+
 begin
   try
-    FMessage.Body := TextoEmail;
-    FMessage.From.Address := 'serginhoshm@gmail.com'; //opcional
-    FMessage.From.Name := 'Sérgio Henrique Marchiori'; //opcional
+    FMessage.ContentType := 'text/html';
+    FMessage.From.Address := 'dedosdemariabolos@gmail.com'; //opcional
+    FMessage.From.Name := 'Bolos e Doces - Dedos de Maria'; //opcional
     FMessage.Recipients.Add;
     FMessage.Recipients.Items[0].Address := DestinatarioEmail;
     FMessage.Recipients.Items[0].Name := DestinatarioNome; //opcional
     FMessage.Subject := AssuntoEmail;
+    AdicionaTextoFormatado;
+
+    FMessage.Body.SaveToFile(ExtractFilePath(Application.ExeName) + 'EnviarEmail.html');
 
     FMailClient.Connect();
     FMailClient.Send(FMessage);

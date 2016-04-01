@@ -4,10 +4,37 @@ inherited FormRelFaturamentosPendetes: TFormRelFaturamentosPendetes
   TextHeight = 13
   inherited RzToolbar1: TRzToolbar
     ToolbarControls = (
-      RzToolButton1)
+      RzToolButton1
+      RzToolButton3
+      RzToolButton2)
     inherited RzToolButton1: TRzToolButton
       OnClick = RzToolButton1Click
     end
+    object RzToolButton2: TRzToolButton
+      Left = 106
+      Top = 0
+      Width = 52
+      Height = 50
+      ImageIndex = 16
+      Images = FormPrincipal.Img
+      Layout = blGlyphTop
+      ShowCaption = True
+      UseToolbarButtonLayout = False
+      UseToolbarShowCaption = False
+      Caption = 'Recobrar'
+      OnClick = RzToolButton2Click
+    end
+    object RzToolButton3: TRzToolButton
+      Left = 56
+      Top = 0
+    end
+  end
+  object Memo1: TMemo [2]
+    Left = 8
+    Top = 56
+    Width = 505
+    Height = 249
+    TabOrder = 2
   end
   inherited frxReportPadrao: TfrxReport
     ReportOptions.CreateDate = 42380.925057395800000000

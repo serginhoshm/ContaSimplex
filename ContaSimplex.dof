@@ -90,7 +90,7 @@ MaxStackSize=1048576
 ImageBase=4194304
 ExeDescription=
 [Directories]
-OutputDir=C:\Users\sergio\OneDrive\BancoDados
+OutputDir=c:\Users\sergi\OneDrive\BancoDados\
 UnitOutputDir=C:\temp
 PackageDLLOutputDir=
 PackageDCPOutputDir=C:\temp
@@ -125,6 +125,9 @@ Locale=1046
 CodePage=1252
 [Version Info Keys]
 FileVersion=1.0.0.0
+[Excluded Packages]
+c:\bd7\Bin\dclqrt70.bpl=QuickReport Components
+c:\bd7\Bin\dcltqr70.bpl=TeeChart for QuickReport Components
 [HistoryLists\hlUnitAliases]
 Count=1
 Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
@@ -134,11 +137,13 @@ Item0=C:\temp
 Item1=.\DCU
 Item2=.\
 [HistoryLists\hlOutputDirectorry]
-Count=4
-Item0=C:\Users\sergio\OneDrive\BancoDados
-Item1=.\EXE
-Item2=.\
-Item3=C:\Users\sergi\OneDrive\BancoDados
+Count=6
+Item0=c:\Users\sergi\OneDrive\BancoDados\
+Item1=C:\temp
+Item2=C:\Users\sergio\OneDrive\BancoDados
+Item3=.\EXE
+Item4=.\
+Item5=C:\Users\sergi\OneDrive\BancoDados
 [HistoryLists\hlDCPOutput]
 Count=1
 Item0=C:\temp

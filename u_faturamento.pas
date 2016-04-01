@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, ADODB, Uni, UniProvider, PostgreSQLUniProvider, StdCtrls;
+  Dialogs, ADODB, Uni, UniProvider, PostgreSQLUniProvider, StdCtrls, DBClient, DB;
 
 type
   TFatOpeTipo = (opeInclusao, OpeBaixa, OpeCancelamento, OpeEstorno);
@@ -43,7 +43,9 @@ type
     procedure Exec;
     procedure EnviarEmailFaturPendentes;
     procedure EnviarEmailPagamentosRecebidosPendentes;
+    procedure EnviarRecobranca;
     function ReceberFatur(FaturID: Integer; ValorRecebido, ValorTroco, ValorACredito: Double): string;
+    procedure EnviarHtmlMail;
   end;
 
 
@@ -770,18 +772,14 @@ begin
           try
             AMSend.DestinatarioNome := QEmailRecPend.FieldByName('clientenome').AsString;
             AMSend.DestinatarioEmail := LowerCase(trim(QEmailRecPend.FieldByName('clienteemail').AsString));
-            AMSend.AssuntoEmail := 'Recebido - conta consumo bolos e doces';
-            AMSend.TextoEmail.Add('Olá ' + AMSend.DestinatarioNome + '!');
+            AMSend.AssuntoEmail := 'Obrigado - recebido';
+            AMSend.TextoEmail.Add('<b>Obrigado ' + AMSend.DestinatarioNome + '! </b>');
             AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add('Recebemos aua conta do consumo de bolos e doces no valor de: R$ ' + FormatCurr('#0.00', QEmailRecPend.FieldByName('recibovalorpago').AsCurrency));
+            AMSend.TextoEmail.Add('Recebemos sua conta do consumo de bolos e doces no valor de: R$ ' + FormatCurr('#0.00', QEmailRecPend.FieldByName('recibovalorpago').AsCurrency));
             if (QEmailRecPend.FieldByName('recibovalortroco').AsFloat > 0) then
               AMSend.TextoEmail.Add('O troco no valor de : R$ ' + FormatCurr('#0.00', QEmailRecPend.FieldByName('recibovalortroco').AsCurrency) + ' será entregue em mãos');
             AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add('Em caso de alguma divergência possuo os registros para sua verificação.');
-            AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add('Obrigado por consumir nossos produtos e utilize este canal de comunicação para efetuar sugestões ou críticas');
+            AMSend.TextoEmail.Add('<i>Obrigado por consumir nossos produtos e utilize este canal para efetuar sugestões ou críticas</i>');
             AMSend.TextoEmail.Add(' ');
             AMSend.TextoEmail.Add('Autenticação: [' + QEmailRecPend.FieldByName('reciboautentic').AsString + ']');
             AMSend.TextoEmail.Add(' ');
@@ -816,6 +814,191 @@ begin
   end;
 
 
+
+end;
+
+procedure TFatObj.EnviarRecobranca;
+var
+  QEmailRecPend: TUniQuery;
+  AMSend: TMailSender;
+  MsgErro,
+  ADt: string;
+  clienteid: Integer;
+  ACDS: TClientDataSet;
+  TabelaFaturas: TStringList;
+  ASoma: Currency;
+
+  procedure CriarCursorCliente;
+  begin
+    QEmailRecPend.First;
+    while not QEmailRecPend.Eof do
+    begin
+      if trim(QEmailRecPend.FieldByName('clienteemail').AsString) = EmptyStr then
+      begin
+        QEmailRecPend.Next;
+        Continue;
+      end;
+      if not ACDS.Locate('clienteid', QEmailRecPend.FieldByName('clienteid').AsInteger, [loCaseInsensitive]) then
+      begin
+        ACDS.Append;
+        ACDS.FieldByName('clienteid').AsInteger := QEmailRecPend.FieldByName('clienteid').AsInteger;
+        ACDS.Post;
+      end;
+      QEmailRecPend.Next;
+    end;
+    ACDS.IndexFieldNames := 'clienteid';
+    QEmailRecPend.First;
+  end;
+
+begin
+  QEmailRecPend := TUniQuery.Create(nil);
+  QEmailRecPend.Connection := DM.GetConexao;
+  ACDS := TClientDataSet.Create(nil);
+  TabelaFaturas := TStringList.Create;
+  try
+    ACDS.FieldDefs.Add('clienteid', ftinteger);
+    ACDS.CreateDataSet;
+    ACDS.LogChanges := false;
+    try
+      QEmailRecPend.sql.add('SELECT * ');
+      QEmailRecPend.sql.add('  FROM faturamentospendentes;');
+      QEmailRecPend.Open;
+
+      if not QEmailRecPend.Eof then
+      begin
+        CriarCursorCliente;
+        TabelaFaturas.Clear;
+
+        ACDS.First;
+        while not ACDS.Eof do
+        begin
+          QEmailRecPend.Filter := 'clienteid=' + ACDS.FieldByName('clienteid').AsString;
+          QEmailRecPend.Filtered := True;
+          QEmailRecPend.IndexFieldNames := 'faturid';
+
+          TabelaFaturas.Add('<TABLE BORDER=1>');
+          TabelaFaturas.Add('<TR>');
+          TabelaFaturas.Add('   <TD>Referência</TD>');
+          TabelaFaturas.Add('   <TD>Valor</TD>');
+          TabelaFaturas.Add('</TR>');
+
+          ASoma := 0;
+          while not QEmailRecPend.Eof do
+          begin
+            TabelaFaturas.Add('<TR>');
+            TabelaFaturas.Add('   <TD>' + FormatDateTime('dd/mm/yyyy', QEmailRecPend.FieldByName('faturdatageracao').AsDateTime) + '</TD>');
+            TabelaFaturas.Add('   <TD>' + FormatCurr('#0.00', QEmailRecPend.FieldByName('valorpendente').AsCurrency) + '</TD>');
+            TabelaFaturas.Add('</TR>');
+            ASoma := ASoma + QEmailRecPend.FieldByName('valorpendente').AsCurrency;
+            QEmailRecPend.Next;
+          end;
+          
+          TabelaFaturas.Add('<TR>');
+          TabelaFaturas.Add('   <TD><b>TOTAL</b></TD>');
+          TabelaFaturas.Add('   <TD><b>' + FormatCurr('#0.00', ASoma) + '</b></TD>');
+          TabelaFaturas.Add('</TR>');
+          TabelaFaturas.Add('</TABLE>');
+
+          //Mandar o e-mail
+          AMSend := TMailSender.Create;
+          try
+            AMSend.DestinatarioNome := QEmailRecPend.FieldByName('clientenome').AsString;
+            AMSend.DestinatarioEmail := LowerCase(trim(QEmailRecPend.FieldByName('clienteemail').AsString));
+            //AMSend.DestinatarioEmail := 'serginhoshm@gmail.com'; para testes
+            AMSend.AssuntoEmail := 'Acerto - conta bolos e doces';
+            AMSend.TextoEmail.Add('Olá ' + AMSend.DestinatarioNome + '!');
+            AMSend.TextoEmail.Add('');
+            AMSend.TextoEmail.Add('Sua conta abaixo relacionada ainda não foi quitada. Solicitamos por gentileza observar os valores abaixo: ');
+
+            AMSend.TextoEmail.Add(TabelaFaturas.Text);
+
+            AMSend.TextoEmail.Add(' ');
+            AMSend.TextoEmail.Add('Métodos de pagamento:');
+            AMSend.TextoEmail.Add(' ');
+            AMSend.TextoEmail.Add('<b>MÉTODO 1 - CAIXINHA (auto-atendimento)</b>');
+            AMSend.TextoEmail.Add(' ');
+            AMSend.TextoEmail.Add(' - Fileira da TV, estação 097, seguir as intruções presentes no local');
+            AMSend.TextoEmail.Add(' ');
+            AMSend.TextoEmail.Add('<b>MÉTODO 2 - Depósito bancário (somente Santander)</b>');
+            AMSend.TextoEmail.Add(' ');
+            AMSend.TextoEmail.Add(' - BANCO SANTANDER ');
+            AMSend.TextoEmail.Add(' - AG 4509 ');
+            AMSend.TextoEmail.Add(' - C/C 01064448-3');
+            AMSend.TextoEmail.Add(' - TITULAR: SERGIO HENRIQUE MARCHIORI');
+            AMSend.TextoEmail.Add(' - CPF: 047.034.269-27');
+            AMSend.TextoEmail.Add(' ');
+            AMSend.TextoEmail.Add('<b>MÉTODO 3 - Pessoalmente</b>');
+            AMSend.TextoEmail.Add(' - Prefira os horários após as 12:00h e após as 18h, assim evitamos interrupções durante o expediente.');
+            AMSend.TextoEmail.Add(' ');
+            AMSend.TextoEmail.Add('Caso já tenha quitado ou negociado, favor desconsiderar.');
+            AMSend.TextoEmail.Add('Esta é uma mensagem gerada através de sistema eletrônico automatizado. ');
+
+            AMSend.TextoEmail.Add('Att. Sérgio e Paulo');
+
+            ADt := '[' + FormatDateTime('dd/mm/yyyy hh:nn:ss zzz', Now) + '] ';
+            if not AMSend.Enviar(MsgErro) then
+            begin
+              Log.Add(ADt + 'Erro: ' + QEmailRecPend.FieldByName('ClienteNome').AsString + MsgErro)
+            end
+            else
+            begin
+              Log.Add(ADt + 'Enviado: ' + QEmailRecPend.FieldByName('ClienteNome').AsString);
+              AtualizarEmailFaturEnviado(QEmailRecPend.FieldByName('faturid').AsInteger, Now);
+            end;
+          finally
+            FreeAndNil(AMSend);
+          end;
+          TabelaFaturas.Clear;
+
+          ACDS.Next;
+        end;
+        Log.SaveToFile(ExtractFilePath(Application.ExeName) + 'LogEnviaRecobranca_' + FormatDateTime('yyyy-mm-dd_hhnnsszzz', Now) + '.txt');
+
+      end;
+      Log.Add('Não há e-mails pendentes para enviar');
+    except
+      on E:Exception do
+      begin
+        ShowMessage(E.Message);
+        raise;
+      end;
+    end;
+  finally
+    FreeAndNil(QEmailRecPend);
+    FreeAndNil(ACDS);
+    FreeAndNil(TabelaFaturas);
+  end;
+end;
+
+
+procedure TFatObj.EnviarHtmlMail;
+var
+  AMSend: TMailSender;
+  ADt,
+  MsgErro: string;
+begin
+  AMSend := TMailSender.Create;
+  try
+    AMSend.DestinatarioNome := 'Sérgio Henrique Marchiori';
+    AMSend.DestinatarioEmail := 'serginhoshm@gmail.com';
+    AMSend.AssuntoEmail := 'Teste HTML';
+    AMSend.TextoEmail.Add('<b>Olá ' + AMSend.DestinatarioNome + '!</b>');
+    AMSend.TextoEmail.Add('<i>zazazaza</i>');
+    AMSend.TextoEmail.Add(' ');
+
+
+    ADt := '[' + FormatDateTime('dd/mm/yyyy hh:nn:ss zzz', Now) + '] ';
+    if not AMSend.Enviar(MsgErro) then
+    begin
+      Log.Add(ADt + 'Erro: ' + MsgErro)
+    end
+    else
+    begin
+      Log.Add(ADt + 'Enviado.');
+    end;
+  finally
+    FreeAndNil(AMSend);
+  end;
 
 end;
 
