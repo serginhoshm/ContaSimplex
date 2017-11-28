@@ -81,7 +81,7 @@ begin
   ForceDirectories(ExtractFilePath(ANomeArquivo));
   AURL := 'https://docs.google.com/spreadsheets/d/1vxYcVV6PBsXy4XrdANUApOB36j1fbrly6tVUdulne_k/pub?output=csv';
 
-  downloadFile(pAnsiChar(aUrl),pAnsiChar(ANomeArquivo));
+//  downloadFile(pAnsiChar(aUrl),pAnsiChar(ANomeArquivo));
 
   if FileExists(ANomeArquivo) then
   begin

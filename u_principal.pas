@@ -4,8 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, Menus, DB, ADODB, MemDS,
-  DBAccess, Uni, UniProvider, PostgreSQLUniProvider, ImgList;
+  Dialogs, Menus, DB, ADODB, ImgList;
 
 type
   TFormPrincipal = class(TForm)
@@ -29,9 +28,6 @@ type
     Ativoimobilizado1: TMenuItem;
     Emailsautomticos1: TMenuItem;
     Listaremaill1: TMenuItem;
-    PostgreSQLUniProvider1: TPostgreSQLUniProvider;
-    UniConnection1: TUniConnection;
-    UniQuery1: TUniQuery;
     Img: TImageList;
     Relatrios1: TMenuItem;
     Faturamentospendentes1: TMenuItem;

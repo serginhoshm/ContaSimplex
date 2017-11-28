@@ -1,7 +1,5 @@
 object DMRegVenda: TDMRegVenda
   OldCreateOrder = False
-  Left = 211
-  Top = 116
   Height = 365
   Width = 540
   object CDSItens: TClientDataSet
@@ -104,13 +102,13 @@ object DMRegVenda: TDMRegVenda
     Left = 88
     Top = 120
   end
-  object QProdutos: TUniQuery
-    Connection = FormPrincipal.UniConnection1
+  object QProdutos: TADOQuery
+    BeforeOpen = QProdutosBeforeOpen
+    Parameters = <>
     SQL.Strings = (
       'select *'
       'from listaprecoatual'
       'order by produtonome')
-    BeforeOpen = QProdutosBeforeOpen
     Left = 32
     Top = 8
     object QProdutosprodprecovendata: TDateTimeField
@@ -130,13 +128,13 @@ object DMRegVenda: TDMRegVenda
       FieldName = 'prodprecovenvalor'
     end
   end
-  object QClientes: TUniQuery
-    Connection = FormPrincipal.UniConnection1
+  object QClientes: TADOQuery
+    BeforeOpen = QClientesBeforeOpen
+    Parameters = <>
     SQL.Strings = (
       'select clienteid, clientenome'
       'from clientes'
       'order by clientenome')
-    BeforeOpen = QClientesBeforeOpen
     Left = 32
     Top = 64
     object QClientesclienteid: TIntegerField

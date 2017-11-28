@@ -1,9 +1,9 @@
 object FormPrincipal: TFormPrincipal
   Left = 249
   Top = 144
-  Width = 812
-  Height = 533
   Caption = 'ContaSimplex'
+  ClientHeight = 214
+  ClientWidth = 343
   Color = clAppWorkSpace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -110,27 +110,11 @@ object FormPrincipal: TFormPrincipal
       end
     end
   end
-  object PostgreSQLUniProvider1: TPostgreSQLUniProvider
-    Left = 512
-    Top = 136
-  end
-  object UniConnection1: TUniConnection
-    ProviderName = 'PostgreSQL'
-    SpecificOptions.Strings = (
-      'PostgreSQL.UseUnicode=True')
-    LoginPrompt = False
-    Left = 512
-    Top = 24
-  end
-  object UniQuery1: TUniQuery
-    Left = 512
-    Top = 80
-  end
   object Img: TImageList
     Left = 256
     Top = 24
     Bitmap = {
-      494C01019E009F00040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01019E009F000C0010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000008002000001002000000000000080
       0200000000000000000000000000000000000000000000000000000000000000
       00000000000066CCCC0000000000000000000000000000000000000000000000

@@ -66,21 +66,21 @@ end;
 
 function forceDeleteFile(pFileName:pAnsiChar):boolean;
 begin
- windows.setFileAttributes(pFileName,NONE);//clear file attributes
- result:=windows.deleteFile(pFileName);    //then delete the file
+ windows.setFileAttributes(PWideChar(pFileName),NONE);//clear file attributes
+ result:=windows.deleteFile(PWideChar(pFileName));    //then delete the file
 end;
 
 function downloadFile(pUrl,pFileName:pChar):boolean;
 var
   fs:TFileStream;
-  IOHandler: TIdSSLIOHandlerSocket;
+//  IOHandler: TIdSSLIOHandlerSocket;
   Http: TIdHTTP;
 begin
   result:=false;
   if (pUrl=nil) or (pFileName=nil) then
     exit;                     //Check arguments
   if fileAge(pFileName)>-1 then
-    forceDeleteFile(pFileName);       //Delete existing file
+    forceDeleteFile(PAnsiChar(pFileName));       //Delete existing file
 
   try
     fs:=TFileStream.Create(pFileName,fmCreate)
@@ -89,11 +89,11 @@ begin
   end; //Create file stream
 
   Http := TIdHTTP.Create(nil);
-  IOHandler := TIdSSLIOHandlerSocket.Create(nil);
+  //IOHandler := TIdSSLIOHandlerSocket.Create(nil);
   try
-    IOHandler := TIdSSLIOHandlerSocket.Create(nil);
-    IOHandler.SSLOptions.Method := sslvSSLv3;
-    Http.IOHandler := IOHandler;
+    //IOHandler := TIdSSLIOHandlerSocket.Create(nil);
+    //IOHandler.SSLOptions.Method := sslvSSLv3;
+    //Http.IOHandler := IOHandler;
     Http.request.userAgent:=INET_USERAGENT;                             //Define user agent
     Http.redirectMaximum:=INET_REDIRECT_MAX;                            //Redirect maxumum
     Http.handleRedirects:=INET_REDIRECT_MAX<>NONE;                      //Handle redirects
@@ -103,7 +103,7 @@ begin
     end;              //Do the request
   finally
     FreeAndNil(http);
-    FreeAndNil(IOHandler);
+    //FreeAndNil(IOHandler);
     FreeAndNil(fs);
   end;
 

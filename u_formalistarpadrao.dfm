@@ -17,7 +17,7 @@ object FormListarPadrao: TFormListarPadrao
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
-  object RzDBGridLista: TRzDBGrid
+  object RzDBGridLista: TDBGrid
     Left = 0
     Top = 50
     Width = 624
@@ -35,50 +35,31 @@ object FormListarPadrao: TFormListarPadrao
     TitleFont.Name = 'Tahoma'
     TitleFont.Style = []
   end
-  object RzToolbar1: TRzToolbar
+  object RzToolbar1: TToolBar
     Left = 0
     Top = 0
     Width = 624
     Height = 50
-    ButtonWidth = 50
-    ButtonHeight = 50
-    TextOptions = ttoCustom
     AutoSize = True
-    BorderInner = fsNone
-    BorderOuter = fsGroove
-    BorderSides = [sdTop]
-    BorderWidth = 0
+    ButtonHeight = 50
+    ButtonWidth = 50
     Ctl3D = False
-    ParentCtl3D = False
     TabOrder = 1
-    ToolbarControls = (
-      RzToolButton1
-      RzToolButton2)
-    object RzToolButton1: TRzToolButton
+    object RzToolButton1: TToolButton
       Left = 4
       Top = 0
-      ImageIndex = 86
-      Images = FormPrincipal.Img
-      Layout = blGlyphTop
-      ShowCaption = True
-      UseToolbarButtonLayout = False
-      UseToolbarShowCaption = False
       Caption = 'Editar'
+      ImageIndex = 86
       OnClick = RzToolButton1Click
     end
-    object RzToolButton2: TRzToolButton
+    object RzToolButton2: TToolButton
       Left = 54
       Top = 0
-      ImageIndex = 82
-      Images = FormPrincipal.Img
-      Layout = blGlyphTop
-      ShowCaption = True
-      UseToolbarButtonLayout = False
-      UseToolbarShowCaption = False
       Caption = 'Incluir'
+      ImageIndex = 82
     end
   end
-  object RzPanel1: TRzPanel
+  object RzPanel1: TPanel
     Left = 0
     Top = 408
     Width = 624
@@ -93,7 +74,8 @@ object FormListarPadrao: TFormListarPadrao
     Left = 504
     Top = 128
   end
-  object QLista: TUniQuery
+  object QLista: TADOQuery
+    Parameters = <>
     Left = 448
     Top = 128
   end

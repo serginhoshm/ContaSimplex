@@ -3,19 +3,19 @@ unit u_dm;
 interface
 
 uses
-  Forms, SysUtils, Classes, DB, ADODB, Dialogs, DBAccess, Uni, UniProvider, PostgreSQLUniProvider;
+  Forms, SysUtils, Classes, DB, ADODB, Dialogs;
 
 type
   TDM = class
   private
     { Private declarations }
-    FConexao: TUniConnection;
+    FConexao: TADOConnection;
     function ConectarBase: Boolean;
   public
     { Public declarations }
     constructor Create;
     destructor Destroy; override;
-    function GetConexao: TUniConnection; overload;
+    function GetConexao: TADOConnection; overload;
   end;
 
 var
@@ -26,7 +26,7 @@ implementation
 
 { TDM }
 
-function TDM.GetConexao: TUniConnection;
+function TDM.GetConexao: TADOConnection;
 begin
   if ConectarBase then
     Result := FConexao
@@ -39,19 +39,11 @@ function TDM.ConectarBase: Boolean;
 begin
   if not FConexao.Connected then
   begin
-    FConexao.Disconnect;
+    FConexao.Close;
     FConexao.LoginPrompt := false;
-    FConexao.ProviderName := 'PostgreSQL';
-    FConexao.Server := 'dedomaria.no-ip.org';
-    FConexao.Port := 5432;
-    FConexao.Username := 'postgres';
-    FConexao.Password := 'pgsql81';
-    FConexao.Database := 'dedomaria';
-    FConexao.SpecificOptions.Clear;
-    FConexao.SpecificOptions.Add('PostgreSQL.UseUnicode=True');
-    
+    FConexao.ConnectionString := 'Provider=SQLNCLI11.1;Integrated Security=SSPI;Persist Security Info=False;User ID="";Initial Catalog=xdb;Data Source=(LOCALDB)\MSSQLLocalDB;Initial File Name="";Server SPN=""';
     try
-      FConexao.Connect;
+      FConexao.Open;
     except
       on E:Exception do
       begin
@@ -64,7 +56,7 @@ end;
 
 constructor TDM.Create;
 begin
-  FConexao :=  TUniConnection.Create(nil);
+  FConexao :=  TADOConnection.Create(nil);
 end;
 
 destructor TDM.Destroy;

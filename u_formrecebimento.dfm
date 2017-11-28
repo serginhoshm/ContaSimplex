@@ -56,18 +56,10 @@ object FormRecebimento: TFormRecebimento
     Font.Style = [fsBold]
     ParentFont = False
   end
-  object AdvToolButton1: TRzToolButton
+  object AdvToolButton1: TToolButton
     Left = 181
     Top = 8
-    Width = 23
     ImageIndex = 12
-    Images = FormPrincipal.Img
-    Font.Charset = ANSI_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -16
-    Font.Name = 'Courier New'
-    Font.Style = []
-    ParentFont = False
     OnClick = AdvToolButton1Click
   end
   object Label1: TLabel
@@ -109,23 +101,6 @@ object FormRecebimento: TFormRecebimento
     Font.Style = [fsBold]
     ParentFont = False
   end
-  object EditValorRecebido: TRzNumericEdit
-    Left = 120
-    Top = 104
-    Width = 169
-    Height = 24
-    Ctl3D = False
-    Font.Charset = ANSI_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -16
-    Font.Name = 'Courier New'
-    Font.Style = []
-    ParentCtl3D = False
-    ParentFont = False
-    TabOrder = 4
-    IntegersOnly = False
-    DisplayFormat = ',0.00;-,0.00'
-  end
   object Panel1: TPanel
     Left = 0
     Top = 208
@@ -134,16 +109,13 @@ object FormRecebimento: TFormRecebimento
     Align = alBottom
     Ctl3D = True
     ParentCtl3D = False
-    TabOrder = 7
+    TabOrder = 0
     object BitBtn1: TBitBtn
       Left = 16
       Top = 8
       Width = 89
       Height = 25
       Caption = 'Confirmar'
-      TabOrder = 0
-      TabStop = False
-      OnClick = BitBtn1Click
       Glyph.Data = {
         DE010000424DDE01000000000000760000002800000024000000120000000100
         0400000000006801000000000000000000001000000000000000000000000000
@@ -162,27 +134,12 @@ object FormRecebimento: TFormRecebimento
         333A333333333333333338330000333333333333333333333333333333333333
         0000}
       NumGlyphs = 2
+      TabOrder = 0
+      TabStop = False
+      OnClick = BitBtn1Click
     end
   end
-  object EditClienteID: TRzNumericEdit
-    Left = 120
-    Top = 40
-    Width = 57
-    Height = 24
-    Ctl3D = False
-    Enabled = False
-    Font.Charset = ANSI_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -16
-    Font.Name = 'Courier New'
-    Font.Style = []
-    ParentCtl3D = False
-    ParentFont = False
-    ReadOnly = True
-    TabOrder = 1
-    DisplayFormat = ',0;(,0)'
-  end
-  object EditClienteNome: TRzEdit
+  object EditClienteNome: TEdit
     Left = 180
     Top = 40
     Width = 305
@@ -197,79 +154,6 @@ object FormRecebimento: TFormRecebimento
     ParentCtl3D = False
     ParentFont = False
     ReadOnly = True
-    TabOrder = 2
-  end
-  object EditFaturID: TRzNumericEdit
-    Left = 121
-    Top = 8
-    Width = 57
-    Height = 24
-    Ctl3D = False
-    Enabled = False
-    Font.Charset = ANSI_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -16
-    Font.Name = 'Courier New'
-    Font.Style = []
-    ParentCtl3D = False
-    ParentFont = False
-    ReadOnly = True
-    TabOrder = 0
-    DisplayFormat = ',0;(,0)'
-  end
-  object EditTroco: TRzNumericEdit
-    Left = 120
-    Top = 136
-    Width = 169
-    Height = 24
-    Ctl3D = False
-    Font.Charset = ANSI_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -16
-    Font.Name = 'Courier New'
-    Font.Style = []
-    ParentCtl3D = False
-    ParentFont = False
-    TabOrder = 5
-    OnEnter = EditTrocoEnter
-    IntegersOnly = False
-    DisplayFormat = ',0.00;-,0.00'
-  end
-  object EditCredito: TRzNumericEdit
-    Left = 120
-    Top = 168
-    Width = 169
-    Height = 24
-    Ctl3D = False
-    Font.Charset = ANSI_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -16
-    Font.Name = 'Courier New'
-    Font.Style = []
-    ParentCtl3D = False
-    ParentFont = False
-    TabOrder = 6
-    OnEnter = EditCreditoEnter
-    IntegersOnly = False
-    DisplayFormat = ',0.00;-,0.00'
-  end
-  object EditValorFatura: TRzNumericEdit
-    Left = 120
-    Top = 72
-    Width = 169
-    Height = 24
-    Ctl3D = False
-    Enabled = False
-    Font.Charset = ANSI_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -16
-    Font.Name = 'Courier New'
-    Font.Style = []
-    ParentCtl3D = False
-    ParentFont = False
-    ReadOnly = True
-    TabOrder = 3
-    IntegersOnly = False
-    DisplayFormat = ',0.00;-,0.00'
+    TabOrder = 1
   end
 end

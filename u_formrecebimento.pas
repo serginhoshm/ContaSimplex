@@ -4,26 +4,25 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, Mask, RzEdit, Buttons, ExtCtrls, DB, MemDS, DBAccess, Uni,
-  RzButton;
+  Dialogs, StdCtrls, Mask, Buttons, ExtCtrls, DB, Vcl.ComCtrls, Data.Win.ADODB;
 
 type
   TFormRecebimento = class(TForm)
     Label6: TLabel;
-    EditValorRecebido: TRzNumericEdit;
+    //EditValorRecebido: TNumericEdit;
     Panel1: TPanel;
     BitBtn1: TBitBtn;
-    EditClienteID: TRzNumericEdit;
+//    EditClienteID: TNumericEdit;
     Label4: TLabel;
-    EditClienteNome: TRzEdit;
-    EditFaturID: TRzNumericEdit;
+    EditClienteNome: TEdit;
+//    EditFaturID: TNumericEdit;
     Label5: TLabel;
-    AdvToolButton1: TRzToolButton;
+    AdvToolButton1: TToolButton;
     Label1: TLabel;
-    EditTroco: TRzNumericEdit;
+//    EditTroco: TNumericEdit;
     Label2: TLabel;
-    EditCredito: TRzNumericEdit;
-    EditValorFatura: TRzNumericEdit;
+//    EditCredito: TNumericEdit;
+//    EditValorFatura: TNumericEdit;
     Label3: TLabel;
     procedure BitBtn1Click(Sender: TObject);
     procedure AdvToolButton1Click(Sender: TObject);
@@ -56,10 +55,10 @@ begin
   FatObj := TFatObj.Create;
   try
     try
-      if EditFaturID.Value <= 0 then
-        raise Exception.Create('Informe a fatura');
+      //if EditFaturID.Value <= 0 then
+      //  raise Exception.Create('Informe a fatura');
       ChecarValores;
-      AMsg := FatObj.ReceberFatur(StrToIntDef(EditFaturID.Text, 0), EditValorRecebido.Value, EditTroco.Value, EditCredito.Value);
+//      AMsg := FatObj.ReceberFatur(StrToIntDef(EditFaturID.Text, 0), EditValorRecebido.Value, EditTroco.Value, EditCredito.Value);
       if trim(AMsg) <> EmptyStr then
         ShowMessage(AMsg);
       LimparTela;
@@ -91,6 +90,7 @@ end;
 
 procedure TFormRecebimento.LimparTela;
 begin
+  (*
   EditFaturID.Value := 0;
   EditClienteID.Value := 0;
   EditClienteNome.Clear;
@@ -98,28 +98,31 @@ begin
   EditValorRecebido.Value := 0;
   EditTroco.Value := 0;
   EditCredito.Value := 0;
+  *)
 end;
 
 function TFormRecebimento.CarregarFatura(FaturaID: integer): boolean;
 var
-  QueFatura: TUniQuery;
+  QueFatura: TADOQuery;
 begin
   Result := false;
-  QueFatura := TUniQuery.Create(nil);
+  QueFatura := TADOQuery.Create(nil);
   QueFatura.Connection := DM.GetConexao;
   try
     try
       QueFatura.Close;
       QueFatura.SQL.Text := 'select faturid, clienteid, clientenome, faturvalortotal  from faturamentospendentes where faturid = :faturid';
-      QueFatura.ParamByName('faturid').AsInteger := FaturaID;
+      QueFatura.Parameters.ParamByName('faturid').Value := FaturaID;
       QueFatura.Open;
       if not QueFatura.IsEmpty then
       begin
+        (*
         EditFaturID.Value := QueFatura.FieldByName('faturid').AsInteger;
         EditClienteID.Value := QueFatura.FieldByName('clienteid').AsInteger;
         EditClienteNome.Text := QueFatura.FieldByName('clientenome').AsString;
         EditValorFatura.Value := QueFatura.FieldByName('faturvalortotal').AsFloat;
         EditValorRecebido.Value := EditValorFatura.Value;
+        *)
       end
       else
         raise Exception.Create('A fatura ' + IntToStr(FaturaID) + ' não foi encontrada!'); 
@@ -137,6 +140,8 @@ end;
 
 procedure TFormRecebimento.ChecarValores;
 begin
+
+  (*
   if EditValorRecebido.Value > EditValorFatura.Value then
   begin
     if (EditValorRecebido.Value - (EditValorFatura.Value + EditTroco.Value + EditCredito.Value) <> 0) then
@@ -145,6 +150,7 @@ begin
   else
   if EditValorRecebido.Value < EditValorFatura.Value then
     raise Exception.Create('O valor recebido é menor que o valor da fatura');
+  *)
 end;
 
 procedure TFormRecebimento.BitBtn2Click(Sender: TObject);
@@ -154,8 +160,10 @@ end;
 
 procedure TFormRecebimento.EditTrocoEnter(Sender: TObject);
 begin
+  (*
   if EditTroco.Value = 0 then
     EditTroco.Value := EditValorRecebido.Value - (EditValorFatura.Value+EditCredito.Value);
+  *)
 end;
 
 procedure TFormRecebimento.FormShow(Sender: TObject);
@@ -165,8 +173,10 @@ end;
 
 procedure TFormRecebimento.EditCreditoEnter(Sender: TObject);
 begin
+  (*
   if EditCredito.Value = 0 then
     EditCredito.Value := EditValorRecebido.Value - (EditValorFatura.Value+EditTroco.Value);
+    *)
 end;
 
 end.

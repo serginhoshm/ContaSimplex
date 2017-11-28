@@ -4,18 +4,17 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, DB, DBClient, ADODB, Grids, DBGrids, RzDBGrid, ExtCtrls,
-  StdCtrls, Buttons, ComCtrls, RzDTP, DateUtils, Uni, UniProvider, PostgreSQLUniProvider,
-  MemDS, DBAccess, u_dmregvenda;
+  Dialogs, DB, DBClient, ADODB, Grids, DBGrids, ExtCtrls,
+  StdCtrls, Buttons, ComCtrls, DateUtils, u_dmregvenda;
 
 type
   TFormRegistraVenda = class(TForm)
     PanelTopo: TPanel;
-    RzDateTimePickerReg: TRzDateTimePicker;
+    RzDateTimePickerReg: TDateTimePicker;
     Label1: TLabel;
     ButtonIniciar: TButton;
     PanelDigita: TPanel;
-    RzDBGridItens: TRzDBGrid;
+    RzDBGridItens: TDBGrid;
     Panel1: TPanel;
     BitBtnOk: TBitBtn;
     BitBtnCancel: TBitBtn;

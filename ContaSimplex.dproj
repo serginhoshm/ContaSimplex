@@ -28,6 +28,12 @@
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
     </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win32)'!=''">
+        <Cfg_2_Win32>true</Cfg_2_Win32>
+        <CfgParent>Cfg_2</CfgParent>
+        <Cfg_2>true</Cfg_2>
+        <Base>true</Base>
+    </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
         <DCC_UNSAFE_CAST>true</DCC_UNSAFE_CAST>
         <DCC_F>false</DCC_F>
@@ -53,7 +59,7 @@
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
-        <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
+        <DCC_Namespace>System.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
@@ -65,6 +71,12 @@
         <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
         <DCC_Optimize>false</DCC_Optimize>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <DCC_ExeOutput>c:\temp</DCC_ExeOutput>
+        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -81,8 +93,8 @@
         <DCCReference Include="u_formfaturamento.pas">
             <Form>FormFaturamento</Form>
         </DCCReference>
-        <DCCReference Include="u_formenviaemail.pas">
-            <Form>FormEnviaEmails</Form>
+        <DCCReference Include="u_formenviaemailrec.pas">
+            <Form>FormEnviaEmailsRec</Form>
         </DCCReference>
         <DCCReference Include="u_acess2pgsql.pas"/>
         <DCCReference Include="u_formcadastropadrao.pas">
@@ -117,6 +129,25 @@
         <DCCReference Include="u_formrecebimento.pas">
             <Form>FormRecebimento</Form>
         </DCCReference>
+        <DCCReference Include="u_formprocpadrao.pas">
+            <Form>FormProcPadrao</Form>
+        </DCCReference>
+        <DCCReference Include="u_formprocbaixarcreditos.pas">
+            <Form>FormBaixarCreditosManual</Form>
+        </DCCReference>
+        <DCCReference Include="u_formrelpadrao.pas">
+            <Form>FormRelPadrao</Form>
+        </DCCReference>
+        <DCCReference Include="u_FormRelFaturamentosPendentes.pas">
+            <Form>FormRelFaturamentosPendetes</Form>
+        </DCCReference>
+        <DCCReference Include="u_formenviaemail.pas">
+            <Form>FormEnviaEmails</Form>
+        </DCCReference>
+        <DCCReference Include="u_dmregvenda.pas">
+            <Form>DMRegVenda</Form>
+            <DesignClass>TDataModule</DesignClass>
+        </DCCReference>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -138,7 +169,7 @@
                     <Source Name="MainSource">ContaSimplex.dpr</Source>
                 </Source>
                 <Language>
-                    <Language Name="RootDir">..\..\Users\sergi\OneDrive\Sistemas\ContaSimplex\trunk\</Language>
+                    <Language Name="RootDir">C:\Users\sergio.marchiori\Dropbox\Sistemas\ContaSimplex\trunk\</Language>
                 </Language>
                 <VersionInfo>
                     <VersionInfo Name="IncludeVerInfo">False</VersionInfo>
@@ -175,6 +206,13 @@
                     <VersionInfoKeys Name="CFBundleAllowMixedLocalizations"/>
                     <VersionInfoKeys Name="CFBundleExecutable"/>
                 </VersionInfoKeys>
+                <Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\\dclDataSnapClient170.bpl">Embarcadero DBExpress DataSnap Client Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\\dclDataSnapIndy10ServerTransport170.bpl">Embarcadero DBExpress DataSnap Server Transport Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\\dclDataSnapProviderClient170.bpl">Embarcadero DBExpress DataSnap Provider Client Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k170.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp170.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                </Excluded_Packages>
             </Delphi.Personality>
             <Platforms>
                 <Platform value="Win32">True</Platform>

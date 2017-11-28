@@ -3,7 +3,7 @@ unit u_dmregvenda;
 interface
 
 uses
-  SysUtils, Classes, DB, DBClient, MemDS, DBAccess, Uni;
+  SysUtils, Classes, DB, DBClient, Data.Win.ADODB;
 
 type
   TDMRegVenda = class(TDataModule)
@@ -18,13 +18,13 @@ type
     CDSItensClienteNome: TStringField;
     CDSItensItemNro: TAutoIncField;
     DS_Itens: TDataSource;
-    QProdutos: TUniQuery;
+    QProdutos: TADOQuery;
     QProdutosprodprecovendata: TDateTimeField;
     QProdutosprodutoid: TIntegerField;
     QProdutosprodutonome: TWideStringField;
     QProdutosmaxdeprodprecovendata: TDateTimeField;
     QProdutosprodprecovenvalor: TFloatField;
-    QClientes: TUniQuery;
+    QClientes: TADOQuery;
     QClientesclienteid: TIntegerField;
     QClientesclientenome: TWideStringField;
     procedure CDSItensBeforePost(DataSet: TDataSet);

@@ -4,13 +4,12 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, u_formrelpadrao, frxClass, RzButton, ExtCtrls, RzPanel, DB,
-  MemDS, DBAccess, Uni, frxDBSet, StdCtrls;
+  Dialogs, u_formrelpadrao, ExtCtrls, DB, StdCtrls, Data.Win.ADODB,
+  Vcl.ComCtrls, Vcl.ToolWin;
 
 type
   TFormRelFaturamentosPendetes = class(TFormRelPadrao)
-    qFatur: TUniQuery;
-    frxDBDatasset_qFatur: TfrxDBDataset;
+    qFatur: TADOQuery;
     qFaturfaturid: TIntegerField;
     qFaturclientenome: TWideStringField;
     qFaturclienteemail: TWideStringField;
@@ -21,9 +20,9 @@ type
     qFaturvalorpendente: TFloatField;
     qFaturfaturvalorcancelado: TFloatField;
     qFaturclienteid: TIntegerField;
-    RzToolButton2: TRzToolButton;
+    RzToolButton2: TToolButton;
     Memo1: TMemo;
-    RzToolButton3: TRzToolButton;
+    RzToolButton3: TToolButton;
     procedure RzToolButton1Click(Sender: TObject);
     procedure RzToolButton2Click(Sender: TObject);
   private
@@ -51,7 +50,6 @@ begin
   qFatur.Last;
   Memo1.Lines.Add('Pendentes: ' + IntToStr(qFatur.RecordCount));
   qFatur.First;
-  frxReportPadrao.ShowReport();
 end;
 
 procedure TFormRelFaturamentosPendetes.RzToolButton2Click(Sender: TObject);

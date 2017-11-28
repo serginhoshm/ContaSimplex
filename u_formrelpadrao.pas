@@ -4,14 +4,13 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, frxClass, RzButton, ExtCtrls, RzPanel;
+  Dialogs, ExtCtrls, Vcl.ComCtrls, Vcl.ToolWin;
 
 type
   TFormRelPadrao = class(TForm)
-    frxReportPadrao: TfrxReport;
-    RzToolbar1: TRzToolbar;
-    RzToolButton1: TRzToolButton;
-    RzStatusBar1: TRzStatusBar;
+    RzToolbar1: TToolbar;
+    RzToolButton1: TToolButton;
+    RzStatusBar1: TStatusBar;
   private
     { Private declarations }
   public

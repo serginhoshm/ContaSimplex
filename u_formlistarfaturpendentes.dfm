@@ -5,7 +5,7 @@ inherited FormListarFaturPendente: TFormListarFaturPendente
   KeyPreview = True
   PixelsPerInch = 96
   TextHeight = 13
-  inherited RzDBGridLista: TRzDBGrid
+  inherited RzDBGridLista: TDBGrid
     Options = [dgTitles, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit]
     OnDblClick = RzDBGridListaDblClick
     OnKeyDown = RzDBGridListaKeyDown
@@ -52,19 +52,16 @@ inherited FormListarFaturPendente: TFormListarFaturPendente
         Visible = True
       end>
   end
-  inherited RzToolbar1: TRzToolbar
+  inherited RzToolbar1: TToolBar
     Visible = False
-    ToolbarControls = (
-      RzToolButton1
-      RzToolButton2)
-    inherited RzToolButton1: TRzToolButton
+    inherited RzToolButton1: TToolButton
       Visible = False
     end
-    inherited RzToolButton2: TRzToolButton
+    inherited RzToolButton2: TToolButton
       Visible = False
     end
   end
-  inherited QLista: TUniQuery
+  inherited QLista: TADOQuery
     SQL.Strings = (
       'select * from faturamentospendentes'
       'order by clientenome, faturid')

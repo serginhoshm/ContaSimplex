@@ -1,9 +1,9 @@
 object FormListaEmail: TFormListaEmail
   Left = 230
   Top = 117
-  Width = 783
-  Height = 369
   Caption = 'FormListarEmail'
+  ClientHeight = 337
+  ClientWidth = 459
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -17,7 +17,7 @@ object FormListaEmail: TFormListaEmail
   object MemoLista: TMemo
     Left = 8
     Top = 8
-    Width = 753
+    Width = 443
     Height = 289
     Font.Charset = ANSI_CHARSET
     Font.Color = clWindowText
@@ -36,8 +36,6 @@ object FormListaEmail: TFormListaEmail
     Width = 75
     Height = 25
     Caption = 'OK'
-    ModalResult = 1
-    TabOrder = 1
     Glyph.Data = {
       DE010000424DDE01000000000000760000002800000024000000120000000100
       0400000000006801000000000000000000001000000000000000000000000000
@@ -55,11 +53,15 @@ object FormListaEmail: TFormListaEmail
       3338F38F000033333333333333A223333333333333338F830000333333333333
       333A333333333333333338330000333333333333333333333333333333333333
       0000}
+    ModalResult = 1
     NumGlyphs = 2
+    TabOrder = 1
   end
-  object QueryCli: TUniQuery
+  object QueryCli: TADOQuery
+    Parameters = <>
     SQL.Strings = (
-      'select clienteemail from clientes where (clientemktmail = true )')
+      'select clienteemail from clientes where (clientemktmail = 1)'
+      'order by 1')
     Left = 200
     Top = 112
   end

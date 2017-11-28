@@ -16,7 +16,7 @@ object FormCadastroPadrao: TFormCadastroPadrao
   Position = poScreenCenter
   PixelsPerInch = 96
   TextHeight = 13
-  object RzPanel2: TRzPanel
+  object RzPanel2: TPanel
     Left = 568
     Top = 200
     Width = 185
@@ -33,44 +33,28 @@ object FormCadastroPadrao: TFormCadastroPadrao
     ParentCtl3D = False
     TabOrder = 1
   end
-  object RzToolbar1: TRzToolbar
+  object RzToolbar1: TToolBar
     Left = 0
     Top = 0
     Width = 624
     Height = 50
-    Images = FormPrincipal.Img
-    ButtonLayout = blGlyphTop
-    ButtonWidth = 50
-    ButtonHeight = 50
-    TextOptions = ttoCustom
     AutoSize = True
-    BorderInner = fsNone
-    BorderOuter = fsGroove
-    BorderSides = [sdTop]
-    BorderWidth = 0
+    ButtonHeight = 50
+    ButtonWidth = 50
     Ctl3D = False
-    ParentCtl3D = False
+    Images = FormPrincipal.Img
     TabOrder = 2
-    ToolbarControls = (
-      RzToolButton1
-      RzToolButton3)
-    object RzToolButton1: TRzToolButton
+    object RzToolButton1: TToolButton
       Left = 4
       Top = 0
-      ImageIndex = 4
-      Layout = blGlyphTop
-      ShowCaption = True
-      UseToolbarShowCaption = False
       Caption = 'Salvar'
+      ImageIndex = 4
     end
-    object RzToolButton3: TRzToolButton
+    object RzToolButton3: TToolButton
       Left = 54
       Top = 0
-      ImageIndex = 8
-      Layout = blGlyphTop
-      ShowCaption = True
-      UseToolbarShowCaption = False
       Caption = 'Excluir'
+      ImageIndex = 8
     end
   end
   object StatusBar1: TStatusBar

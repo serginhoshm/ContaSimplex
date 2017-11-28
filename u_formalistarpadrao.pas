@@ -4,18 +4,17 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, ExtCtrls, RzPanel, Grids, DBGrids, RzDBGrid, DB, ADODB, RzButton,
-  Uni, UniProvider, PostgreSQLUniProvider, MemDS, DBAccess;
+  Dialogs, ExtCtrls, Grids, DBGrids, DB, ADODB, Vcl.ComCtrls, Vcl.ToolWin;
 
 type
   TFormListarPadrao = class(TForm)
-    RzDBGridLista: TRzDBGrid;
-    RzToolbar1: TRzToolbar;
-    RzPanel1: TRzPanel;
+    RzDBGridLista: TDBGrid;
+    RzToolbar1: TToolbar;
+    RzPanel1: TPanel;
     ds_QLista: TDataSource;
-    QLista: TUniQuery;
-    RzToolButton1: TRzToolButton;
-    RzToolButton2: TRzToolButton;
+    QLista: TADOQuery;
+    RzToolButton1: TToolButton;
+    RzToolButton2: TToolButton;
     procedure FormShow(Sender: TObject);
     procedure RzToolButton1Click(Sender: TObject);
   private

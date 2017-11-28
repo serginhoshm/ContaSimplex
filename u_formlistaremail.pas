@@ -4,14 +4,13 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, Buttons, DB, ADODB, Clipbrd, Uni, UniProvider,
-  PostgreSQLUniProvider, MemDS, DBAccess;
+  Dialogs, StdCtrls, Buttons, DB, ADODB, Clipbrd;
 
 type
   TFormListaEmail = class(TForm)
     MemoLista: TMemo;
     BitBtn1: TBitBtn;
-    QueryCli: TUniQuery;
+    QueryCli: TADOQuery;
     procedure FormCreate(Sender: TObject);
   private
     { Private declarations }
@@ -38,7 +37,7 @@ begin
   ALista := EmptyStr;
   while not QueryCli.Eof do
   begin
-    ALista := Alista + QueryCli.Fields[0].AsString + ';';
+    ALista := Alista + QueryCli.Fields[0].AsString + ';'  + #13#10;
 
     QueryCli.Next;
   end;

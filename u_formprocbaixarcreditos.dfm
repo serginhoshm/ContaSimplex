@@ -16,6 +16,8 @@ inherited FormBaixarCreditosManual: TFormBaixarCreditosManual
   inherited AdvOfficeStatusBar1: TStatusBar
     Top = 332
     Width = 484
+    ExplicitTop = 332
+    ExplicitWidth = 484
   end
   object LabeledEditCli: TLabeledEdit
     Left = 16
@@ -35,13 +37,5 @@ inherited FormBaixarCreditosManual: TFormBaixarCreditosManual
     Caption = 'Baixar'
     TabOrder = 2
     OnClick = Button1Click
-  end
-  object MoneyEditValor: TRzNumericEdit
-    Left = 16
-    Top = 74
-    Width = 121
-    Height = 21
-    TabOrder = 3
-    DisplayFormat = ',0;(,0)'
   end
 end

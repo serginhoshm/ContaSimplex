@@ -3,18 +3,18 @@ unit u_dmclientes;
 interface
 
 uses
-  SysUtils, Classes, DB, MemDS, DBAccess, Uni;
+  SysUtils, Classes, DB, Data.Win.ADODB;
 
 type
   TDMClientes = class(TDataModule)
-    qclientes: TUniQuery;
+    qclientes: TADOQuery;
     ds_qclientes: TDataSource;
     qclientesclienteid: TIntegerField;
     qclientesclientenome: TWideStringField;
     qclientesclienteemail: TWideStringField;
     qclientesdeptoid: TIntegerField;
     qclientesclientemktmail: TBooleanField;
-    QDepto: TUniQuery;
+    QDepto: TADOQuery;
     ds_depto: TDataSource;
     QDeptodeptoid: TIntegerField;
     QDeptodeptodescricao: TWideStringField;

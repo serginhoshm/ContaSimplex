@@ -4,15 +4,15 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, ImgList, RzTray, RzButton, RzPanel, ExtCtrls, ComCtrls;
+  Dialogs, ImgList, ExtCtrls, ComCtrls, Vcl.ToolWin;
 
 type
   TFormCadastroPadrao = class(TForm)
-    RzPanel2: TRzPanel;
+    RzPanel2: TPanel;
     ScrollBox1: TScrollBox;
-    RzToolbar1: TRzToolbar;
-    RzToolButton1: TRzToolButton;
-    RzToolButton3: TRzToolButton;
+    RzToolbar1: TToolbar;
+    RzToolButton1: TToolButton;
+    RzToolButton3: TToolButton;
     StatusBar1: TStatusBar;
   private
     { Private declarations }

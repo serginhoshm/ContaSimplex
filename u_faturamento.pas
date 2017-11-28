@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, ADODB, Uni, UniProvider, PostgreSQLUniProvider, StdCtrls, DBClient, DB;
+  Dialogs, ADODB, StdCtrls, DBClient, DB;
 
 type
   TFatOpeTipo = (opeInclusao, OpeBaixa, OpeCancelamento, OpeEstorno);
@@ -72,7 +72,7 @@ end;
 procedure TFatObj.Exec;
 var
   QTotalVenda,
-  QItemVend: TUniQuery;
+  QItemVend: TADOQuery;
   ATotalFatura,
   ACreditoRestante,
   ACreditoUsado: Currency;
@@ -103,8 +103,8 @@ var
   end;
 
 begin
-  QTotalVenda := TUniQuery.Create(nil);
-  QItemVend := TUniQuery.Create(nil);
+  QTotalVenda := TADOQuery.Create(nil);
+  QItemVend := TADOQuery.Create(nil);
   AListaItensFat := TStringList.Create;
   try
     try
@@ -117,8 +117,8 @@ begin
 
       //Filtramos somente aqueles clientes que possuem itens com faturamento pendente
       QTotalVenda.Close;
-      QTotalVenda.ParamByName('DataInicial').Value := StartOfTheDay(DataInicial);
-      QTotalVenda.ParamByName('DataFinal').Value := EndOfTheDay(DataFinal);
+      QTotalVenda.Parameters.ParamByName('DataInicial').Value := StartOfTheDay(DataInicial);
+      QTotalVenda.Parameters.ParamByName('DataFinal').Value := EndOfTheDay(DataFinal);
       QTotalVenda.Open;
 
       if QTotalVenda.Eof then
@@ -133,9 +133,9 @@ begin
                   QTotalVenda.FieldByName('ClienteNome').AsString + ' R$ ' +
                   FormatCurr('#0.00', QTotalVenda.FieldByName('TotalEmAberto').AsFloat));
           QItemVend.Close;
-          QItemVend.ParamByName('ClienteID').Value := QTotalVenda.FieldByName('ClienteID').AsInteger;
-          QItemVend.ParamByName('DataInicial').Value := StartOfTheDay(DataInicial);
-          QItemVend.ParamByName('DataFinal').Value := EndOfTheDay(DataFinal);
+          QItemVend.Parameters.ParamByName('ClienteID').Value := QTotalVenda.FieldByName('ClienteID').AsInteger;
+          QItemVend.Parameters.ParamByName('DataInicial').Value := StartOfTheDay(DataInicial);
+          QItemVend.Parameters.ParamByName('DataFinal').Value := EndOfTheDay(DataFinal);
           QItemVend.Open;
           ATotalFatura := 0;
           AListaItensFat.Clear;
@@ -209,11 +209,11 @@ end;
 function TFatObj.InserirNovaFatura(ClienteID: Integer; DataGer: TDateTime; TotalFatura: Currency; ValorBaixado: Currency = 0; ValorCancelado: Currency = 0): integer;
 var
   QInserirFat,
-  QLocFat: TUniQuery;
+  QLocFat: TADOQuery;
 begin
   Result := -1;
-  QInserirFat := TUniQuery.Create(nil);
-  QLocFat := TUniQuery.Create(nil);
+  QInserirFat := TADOQuery.Create(nil);
+  QLocFat := TADOQuery.Create(nil);
   try
     QInserirFat.Connection := DM.GetConexao;
     QLocFat.Connection := DM.GetConexao;
@@ -224,18 +224,18 @@ begin
     qlocfat.sql.add('select max(faturid) as faturid from faturamentos where clienteid = :clienteid and faturdatageracao = :faturdatageracao');
 
     QInserirFat.Close;
-    QInserirFat.ParamByName('ClienteID').Value := ClienteID;
-    QInserirFat.ParamByName('FaturDataGeracao').Value := DataGer;
-    QInserirFat.ParamByName('FaturValorTotal').Value := TotalFatura;
-    QInserirFat.ParamByName('FaturValorBaixado').Value := ValorBaixado;
-    QInserirFat.ParamByName('FaturValorCancelado').Value := 0;
+    QInserirFat.Parameters.ParamByName('ClienteID').Value := ClienteID;
+    QInserirFat.Parameters.ParamByName('FaturDataGeracao').Value := DataGer;
+    QInserirFat.Parameters.ParamByName('FaturValorTotal').Value := TotalFatura;
+    QInserirFat.Parameters.ParamByName('FaturValorBaixado').Value := ValorBaixado;
+    QInserirFat.Parameters.ParamByName('FaturValorCancelado').Value := 0;
     try
       QInserirFat.ExecSQL;
       if QInserirFat.RowsAffected > 0 then
       begin
         QLocFat.Close;
-        QLocFat.ParamByName('ClienteID').Value := ClienteID;
-        QLocFat.ParamByName('FaturDataGeracao').Value := DataGer;
+        QLocFat.Parameters.ParamByName('ClienteID').Value := ClienteID;
+        QLocFat.Parameters.ParamByName('FaturDataGeracao').Value := DataGer;
         QLocFat.Open;
 
         Result := QLocFat.FieldByName('FaturID').AsInteger;
@@ -256,14 +256,14 @@ end;
 
 function TFatObj.AtualizaItensFaturados(NovaFaturID: Integer; ClienteID: Integer; ListaItens: TStringList): boolean;
 var
-  QAtualizaItem: TUniQuery;
+  QAtualizaItem: TADOQuery;
   aux,
   AItemID,
   IncFatur: Integer;
 begin
   if ListaItens <> nil then
   begin
-    QAtualizaItem := TUniQuery.Create(nil);
+    QAtualizaItem := TADOQuery.Create(nil);
     try
       qatualizaitem.connection := dm.getconexao;
       qatualizaitem.sql.add('update itensvendidos');
@@ -277,9 +277,9 @@ begin
       begin
         AItemID := StrToIntDef(ListaItens.Strings[aux], -1);
         QAtualizaItem.Close;
-        QAtualizaItem.ParamByName('ClienteID').Value := ClienteID;
-        QAtualizaItem.ParamByName('ItemID').Value := AItemID;
-        QAtualizaItem.ParamByName('FaturamentoID').Value := NovaFaturID;
+        QAtualizaItem.Parameters.ParamByName('ClienteID').Value := ClienteID;
+        QAtualizaItem.Parameters.ParamByName('ItemID').Value := AItemID;
+        QAtualizaItem.Parameters.ParamByName('FaturamentoID').Value := NovaFaturID;
         QAtualizaItem.ExecSQL;
         if QAtualizaItem.RowsAffected <= 0 then
           raise Exception.Create('Nenhum item de venda foi atualizado')
@@ -304,23 +304,23 @@ function TFatObj.RegLctoFatura(FaturID: Integer; FaturLctoTipo: TFatOpeTipo;
   FaturLctoData: TDateTime; FaturLctoDescricao: string;
   FaturLctoValor: Currency): boolean;
 var
-  QFaturLcto: TUniQuery;
+  QFaturLcto: TADOQuery;
 begin
   //esta parte do procedimento está sendo ignorada
   {
 
-  QFaturLcto :=TUniQuery.Create(nil);
+  QFaturLcto :=TADOQuery.Create(nil);
   try
     QFaturLcto.Connection := DM.GetConexao;
     QFaturLcto.SQL.Add('INSERT INTO FaturamentosLancamentos');
     QFaturLcto.SQL.Add('(FaturID,FaturLctoTipo,FaturLctoData,FaturLctoDescricao,FaturLctoValor)');
     QFaturLcto.SQL.Add('VALUES');
     QFaturLcto.SQL.Add('(:FaturID,:FaturLctoTipo,:FaturLctoData,:FaturLctoDescricao,:FaturLctoValor)');
-    QFaturLcto.ParamByName('FaturID').Value := FaturID;
-    QFaturLcto.ParamByName('FaturLctoTipo').Value := Integer(FaturLctoTipo);
-    QFaturLcto.ParamByName('FaturLctoData').Value := FaturLctoData;
-    QFaturLcto.ParamByName('FaturLctoDescricao').Value := FaturLctoDescricao;
-    QFaturLcto.ParamByName('FaturLctoValor').Value := FaturLctoValor;
+    QFaturLcto.Parameters.ParamByName('FaturID').Value := FaturID;
+    QFaturLcto.Parameters.ParamByName('FaturLctoTipo').Value := Integer(FaturLctoTipo);
+    QFaturLcto.Parameters.ParamByName('FaturLctoData').Value := FaturLctoData;
+    QFaturLcto.Parameters.ParamByName('FaturLctoDescricao').Value := FaturLctoDescricao;
+    QFaturLcto.Parameters.ParamByName('FaturLctoValor').Value := FaturLctoValor;
     try
       Result := QFaturLcto.ExecSQL > 0;
     except
@@ -338,12 +338,12 @@ end;
 
 procedure TFatObj.EnviarEmailFaturPendentes;
 var
-  QFatPend: TUniQuery;
+  QFatPend: TADOQuery;
   AMSend: TMailSender;
   MsgErro,
   ADt: string;
 begin
-  QFatPend := TUniQuery.Create(nil);
+  QFatPend := TADOQuery.Create(nil);
   QFatPend.Connection := DM.GetConexao;
   try
     try
@@ -442,14 +442,14 @@ end;
 function TFatObj.AtualizarEmailFaturEnviado(FaturID: Integer;
   DataHoraEnvio: TDateTime):boolean;
 var
-  QUpdEmailFat: TUniQuery;
+  QUpdEmailFat: TADOQuery;
 begin
-  QUpdEmailFat := TUniQuery.Create(nil);
+  QUpdEmailFat := TADOQuery.Create(nil);
   try
     QUpdEmailFat.Connection := DM.GetConexao;
     qupdemailfat.sql.add('update faturamentos set faturdataenvioemail = :faturdataenvioemail where faturid = :faturid');
-    QUpdEmailFat.ParamByName('FaturDataEnvioEmail').Value := DataHoraEnvio;
-    QUpdEmailFat.ParamByName('FaturID').Value := FaturID;
+    QUpdEmailFat.Parameters.ParamByName('FaturDataEnvioEmail').Value := DataHoraEnvio;
+    QUpdEmailFat.Parameters.ParamByName('FaturID').Value := FaturID;
     QUpdEmailFat.ExecSQL;
     Result := QUpdEmailFat.RowsAffected > 0;
   finally
@@ -460,14 +460,14 @@ end;
 function TFatObj.AtualizarEmailRecebimentoEnviado(ReciboID: Integer;
   DataHoraEnvio: TDateTime):boolean;
 var
-  QUpdEmailRec: TUniQuery;
+  QUpdEmailRec: TADOQuery;
 begin
-  QUpdEmailRec := TUniQuery.Create(nil);
+  QUpdEmailRec := TADOQuery.Create(nil);
   try
     QUpdEmailRec.Connection := DM.GetConexao;
     QUpdEmailRec.sql.add('update recibos set recibodataenviocomprov = :recibodataenviocomprov where reciboid = :reciboid');
-    QUpdEmailRec.ParamByName('recibodataenviocomprov').Value := DataHoraEnvio;
-    QUpdEmailRec.ParamByName('reciboid').Value := ReciboID;
+    QUpdEmailRec.Parameters.ParamByName('recibodataenviocomprov').Value := DataHoraEnvio;
+    QUpdEmailRec.Parameters.ParamByName('reciboid').Value := ReciboID;
     QUpdEmailRec.ExecSQL;
     Result := QUpdEmailRec.RowsAffected > 0;
   finally
@@ -478,10 +478,10 @@ end;
 
 function TFatObj.ReceberFatur(FaturID: Integer; ValorRecebido, ValorTroco, ValorACredito: Double): string;
 var
-  QFaturOrig: TUniQuery;
+  QFaturOrig: TADOQuery;
   ARecibo: string;
 begin
-  QFaturOrig := TUniQuery.Create(nil);
+  QFaturOrig := TADOQuery.Create(nil);
   try
     QFaturOrig.Connection := DM.GetConexao;
     QFaturOrig.SQL.Text := 'select * from faturamentos where faturid=' + IntToStr(FaturID);
@@ -516,9 +516,9 @@ end;
 
 function TFatObj.RetornaDebitosPendentes(ClienteID: integer): Double;
 var
-  QCred: TUniQuery;
+  QCred: TADOQuery;
 begin
-  QCred := TUniQuery.Create(nil);
+  QCred := TADOQuery.Create(nil);
   try
     QCred.Connection := DM.GetConexao;
     QCred.SQL.Add('select coalesce(sum(clicredvalor), 0) debitos, cred.clienteid from clientescreditos cred');
@@ -527,7 +527,7 @@ begin
     QCred.SQL.Add(' and coalesce(cred.clicredvalor,0) < 0');   //somente débitos
     QCred.SQL.Add(' and cred.clienteid = :clienteid');
     QCred.SQL.Add(' group by cred.clienteid ');
-    QCred.ParamByName('clienteid').AsInteger := ClienteID;
+    QCred.Parameters.ParamByName('clienteid').Value := ClienteID;
     QCred.Open;
     if QCred.RecordCount > 0 then
       Result := QCred.FieldByName('debitos').AsFloat
@@ -541,9 +541,9 @@ end;
 
 function TFatObj.RetornaCreditosPendentes(ClienteID: integer): Double;
 var
-  QCred: TUniQuery;
+  QCred: TADOQuery;
 begin
-  QCred := TUniQuery.Create(nil);
+  QCred := TADOQuery.Create(nil);
   try
     QCred.Connection := DM.GetConexao;
     QCred.SQL.Add('select coalesce(sum(cred.clicredvalor), 0) as creditos, cli.clienteid');
@@ -553,7 +553,7 @@ begin
     QCred.SQL.Add(' and coalesce(cred.clicredvalor,0) > 0');
     QCred.SQL.Add(' and cred.clienteid = :clienteid');
     QCred.SQL.Add('group by cli.clienteid');
-    QCred.ParamByName('clienteid').AsInteger := ClienteID;
+    QCred.Parameters.ParamByName('clienteid').Value := ClienteID;
     QCred.Open;
     if QCred.RecordCount > 0 then
       Result := QCred.FieldByName('creditos').AsFloat
@@ -568,16 +568,16 @@ function TFatObj.BaixarCreditos(ClienteID: Integer;
   ValorBaixar: Double; CreditoRestante, CreditoUsado: Currency): Currency;
 var
   TotalCredito: Currency;
-  QBaixa: TUniQuery;
+  QBaixa: TADOQuery;
 begin
   CreditoRestante := 0;
   Result := ValorBaixar;
 
-  QBaixa := TUniQuery.Create(nil);
+  QBaixa := TADOQuery.Create(nil);
   try
     QBaixa.Connection := DM.GetConexao;
     QBaixa.SQL.Add('select * from clientescreditos where clicredvalor > 0 and clicreddatabaixa is null and clienteid = :clienteid');
-    QBaixa.ParamByName('clienteid').AsInteger := ClienteID;
+    QBaixa.Parameters.ParamByName('clienteid').Value := ClienteID;
     QBaixa.Open;
     //Calcula o total de creditos do cliente
     TotalCredito := 0;
@@ -592,8 +592,8 @@ begin
       //Baixar todos os créditos existentes
       QBaixa.SQL.Clear;
       QBaixa.SQL.Text := 'update clientescreditos set clicreddatabaixa = :data where clicredvalor > 0 and clicreddatabaixa is null and clienteid = :clienteid';
-      QBaixa.ParamByName('data').AsDateTime := Now;
-      QBaixa.ParamByName('clienteid').AsInteger := ClienteID;
+      QBaixa.Parameters.ParamByName('data').Value := Now;
+      QBaixa.Parameters.ParamByName('clienteid').Value := ClienteID;
       QBaixa.ExecSQL;
       if QBaixa.RowsAffected > 0 then
       begin
@@ -628,9 +628,9 @@ end;
 function TFatObj.GerarCredito(ClienteID: Integer;
   ValorCredito: Double; Observacao: string): Boolean;
 var
-  QCred: TUniQuery;
+  QCred: TADOQuery;
 begin
-  QCred := TUniQuery.Create(nil);
+  QCred := TADOQuery.Create(nil);
   try
     QCred.Connection := Dm.GetConexao;
     QCred.SQL.Clear;
@@ -638,10 +638,10 @@ begin
     QCred.SQL.Add('(clienteid, clicreddataconcedido, clicredvalor, clicredobs)');
     QCred.SQL.Add(' values ');
     QCred.SQL.Add('(:clienteid, :clicreddataconcedido, :clicredvalor, :clicredobs)');
-    QCred.ParamByName('clienteid').AsInteger := ClienteID;
-    QCred.ParamByName('clicreddataconcedido').AsDateTime := Now;
-    QCred.ParamByName('clicredvalor').AsFloat := ValorCredito;
-    QCred.ParamByName('clicredobs').AsString := Observacao;
+    QCred.Parameters.ParamByName('clienteid').Value := ClienteID;
+    QCred.Parameters.ParamByName('clicreddataconcedido').Value := Now;
+    QCred.Parameters.ParamByName('clicredvalor').Value := ValorCredito;
+    QCred.Parameters.ParamByName('clicredobs').Value := Observacao;
     QCred.ExecSQL;
     Result := QCred.RowsAffected > 0;
   finally
@@ -652,9 +652,9 @@ end;
 
 function TFatObj.BaixaFatura(FaturaID, ClienteID: Integer; ValorBaixado: Double): Boolean;
 var
-  QUpd: TUniQuery;
+  QUpd: TADOQuery;
 begin
-  QUpd := TUniQuery.Create(nil);
+  QUpd := TADOQuery.Create(nil);
   try
     QUpd.Connection := DM.GetConexao;
     QUpd.SQL.Add('update faturamentos ');
@@ -664,10 +664,10 @@ begin
     QUpd.SQL.Add('  faturid = :faturid');
     QUpd.SQL.Add('  and clienteid = :clienteid');
 
-    QUpd.ParamByName('clienteid').AsInteger := ClienteID;
-    QUpd.ParamByName('faturid').AsInteger := FaturaID;
-    QUpd.ParamByName('faturvalorbaixado').AsBCD := ValorBaixado;
-    QUpd.ParamByName('faturvalorcancelado').AsBCD := 0;
+    QUpd.Parameters.ParamByName('clienteid').Value := ClienteID;
+    QUpd.Parameters.ParamByName('faturid').Value := FaturaID;
+    QUpd.Parameters.ParamByName('faturvalorbaixado').Value := ValorBaixado;
+    QUpd.Parameters.ParamByName('faturvalorcancelado').Value := 0;
     QUpd.ExecSQL;
     Result := QUpd.RowsAffected > 0;
   finally
@@ -716,21 +716,21 @@ function TFatObj.CriarRecibo(Faturid: integer;
   recibodatageracao: TDateTime; recibovalorpago, recibovalorcredito,
   recibovalortroco: Double): string;
 var
-  ARec: TUniQuery;
+  ARec: TADOQuery;
   Autenticacao: string;
 begin
-  ARec := TUniQuery.Create(nil);
+  ARec := TADOQuery.Create(nil);
   ARec.Connection := DM.GetConexao;
   try
     Autenticacao := GerarAutenticacaoMecania(Faturid);
     ARec.SQL.Add('insert into recibos (faturid, recibodatageracao, recibovalorpago, recibovalorcredito, recibovalortroco, reciboautentic) ');
     ARec.SQL.Add('values(:faturid, :recibodatageracao, :recibovalorpago, :recibovalorcredito, :recibovalortroco, :reciboautentic) ');
-    ARec.ParamByName('faturid').AsInteger := Faturid;
-    ARec.ParamByName('recibodatageracao').AsDateTime := recibodatageracao;
-    ARec.ParamByName('recibovalorpago').AsBCD := recibovalorpago;
-    ARec.ParamByName('recibovalorcredito').AsBCD := recibovalorcredito;
-    ARec.ParamByName('recibovalortroco').AsBCD := recibovalortroco;
-    ARec.ParamByName('reciboautentic').AsString := Autenticacao;
+    ARec.Parameters.ParamByName('faturid').Value := Faturid;
+    ARec.Parameters.ParamByName('recibodatageracao').Value := recibodatageracao;
+    ARec.Parameters.ParamByName('recibovalorpago').Value := recibovalorpago;
+    ARec.Parameters.ParamByName('recibovalorcredito').Value := recibovalorcredito;
+    ARec.Parameters.ParamByName('recibovalortroco').Value := recibovalortroco;
+    ARec.Parameters.ParamByName('reciboautentic').Value := Autenticacao;
     ARec.ExecSQL;
     if ARec.RowsAffected <= 0 then
       raise Exception.Create('Erro ao criar recibo')
@@ -743,12 +743,12 @@ end;
 
 procedure TFatObj.EnviarEmailPagamentosRecebidosPendentes;
 var
-  QEmailRecPend: TUniQuery;
+  QEmailRecPend: TADOQuery;
   AMSend: TMailSender;
   MsgErro,
   ADt: string;
 begin
-  QEmailRecPend := TUniQuery.Create(nil);
+  QEmailRecPend := TADOQuery.Create(nil);
   QEmailRecPend.Connection := DM.GetConexao;
   try
     try
@@ -819,7 +819,7 @@ end;
 
 procedure TFatObj.EnviarRecobranca;
 var
-  QEmailRecPend: TUniQuery;
+  QEmailRecPend: TADOQuery;
   AMSend: TMailSender;
   MsgErro,
   ADt: string;
@@ -851,7 +851,7 @@ var
   end;
 
 begin
-  QEmailRecPend := TUniQuery.Create(nil);
+  QEmailRecPend := TADOQuery.Create(nil);
   QEmailRecPend.Connection := DM.GetConexao;
   ACDS := TClientDataSet.Create(nil);
   TabelaFaturas := TStringList.Create;
@@ -874,7 +874,7 @@ begin
         begin
           QEmailRecPend.Filter := 'clienteid=' + ACDS.FieldByName('clienteid').AsString;
           QEmailRecPend.Filtered := True;
-          QEmailRecPend.IndexFieldNames := 'faturid';
+          //QEmailRecPend.IndexFieldNames := 'faturid';
 
           TabelaFaturas.Add('<TABLE BORDER=1>');
           TabelaFaturas.Add('<TR>');

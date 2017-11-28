@@ -13,7 +13,7 @@ object Form2: TForm2
   OldCreateOrder = False
   PixelsPerInch = 96
   TextHeight = 13
-  object RzDBGrid1: TRzDBGrid
+  object RzDBGrid1: TDBGrid
     Left = 0
     Top = 29
     Width = 920
@@ -29,7 +29,7 @@ object Form2: TForm2
     TitleFont.Name = 'Tahoma'
     TitleFont.Style = []
   end
-  object RzToolbar1: TRzToolbar
+  object RzToolbar1: TToolbar
     Left = 0
     Top = 0
     Width = 920
@@ -42,7 +42,7 @@ object Form2: TForm2
     ParentCtl3D = False
     TabOrder = 1
   end
-  object RzPanel1: TRzPanel
+  object RzPanel1: TPanel
     Left = 0
     Top = 416
     Width = 920

@@ -8,9 +8,9 @@ uses
 
 type
   TForm2 = class(TForm)
-    RzDBGrid1: TRzDBGrid;
-    RzToolbar1: TRzToolbar;
-    RzPanel1: TRzPanel;
+    RzDBGrid1: TDBGrid;
+    RzToolbar1: TToolbar;
+    RzPanel1: TPanel;
     QueryLista: TADOQuery;
     ds_QueryLista: TDataSource;
   private

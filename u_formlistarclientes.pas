@@ -4,8 +4,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, u_formalistarpadrao, DB, MemDS, DBAccess, Uni, RzPanel,
-  RzButton, ExtCtrls, Grids, DBGrids, RzDBGrid;
+  Dialogs, u_formalistarpadrao, DB, ExtCtrls, Grids, DBGrids, Data.Win.ADODB,
+  Vcl.ComCtrls, Vcl.ToolWin;
 
 type
   TFormListarClientes = class(TFormListarPadrao)

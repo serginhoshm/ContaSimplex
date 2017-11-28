@@ -4,20 +4,19 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, u_formcadastropadrao, ComCtrls, RzButton, RzPanel, ExtCtrls, u_dmclientes,
-  StdCtrls, RzLabel, Mask, RzEdit, RzDBEdit, DBCtrls, RzDBCmbo, RzRadChk,
-  RzDBChk;
+  Dialogs, u_formcadastropadrao, ComCtrls, ExtCtrls, u_dmclientes,
+  StdCtrls, Mask, DBCtrls, Vcl.ToolWin;
 
 type
   TFormCadastroClientes = class(TFormCadastroPadrao)
-    RzDBEdit1: TRzDBEdit;
-    RzLabel1: TRzLabel;
-    RzDBEdit2: TRzDBEdit;
-    RzLabel2: TRzLabel;
-    RzDBEdit3: TRzDBEdit;
-    RzLabel3: TRzLabel;
-    RzDBLookupComboBox1: TRzDBLookupComboBox;
-    RzLabel4: TRzLabel;
+    RzDBEdit1: TDBEdit;
+    RzLabel1: TLabel;
+    RzDBEdit2: TDBEdit;
+    RzLabel2: TLabel;
+    RzDBEdit3: TDBEdit;
+    RzLabel3: TLabel;
+    RzDBLookupComboBox1: TDBLookupComboBox;
+    RzLabel4: TLabel;
     DBCheckBox1: TDBCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -42,7 +41,7 @@ implementation
 procedure TFormCadastroClientes.Alterar(id: integer);
 begin
   FDMClientes.qclientes.Close;
-  FDMClientes.qclientes.ParamByName('clienteid').AsInteger := id;
+  FDMClientes.qclientes.Parameters.ParamByName('clienteid').Value := id;
   FDMClientes.qclientes.Open;
   FDMClientes.qclientes.Edit;
 end;
