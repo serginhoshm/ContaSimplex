@@ -45,14 +45,16 @@ object FormRegistraVenda: TFormRegistraVenda
       Date = 42303.961509016200000000
       Time = 42303.961509016200000000
       TabOrder = 0
+      TabStop = False
     end
     object ButtonIniciar: TButton
       Left = 104
       Top = 24
       Width = 75
       Height = 25
-      Caption = 'Iniciar'
+      Caption = '&Iniciar'
       TabOrder = 1
+      TabStop = False
       OnClick = ButtonIniciarClick
     end
   end
@@ -81,7 +83,7 @@ object FormRegistraVenda: TFormRegistraVenda
       Font.Height = -12
       Font.Name = 'Consolas'
       Font.Style = []
-      Options = [dgEditing, dgAlwaysShowEditor, dgTitles, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit]
+      Options = [dgTitles, dgIndicator, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit]
       ParentCtl3D = False
       ParentFont = False
       TabOrder = 0
@@ -153,7 +155,7 @@ object FormRegistraVenda: TFormRegistraVenda
         Top = 8
         Width = 75
         Height = 25
-        Caption = 'OK'
+        Caption = '&OK'
         Glyph.Data = {
           DE010000424DDE01000000000000760000002800000024000000120000000100
           0400000000006801000000000000000000001000000000000000000000000000
@@ -211,6 +213,7 @@ object FormRegistraVenda: TFormRegistraVenda
         Anchors = [akTop, akRight]
         Caption = 'Clientes'
         TabOrder = 2
+        TabStop = False
         OnClick = Button1Click
         ExplicitLeft = 896
       end
@@ -222,8 +225,88 @@ object FormRegistraVenda: TFormRegistraVenda
         Anchors = [akTop, akRight]
         Caption = 'Adic. linhas'
         TabOrder = 3
+        TabStop = False
         OnClick = Button2Click
         ExplicitLeft = 808
+      end
+    end
+    object Panel2: TPanel
+      Left = 0
+      Top = 383
+      Width = 877
+      Height = 55
+      Align = alBottom
+      TabOrder = 2
+      object Label2: TLabel
+        Left = 24
+        Top = 8
+        Width = 39
+        Height = 13
+        Caption = 'ItemNro'
+        FocusControl = DBEditItem
+      end
+      object Label3: TLabel
+        Left = 87
+        Top = 8
+        Width = 33
+        Height = 13
+        Caption = 'Cliente'
+        FocusControl = DBLookupComboBox1
+      end
+      object Label4: TLabel
+        Left = 391
+        Top = 8
+        Width = 38
+        Height = 13
+        Caption = 'Produto'
+        FocusControl = DBLookupComboBox2
+      end
+      object Label5: TLabel
+        Left = 695
+        Top = 8
+        Width = 24
+        Height = 13
+        Caption = 'Qtde'
+        FocusControl = DBEdit2
+      end
+      object DBEditItem: TDBEdit
+        Left = 24
+        Top = 24
+        Width = 57
+        Height = 19
+        TabStop = False
+        DataField = 'ItemNro'
+        DataSource = DMRegVenda.DS_Itens
+        ReadOnly = True
+        TabOrder = 0
+      end
+      object DBLookupComboBox1: TDBLookupComboBox
+        Left = 87
+        Top = 24
+        Width = 300
+        Height = 19
+        DataField = 'ClienteNome'
+        DataSource = DMRegVenda.DS_Itens
+        TabOrder = 1
+      end
+      object DBLookupComboBox2: TDBLookupComboBox
+        Left = 391
+        Top = 24
+        Width = 300
+        Height = 19
+        DataField = 'ProdutoNome'
+        DataSource = DMRegVenda.DS_Itens
+        TabOrder = 2
+      end
+      object DBEdit2: TDBEdit
+        Left = 695
+        Top = 24
+        Width = 130
+        Height = 19
+        DataField = 'RegVenQtde'
+        DataSource = DMRegVenda.DS_Itens
+        TabOrder = 3
+        OnExit = DBEdit2Exit
       end
     end
   end

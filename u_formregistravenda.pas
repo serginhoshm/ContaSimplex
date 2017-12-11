@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, DB, DBClient, ADODB, Grids, DBGrids, ExtCtrls,
-  StdCtrls, Buttons, ComCtrls, DateUtils, u_dmregvenda;
+  StdCtrls, Buttons, ComCtrls, DateUtils, u_dmregvenda, DBCtrls, Mask;
 
 type
   TFormRegistraVenda = class(TForm)
@@ -20,6 +20,15 @@ type
     BitBtnCancel: TBitBtn;
     Button1: TButton;
     Button2: TButton;
+    Panel2: TPanel;
+    Label2: TLabel;
+    DBEditItem: TDBEdit;
+    Label3: TLabel;
+    DBLookupComboBox1: TDBLookupComboBox;
+    Label4: TLabel;
+    DBLookupComboBox2: TDBLookupComboBox;
+    Label5: TLabel;
+    DBEdit2: TDBEdit;
     procedure FormCreate(Sender: TObject);
     procedure BitBtnOkClick(Sender: TObject);
     procedure ButtonIniciarClick(Sender: TObject);
@@ -28,6 +37,7 @@ type
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure DBEdit2Exit(Sender: TObject);
   private
     { Private declarations }
     DMReg: TDMRegVenda;
@@ -108,8 +118,8 @@ begin
   BitBtnCancel.Enabled := True;
   DMReg.GlobalDataRef := RzDateTimePickerReg.DateTime;
   DMReg.CDSItens.First;
-  if RzDBGridItens.CanFocus then
-    RzDBGridItens.SetFocus;
+  if DBEditItem.CanFocus then
+    DBEditItem.SetFocus;
 end;
 
 procedure TFormRegistraVenda.ButtonIniciarClick(Sender: TObject);
@@ -200,6 +210,14 @@ end;
 procedure TFormRegistraVenda.FormDestroy(Sender: TObject);
 begin
   FreeAndNil(DMReg);
+end;
+
+procedure TFormRegistraVenda.DBEdit2Exit(Sender: TObject);
+begin
+  if DMReg.CDSItens.State in [dsEdit, dsInsert] then
+    DMReg.CDSItens.Post;
+  DMReg.CDSItens.Insert;
+
 end;
 
 end.

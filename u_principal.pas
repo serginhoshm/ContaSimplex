@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, Menus, DB, ADODB, ImgList;
+  Dialogs, Menus, DB, ADODB, ImgList, ActnMan, ActnColorMaps, XPMan;
 
 type
   TFormPrincipal = class(TForm)
@@ -33,6 +33,8 @@ type
     Faturamentospendentes1: TMenuItem;
     Baixacrditos1: TMenuItem;
     Enviaremailrecibospend1: TMenuItem;
+    XPManifest1: TXPManifest;
+    XPColorMap1: TXPColorMap;
     procedure Lerresultadosenquete1Click(Sender: TObject);
     procedure Gerarfaturamentos1Click(Sender: TObject);
     procedure Enviaremailfaturamentospend1Click(Sender: TObject);

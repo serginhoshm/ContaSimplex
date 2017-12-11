@@ -29,7 +29,7 @@ uses
   u_formenviaemail in 'u_formenviaemail.pas' {FormEnviaEmails},
   u_dmregvenda in 'u_dmregvenda.pas' {DMRegVenda: TDataModule};
 
-{$R *.res}
+//{$R *.res}
 
 begin
   Application.Initialize;

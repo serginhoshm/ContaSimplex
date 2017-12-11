@@ -372,7 +372,7 @@ begin
           try
             AMSend.DestinatarioNome := QFatPend.FieldByName('ClienteNome').AsString;
             AMSend.DestinatarioEmail := LowerCase(trim(QFatPend.FieldByName('ClienteEmail').AsString));
-            AMSend.AssuntoEmail := 'Resumo conta consumo bolos e doces [' + FormatDateTime('dd/mm/yyyy', QFatPend.FieldByName('faturdatageracao').AsDateTime) +']';
+            AMSend.AssuntoEmail := 'Resumo conta consumo bolos e doces';
             AMSend.TextoEmail.Add('Olá ' + AMSend.DestinatarioNome + '!');
             AMSend.TextoEmail.Add(' ');
             AMSend.TextoEmail.Add(' ');
@@ -383,9 +383,14 @@ begin
             AMSend.TextoEmail.Add(' ');
             AMSend.TextoEmail.Add('MÉTODO 1 - CAIXINHA (auto-atendimento)');
             AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add(' - Fileira da TV, estação 097, seguir as intruções presentes no local');
+            AMSend.TextoEmail.Add(' - Situada no "Primeiro andar", mesmo local de venda, URNA azul');
+            AMSend.TextoEmail.Add(' - Deposite o valor na URNA, utilizando envelope plástico');
+            AMSend.TextoEmail.Add(' - Com papeleta existente no local, informe se deseja troco ou crédito.');
+            AMSend.TextoEmail.Add(' - No dia seguinte o troco será devolvido pessoalmente.');
+            AMSend.TextoEmail.Add(' - Não será devolvido TROCO no momento do pagamento.');
             AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add('MÉTODO 2 - Depósito bancário (somente Santander)');
+            AMSend.TextoEmail.Add('MÉTODO 2 - Depósito bancário (Santander e Viacredi)');
+            AMSend.TextoEmail.Add(' ');
             AMSend.TextoEmail.Add(' ');
             AMSend.TextoEmail.Add(' - BANCO SANTANDER ');
             AMSend.TextoEmail.Add(' - AG 4509 ');
@@ -393,8 +398,20 @@ begin
             AMSend.TextoEmail.Add(' - TITULAR: SERGIO HENRIQUE MARCHIORI');
             AMSend.TextoEmail.Add(' - CPF: 047.034.269-27');
             AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add('MÉTODO 3 - Pessoalmente');
-            AMSend.TextoEmail.Add(' - Prefira os horários após as 12:00h e após as 18h, assim evitamos interrupções durante o expediente.');
+            AMSend.TextoEmail.Add(' ');
+            AMSend.TextoEmail.Add(' - BANCO VIACREDI ');
+            AMSend.TextoEmail.Add(' - C/C 9337393');
+            AMSend.TextoEmail.Add(' - TITULAR: PAULO CESAR PEREIRA');
+            AMSend.TextoEmail.Add(' - CPF: 924.598.629-20');
+            AMSend.TextoEmail.Add(' ');
+            AMSend.TextoEmail.Add(' ');
+            AMSend.TextoEmail.Add('MÉTODO 3 - PicPay');
+            AMSend.TextoEmail.Add(' - Adicione @sergiohm e efetue seu pagamento');
+            AMSend.TextoEmail.Add(' - Conheça PicPay https://goo.gl/QkGxdk');
+            AMSend.TextoEmail.Add(' ');
+            AMSend.TextoEmail.Add(' ');
+            AMSend.TextoEmail.Add('MÉTODO 4 - Pessoalmente');
+            AMSend.TextoEmail.Add(' - SOMENTE após as 18h (não posso receber durante o expediente).');
             AMSend.TextoEmail.Add(' ');
             AMSend.TextoEmail.Add(' ');
             AMSend.TextoEmail.Add('Em caso de alguma divergência possuo os registros para sua verificação.');

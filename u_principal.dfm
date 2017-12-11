@@ -5401,4 +5401,15 @@ object FormPrincipal: TFormPrincipal
       C01FC01FFFBAFFBAFFFFFFFFFFC7FFC700000000000000000000000000000000
       000000000000}
   end
+  object XPManifest1: TXPManifest
+    Left = 312
+    Top = 216
+  end
+  object XPColorMap1: TXPColorMap
+    HighlightColor = clWhite
+    BtnSelectedColor = clBtnFace
+    UnusedColor = clWhite
+    Left = 312
+    Top = 264
+  end
 end
