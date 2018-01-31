@@ -5,10 +5,25 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, Menus, ComCtrls, {Psock, NMsmtp,} IdBaseComponent, IdComponent,
   IdTCPConnection, IdTCPClient, IdMessageClient, IdSMTP, IdIOHandler,
-  IdIOHandlerSocket, IdSSLOpenSSL, IdMessage;
+  IdIOHandlerSocket, IdSSLOpenSSL, IdMessage, IniFiles;
 
 
 type
+  TMailConfig = record
+    ContentType: string;
+    FromAddress: string;
+    FromName: string;
+    AuthenticationType: TAuthenticationType;
+    Host: string;
+    IOHandler: TIdIOHandler;
+    Password: string;
+    Port: integer;
+    Username: string;
+    SSLMethod: integer;
+    SSLMode: integer;
+    Debug: boolean;
+  end;
+
   TMailSender = class
   private
     FDestinatarioEmail: string;
@@ -18,11 +33,14 @@ type
     FIOHandler: TIdSSLIOHandlerSocket;
     FMessage: TIdMessage;
     FAssuntoEmail: string;
+    FConfig: TMailConfig;
     function ConfigComponente: Boolean;
     procedure SetDestinatarioNome(const Value: string);
     procedure SetDestinatarioEmail(const Value: string);
     procedure SetTextoEmail(const Value: TStringList);
     procedure SetAssuntoEmail(const Value: string);
+    function ConfigFileName: string;
+    procedure LeConfig;
   public
     constructor Create;
     destructor Destroy; override;
@@ -41,15 +59,16 @@ implementation
 function TMailSender.ConfigComponente: Boolean;
 begin
   try
-    FMailClient.AuthenticationType := atLogin;
-    FMailClient.Host := 'smtp.gmail.com';
+    FIOHandler.SSLOptions.Method := TIdSSLVersion(FConfig.SSLMethod);
+    FIOHandler.SSLOptions.Mode := TIdSSLMode(FConfig.SSLMode);
+    
+    FMailClient.AuthenticationType := FConfig.AuthenticationType;
+    FMailClient.Host := FConfig.Host;
     FMailClient.IOHandler := FIOHandler;
-    FMailClient.Password := '1unix()*';
-    FMailClient.Port := 465;
-    FMailClient.Username := 'dedosdemariabolos@gmail.com'; //não esqueça o @gmail.com!!
+    FMailClient.Password := FConfig.Password;
+    FMailClient.Port := FConfig.Port;
+    FMailClient.Username := FConfig.Username;
 
-    FIOHandler.SSLOptions.Method := sslvTLSv1;
-    FIOHandler.SSLOptions.Mode := sslmClient;
     Result := true;
   except
     on E:Exception do
@@ -67,6 +86,7 @@ begin
   FMailClient := TIdSMTP.Create(nil);
   FIOHandler := TIdSSLIOHandlerSocket.Create(nil);
   FMessage := TIdMessage.Create(nil);
+  LeConfig;
   ConfigComponente;
 end;
 
@@ -91,14 +111,26 @@ function TMailSender.Enviar(var RetMsg: string): Boolean;
       FMessage.Body.Add('<br>' + TextoEmail.Strings[i]);
   end;
 
+var
+  IniConf: TIniFile;
 begin
   try
-    FMessage.ContentType := 'text/html';
-    FMessage.From.Address := 'dedosdemariabolos@gmail.com'; //opcional
-    FMessage.From.Name := 'Bolos e Doces - Dedos de Maria'; //opcional
+    FMessage.ContentType := FConfig.ContentType;
+    FMessage.From.Address := FConfig.FromAddress;
+    FMessage.From.Name := FConfig.FromName;
+
     FMessage.Recipients.Add;
-    FMessage.Recipients.Items[0].Address := DestinatarioEmail;
-    FMessage.Recipients.Items[0].Name := DestinatarioNome; //opcional
+    if not FConfig.Debug then
+    begin
+      FMessage.Recipients.Items[0].Address := DestinatarioEmail;
+      FMessage.Recipients.Items[0].Name := DestinatarioNome; //opcional
+    end
+    else
+    begin
+      FMessage.Recipients.Items[0].Address := 'nowhere_johndoe@hotmail.com';
+      FMessage.Recipients.Items[0].Name := 'John Doe'; //opcional
+    end;
+
     FMessage.Subject := AssuntoEmail;
     AdicionaTextoFormatado;
 
@@ -136,6 +168,40 @@ end;
 procedure TMailSender.SetTextoEmail(const Value: TStringList);
 begin
   FTextoEmail := Value;
+end;
+
+function TMailSender.ConfigFileName: string;
+begin
+  Result := ExtractFilePath(Application.ExeName) + 'email.conf';
+end;
+
+procedure TMailSender.LeConfig;
+var
+  Ini: TIniFile;
+  sec: string;
+begin
+  sec := 'Config';
+  if FileExists(ConfigFileName) then
+  begin
+    Ini := TIniFile.Create(ConfigFileName);
+    try
+      FConfig.ContentType := Ini.ReadString(sec, 'ContentType', '');
+      FConfig.FromAddress := Ini.ReadString(sec, 'FromAddress', '');
+      FConfig.FromName := Ini.ReadString(sec, 'FromName', '');
+      FConfig.AuthenticationType := TAuthenticationType(Ini.ReadInteger(sec, 'AuthenticationType', 0));
+      FConfig.Host := Ini.ReadString(sec, 'Host', '');
+      FConfig.Password := Ini.ReadString(sec, 'Password', '');
+      FConfig.Port := Ini.ReadInteger(sec, 'Port', 0);
+      FConfig.Username := Ini.ReadString(sec, 'Username', '');
+      FConfig.SSLMethod := Ini.ReadInteger(sec, 'SSLMethod', 0);
+      FConfig.SSLMode := Ini.ReadInteger(sec, 'SSLMode', 0);
+      FConfig.Debug := Ini.ReadInteger(sec, 'Debug', 1) = 1;
+    finally
+      FreeAndNil(Ini);
+    end;
+  end
+  else
+    raise Exception.Create('Configurações de e-mail inexistentes!');
 end;
 
 end.
