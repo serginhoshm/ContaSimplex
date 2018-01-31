@@ -15,7 +15,7 @@ type
     FDestinatarioNome: string;
     FTextoEmail: TStringList;
     FMailClient: TIdSMTP;
-    //FIOHandler: TIdSSLIOHandlerSocket;
+    FIOHandler: TIdSSLIOHandlerSocket;
     FMessage: TIdMessage;
     FAssuntoEmail: string;
     function ConfigComponente: Boolean;
@@ -41,15 +41,15 @@ implementation
 function TMailSender.ConfigComponente: Boolean;
 begin
   try
-    //FMailClient.AuthenticationType := atLogin;
+    FMailClient.AuthenticationType := atLogin;
     FMailClient.Host := 'smtp.gmail.com';
-    //FMailClient.IOHandler := FIOHandler;
+    FMailClient.IOHandler := FIOHandler;
     FMailClient.Password := '1unix()*';
     FMailClient.Port := 465;
     FMailClient.Username := 'dedosdemariabolos@gmail.com'; //não esqueça o @gmail.com!!
 
-    //FIOHandler.SSLOptions.Method := sslvTLSv1;
-    //FIOHandler.SSLOptions.Mode := sslmClient;
+    FIOHandler.SSLOptions.Method := sslvTLSv1;
+    FIOHandler.SSLOptions.Mode := sslmClient;
     Result := true;
   except
     on E:Exception do
@@ -65,7 +65,7 @@ begin
   inherited;
   FTextoEmail := TStringList.Create;
   FMailClient := TIdSMTP.Create(nil);
-  //FIOHandler := TIdSSLIOHandlerSocket.Create(nil);
+  FIOHandler := TIdSSLIOHandlerSocket.Create(nil);
   FMessage := TIdMessage.Create(nil);
   ConfigComponente;
 end;
@@ -74,7 +74,7 @@ destructor TMailSender.Destroy;
 begin
   FreeAndNil(FTextoEmail);
   FreeAndNil(FMailClient);
-  //FreeAndNil(FIOHandler);
+  FreeAndNil(FIOHandler);
   FreeAndNil(FMessage);
   inherited;
 end;

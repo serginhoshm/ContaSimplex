@@ -4,26 +4,27 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, Mask, Buttons, ExtCtrls, DB, Vcl.ComCtrls, Data.Win.ADODB;
+  Dialogs, StdCtrls, Mask, Buttons, ExtCtrls, DB, ComCtrls, ADODB;
 
 type
   TFormRecebimento = class(TForm)
     Label6: TLabel;
-    //EditValorRecebido: TNumericEdit;
+    EditValorRecebido: TEdit;
     Panel1: TPanel;
     BitBtn1: TBitBtn;
-//    EditClienteID: TNumericEdit;
+    EditClienteID: TEdit;
     Label4: TLabel;
     EditClienteNome: TEdit;
-//    EditFaturID: TNumericEdit;
+    EditFaturID: TEdit;
     Label5: TLabel;
     AdvToolButton1: TToolButton;
     Label1: TLabel;
-//    EditTroco: TNumericEdit;
+    EditTroco: TEdit;
     Label2: TLabel;
-//    EditCredito: TNumericEdit;
-//    EditValorFatura: TNumericEdit;
+    EditCredito: TEdit;
+    EditValorFatura: TEdit;
     Label3: TLabel;
+    qry1: TADOQuery;
     procedure BitBtn1Click(Sender: TObject);
     procedure AdvToolButton1Click(Sender: TObject);
     procedure BitBtn2Click(Sender: TObject);
@@ -34,7 +35,6 @@ type
     { Private declarations }
     procedure LimparTela;
     function CarregarFatura(FaturaID: integer): boolean;
-    procedure ChecarValores;
   public
     { Public declarations }
 
@@ -49,16 +49,40 @@ uses
 
 procedure TFormRecebimento.BitBtn1Click(Sender: TObject);
 var
+  NrFatura: integer;
+  ValorFatura,
+  Recebido,
+  Troco,
+  Credito: Double;
   FatObj: TFatObj;
   AMsg: string;
+
+  procedure ChecarValores;
+  begin
+    if Recebido > ValorFatura then
+    begin
+      if (Recebido - (ValorFatura + Troco + Credito) <> 0) then
+        raise exception.Create('ATENÇÃO: Fatura + Crédito + Troco = Valor Recebido');
+    end
+    else
+    if Recebido < ValorFatura then
+      raise Exception.Create('O valor recebido é menor que o valor da fatura');
+  end;
+
 begin
   FatObj := TFatObj.Create;
   try
     try
-      //if EditFaturID.Value <= 0 then
-      //  raise Exception.Create('Informe a fatura');
+      NrFatura := StrToIntDef(EditFaturID.Text, 0);
+      if NrFatura <= 0 then
+        raise Exception.Create('Informe a fatura');
+
+      ValorFatura := StrToFloatDef(EditValorFatura.Text, 0);
+      Recebido := StrToFloatDef(EditValorRecebido.Text, 0);
+      Troco := StrToFloatDef(EditTroco.Text, 0);
+      Credito := StrToFloatDef(EditCredito.Text, 0);
       ChecarValores;
-//      AMsg := FatObj.ReceberFatur(StrToIntDef(EditFaturID.Text, 0), EditValorRecebido.Value, EditTroco.Value, EditCredito.Value);
+      AMsg := FatObj.ReceberFatur(NrFatura, Recebido, Troco, Credito);
       if trim(AMsg) <> EmptyStr then
         ShowMessage(AMsg);
       LimparTela;
@@ -90,15 +114,13 @@ end;
 
 procedure TFormRecebimento.LimparTela;
 begin
-  (*
-  EditFaturID.Value := 0;
-  EditClienteID.Value := 0;
+  EditFaturID.Text :='0';
+  EditClienteID.Text :='0';
   EditClienteNome.Clear;
-  EditValorFatura.Value := 0;
-  EditValorRecebido.Value := 0;
-  EditTroco.Value := 0;
-  EditCredito.Value := 0;
-  *)
+  EditValorFatura.Text :='0';
+  EditValorRecebido.Text :='0';
+  EditTroco.Text :='0';
+  EditCredito.Text :='0';
 end;
 
 function TFormRecebimento.CarregarFatura(FaturaID: integer): boolean;
@@ -116,13 +138,11 @@ begin
       QueFatura.Open;
       if not QueFatura.IsEmpty then
       begin
-        (*
-        EditFaturID.Value := QueFatura.FieldByName('faturid').AsInteger;
-        EditClienteID.Value := QueFatura.FieldByName('clienteid').AsInteger;
+        EditFaturID.Text := QueFatura.FieldByName('faturid').AsString;
+        EditClienteID.Text := QueFatura.FieldByName('clienteid').AsString;
         EditClienteNome.Text := QueFatura.FieldByName('clientenome').AsString;
-        EditValorFatura.Value := QueFatura.FieldByName('faturvalortotal').AsFloat;
-        EditValorRecebido.Value := EditValorFatura.Value;
-        *)
+        EditValorFatura.Text := QueFatura.FieldByName('faturvalortotal').AsString;
+        EditValorRecebido.Text := EditValorFatura.Text;
       end
       else
         raise Exception.Create('A fatura ' + IntToStr(FaturaID) + ' não foi encontrada!'); 
@@ -138,20 +158,7 @@ begin
 
 end;
 
-procedure TFormRecebimento.ChecarValores;
-begin
 
-  (*
-  if EditValorRecebido.Value > EditValorFatura.Value then
-  begin
-    if (EditValorRecebido.Value - (EditValorFatura.Value + EditTroco.Value + EditCredito.Value) <> 0) then
-      raise exception.Create('ATENÇÃO: Fatura + Crédito + Troco = Valor Recebido');
-  end
-  else
-  if EditValorRecebido.Value < EditValorFatura.Value then
-    raise Exception.Create('O valor recebido é menor que o valor da fatura');
-  *)
-end;
 
 procedure TFormRecebimento.BitBtn2Click(Sender: TObject);
 begin
@@ -160,10 +167,8 @@ end;
 
 procedure TFormRecebimento.EditTrocoEnter(Sender: TObject);
 begin
-  (*
-  if EditTroco.Value = 0 then
-    EditTroco.Value := EditValorRecebido.Value - (EditValorFatura.Value+EditCredito.Value);
-  *)
+  if StrToFloatDef(EditTroco.Text, 0) = 0 then
+    EditTroco.Text := FloatToStr(StrToFloatDef(EditValorRecebido.Text, 0) - (StrToFloatDef(EditValorFatura.Text, 0) + StrToFloatDef(EditCredito.Text, 0)));
 end;
 
 procedure TFormRecebimento.FormShow(Sender: TObject);
@@ -173,10 +178,8 @@ end;
 
 procedure TFormRecebimento.EditCreditoEnter(Sender: TObject);
 begin
-  (*
-  if EditCredito.Value = 0 then
-    EditCredito.Value := EditValorRecebido.Value - (EditValorFatura.Value+EditTroco.Value);
-    *)
+  if StrToFloatDef(EditCredito.Text, 0) = 0 then
+    EditCredito.Text := FloatToStr(StrToFloatDef(EditValorRecebido.Text, 0) - (StrToFloatDef(EditValorFatura.Text, 0)+StrToFloatDef(EditTroco.Text, 0)));
 end;
 
 end.

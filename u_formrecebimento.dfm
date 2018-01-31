@@ -101,6 +101,21 @@ object FormRecebimento: TFormRecebimento
     Font.Style = [fsBold]
     ParentFont = False
   end
+  object EditValorRecebido: TEdit
+    Left = 120
+    Top = 104
+    Width = 169
+    Height = 24
+    Ctl3D = False
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -16
+    Font.Name = 'Courier New'
+    Font.Style = []
+    ParentCtl3D = False
+    ParentFont = False
+    TabOrder = 4
+  end
   object Panel1: TPanel
     Left = 0
     Top = 208
@@ -109,13 +124,16 @@ object FormRecebimento: TFormRecebimento
     Align = alBottom
     Ctl3D = True
     ParentCtl3D = False
-    TabOrder = 0
+    TabOrder = 7
     object BitBtn1: TBitBtn
       Left = 16
       Top = 8
       Width = 89
       Height = 25
       Caption = 'Confirmar'
+      TabOrder = 0
+      TabStop = False
+      OnClick = BitBtn1Click
       Glyph.Data = {
         DE010000424DDE01000000000000760000002800000024000000120000000100
         0400000000006801000000000000000000001000000000000000000000000000
@@ -134,10 +152,24 @@ object FormRecebimento: TFormRecebimento
         333A333333333333333338330000333333333333333333333333333333333333
         0000}
       NumGlyphs = 2
-      TabOrder = 0
-      TabStop = False
-      OnClick = BitBtn1Click
     end
+  end
+  object EditClienteID: TEdit
+    Left = 120
+    Top = 40
+    Width = 57
+    Height = 24
+    Ctl3D = False
+    Enabled = False
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -16
+    Font.Name = 'Courier New'
+    Font.Style = []
+    ParentCtl3D = False
+    ParentFont = False
+    ReadOnly = True
+    TabOrder = 1
   end
   object EditClienteNome: TEdit
     Left = 180
@@ -154,6 +186,77 @@ object FormRecebimento: TFormRecebimento
     ParentCtl3D = False
     ParentFont = False
     ReadOnly = True
-    TabOrder = 1
+    TabOrder = 2
+  end
+  object EditFaturID: TEdit
+    Left = 121
+    Top = 8
+    Width = 57
+    Height = 24
+    Ctl3D = False
+    Enabled = False
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -16
+    Font.Name = 'Courier New'
+    Font.Style = []
+    ParentCtl3D = False
+    ParentFont = False
+    ReadOnly = True
+    TabOrder = 0
+  end
+  object EditTroco: TEdit
+    Left = 120
+    Top = 136
+    Width = 169
+    Height = 24
+    Ctl3D = False
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -16
+    Font.Name = 'Courier New'
+    Font.Style = []
+    ParentCtl3D = False
+    ParentFont = False
+    TabOrder = 5
+    OnEnter = EditTrocoEnter
+  end
+  object EditCredito: TEdit
+    Left = 120
+    Top = 168
+    Width = 169
+    Height = 24
+    Ctl3D = False
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -16
+    Font.Name = 'Courier New'
+    Font.Style = []
+    ParentCtl3D = False
+    ParentFont = False
+    TabOrder = 6
+    OnEnter = EditCreditoEnter
+  end
+  object EditValorFatura: TEdit
+    Left = 120
+    Top = 72
+    Width = 169
+    Height = 24
+    Ctl3D = False
+    Enabled = False
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -16
+    Font.Name = 'Courier New'
+    Font.Style = []
+    ParentCtl3D = False
+    ParentFont = False
+    ReadOnly = True
+    TabOrder = 3
+  end
+  object qry1: TADOQuery
+    Parameters = <>
+    Left = 328
+    Top = 96
   end
 end

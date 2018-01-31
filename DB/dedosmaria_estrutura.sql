@@ -1,7 +1,8 @@
 CREATE TABLE clientes (
-    clienteid integer NOT NULL,
+    clienteid integer IDENTITY(1,1) NOT NULL,
     clientenome character varying(255) NOT NULL,
     clienteemail character varying(255),
+	clienteemail2 character varying(255),
     deptoid integer NOT NULL,
     clientemktmail bit   DEFAULT 0,
     PRIMARY KEY (clienteid)
@@ -32,7 +33,7 @@ CREATE VIEW creditospendentes AS
 GO
 
 CREATE TABLE departamentos (
-    deptoid integer NOT NULL,
+    deptoid integer IDENTITY(1,1) NOT NULL,
     deptodescricao character varying(255),
     PRIMARY KEY (deptoid)
 );
@@ -40,7 +41,7 @@ CREATE TABLE departamentos (
 GO
 
 CREATE TABLE faturamentos (
-    faturid integer NOT NULL,
+    faturid integer IDENTITY(1,1) NOT NULL,
     clienteid integer NOT NULL,
     faturdatageracao datetime NOT NULL,
     faturvalortotal numeric(18,4) DEFAULT 0 NOT NULL,
@@ -72,7 +73,7 @@ CREATE VIEW faturamentospendentes AS
 GO
 
 CREATE TABLE fornecedores (
-    fornecid integer NOT NULL,
+    fornecid integer IDENTITY(1,1) NOT NULL,
     fornecnome character varying(100),
     email character varying(255),
     fone character varying(255),
@@ -82,7 +83,7 @@ CREATE TABLE fornecedores (
 GO
 
 CREATE TABLE itenscomprados (
-    itemcompid integer NOT NULL,
+    itemcompid integer IDENTITY(1,1) NOT NULL,
     fornecedorid integer NOT NULL,
     produtoid integer NOT NULL,
     itemcompdata datetime NOT NULL,
@@ -95,7 +96,7 @@ CREATE TABLE itenscomprados (
 GO
 
 CREATE TABLE itensvendidos (
-    itemid integer NOT NULL,
+    itemid integer IDENTITY(1,1) NOT NULL,
     produtoid integer NOT NULL,
     clienteid integer NOT NULL,
     itemquantidade integer DEFAULT 1 NOT NULL,
@@ -109,7 +110,7 @@ CREATE TABLE itensvendidos (
 GO
 
 CREATE TABLE produtos (
-    produtoid integer NOT NULL,
+    produtoid integer IDENTITY(1,1) NOT NULL,
     produtonome character varying(255),
     consultaem datetime,
     produtoumref integer NOT NULL,
@@ -131,7 +132,7 @@ CREATE TABLE produtosprecovenda (
 GO
 
 CREATE TABLE recibos (
-    reciboid integer NOT NULL,
+    reciboid integer IDENTITY(1,1) NOT NULL,
     faturid integer,
     recibodatageracao datetime,
     recibovalorpago numeric(18,4),
@@ -190,7 +191,7 @@ CREATE VIEW recebercliente_det AS
 GO
 
 CREATE TABLE unidadesmedida (
-    umcod integer NOT NULL,
+    umcod integer IDENTITY(1,1) NOT NULL,
     umnome character varying(255) NOT NULL,
     umsigla character varying(3) NOT NULL, 
     PRIMARY KEY (umcod)

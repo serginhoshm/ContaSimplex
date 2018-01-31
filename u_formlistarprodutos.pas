@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, u_formalistarpadrao, DB, ADODB, ExtCtrls, Grids,
-  DBGrids, Vcl.ComCtrls, Vcl.ToolWin;
+  DBGrids, ComCtrls, ToolWin;
 
 type
   TFormListarProdutos = class(TFormListarPadrao)

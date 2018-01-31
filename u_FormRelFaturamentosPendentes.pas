@@ -4,8 +4,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, u_formrelpadrao, ExtCtrls, DB, StdCtrls, Data.Win.ADODB,
-  Vcl.ComCtrls, Vcl.ToolWin;
+  Dialogs, u_formrelpadrao, ExtCtrls, DB, StdCtrls, ADODB,
+  ComCtrls, ToolWin, QuickRpt, QRCtrls;
 
 type
   TFormRelFaturamentosPendetes = class(TFormRelPadrao)
@@ -23,6 +23,12 @@ type
     RzToolButton2: TToolButton;
     Memo1: TMemo;
     RzToolButton3: TToolButton;
+    DS_qFatur: TDataSource;
+    QRBand1: TQRBand;
+    QRBand3: TQRBand;
+    QRDBText1: TQRDBText;
+    QRDBText2: TQRDBText;
+    QRDBText3: TQRDBText;
     procedure RzToolButton1Click(Sender: TObject);
     procedure RzToolButton2Click(Sender: TObject);
   private
@@ -47,6 +53,8 @@ begin
   qFatur.Close;
   qFatur.Connection := DM.GetConexao;
   qFatur.Open;
+  QuickRep1.Preview;
+
   qFatur.Last;
   Memo1.Lines.Add('Pendentes: ' + IntToStr(qFatur.RecordCount));
   qFatur.First;

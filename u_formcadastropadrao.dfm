@@ -25,9 +25,9 @@ object FormCadastroPadrao: TFormCadastroPadrao
   end
   object ScrollBox1: TScrollBox
     Left = 0
-    Top = 50
+    Top = 54
     Width = 624
-    Height = 372
+    Height = 368
     Align = alClient
     Ctl3D = False
     ParentCtl3D = False
@@ -37,7 +37,7 @@ object FormCadastroPadrao: TFormCadastroPadrao
     Left = 0
     Top = 0
     Width = 624
-    Height = 50
+    Height = 54
     AutoSize = True
     ButtonHeight = 50
     ButtonWidth = 50
@@ -45,14 +45,14 @@ object FormCadastroPadrao: TFormCadastroPadrao
     Images = FormPrincipal.Img
     TabOrder = 2
     object RzToolButton1: TToolButton
-      Left = 4
-      Top = 0
+      Left = 0
+      Top = 2
       Caption = 'Salvar'
       ImageIndex = 4
     end
     object RzToolButton3: TToolButton
-      Left = 54
-      Top = 0
+      Left = 50
+      Top = 2
       Caption = 'Excluir'
       ImageIndex = 8
     end

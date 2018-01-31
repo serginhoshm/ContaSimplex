@@ -1,9 +1,9 @@
 object FormPrincipal: TFormPrincipal
-  Left = 249
-  Top = 144
+  Left = 231
+  Top = 142
+  Width = 656
+  Height = 462
   Caption = 'ContaSimplex'
-  ClientHeight = 214
-  ClientWidth = 343
   Color = clAppWorkSpace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

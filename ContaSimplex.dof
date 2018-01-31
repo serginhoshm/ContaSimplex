@@ -90,10 +90,10 @@ MaxStackSize=1048576
 ImageBase=4194304
 ExeDescription=
 [Directories]
-OutputDir=c:\Users\sergi\OneDrive\BancoDados\
-UnitOutputDir=C:\temp
+OutputDir=$(HomePath)\OneDrive\Programas\ContaSimplex\
+UnitOutputDir=$(HomePath)\AppData\Local\Temp
 PackageDLLOutputDir=
-PackageDCPOutputDir=C:\temp
+PackageDCPOutputDir=$(HomePath)\AppData\Local\Temp
 SearchPath=
 Packages=vcl;rtl;dbrtl;inet;inetdb;dsnap;bdertl;vclx;vcldb;vcldbx;visualclx;visualdbclx;vclactnband;vclshlctrls;vclie;xmlrtl;inetdbbde;inetdbxpress;webdsnap;adortl;dbexpress;dsnapcon;dbxcds;ibxpress;teeui;teedb;tee;dss;indy;VclSmp;qrpt;teeqr;VclNewlyext
 Conditionals=
@@ -110,7 +110,7 @@ ActiveLang=
 ProjectLang=
 RootDir=C:\bd7\Bin\
 [Version Info]
-IncludeVerInfo=0
+IncludeVerInfo=1
 AutoIncBuild=0
 MajorVer=1
 MinorVer=0
@@ -121,29 +121,44 @@ PreRelease=0
 Special=0
 Private=0
 DLL=0
-Locale=1046
+Locale=1033
 CodePage=1252
 [Version Info Keys]
+CompanyName=
+FileDescription=
 FileVersion=1.0.0.0
+InternalName=
+LegalCopyright=
+LegalTrademarks=
+OriginalFilename=
+ProductName=
+ProductVersion=1.0.0.0
 [Excluded Packages]
-c:\bd7\Bin\dclqrt70.bpl=QuickReport Components
 c:\bd7\Bin\dcltqr70.bpl=TeeChart for QuickReport Components
 [HistoryLists\hlUnitAliases]
 Count=1
 Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
 [HistoryLists\hlUnitOutputDirectory]
-Count=3
-Item0=C:\temp
-Item1=.\DCU
-Item2=.\
-[HistoryLists\hlOutputDirectorry]
-Count=6
-Item0=c:\Users\sergi\OneDrive\BancoDados\
+Count=4
+Item0=$(HomePath)\AppData\Local\Temp
 Item1=C:\temp
-Item2=C:\Users\sergio\OneDrive\BancoDados
-Item3=.\EXE
-Item4=.\
-Item5=C:\Users\sergi\OneDrive\BancoDados
+Item2=.\DCU
+Item3=.\
+[HistoryLists\hlOutputDirectorry]
+Count=11
+Item0=$(HomePath)\OneDrive\Programas\ContaSimplex\
+Item1=$(UserDir)\OneDrive\Programas\ContaSimplex\
+Item2=%HOMEPATH%\OneDrive\Programas\ContaSimplex\
+Item3={$USERPROFILE}\OneDrive\Programas\ContaSimplex\
+Item4=%USERPROFILE%\OneDrive\Programas\ContaSimplex\
+Item5=c:\Users\sergi\OneDrive\BancoDados\
+Item6=C:\temp
+Item7=C:\Users\sergio\OneDrive\BancoDados
+Item8=.\EXE
+Item9=.\
+Item10=C:\Users\sergi\OneDrive\BancoDados
 [HistoryLists\hlDCPOutput]
-Count=1
-Item0=C:\temp
+Count=3
+Item0=$(HomePath)\AppData\Local\Temp
+Item1=$(HomePath)\Temp
+Item2=C:\temp

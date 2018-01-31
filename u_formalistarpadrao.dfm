@@ -19,9 +19,9 @@ object FormListarPadrao: TFormListarPadrao
   TextHeight = 13
   object RzDBGridLista: TDBGrid
     Left = 0
-    Top = 50
+    Top = 54
     Width = 624
-    Height = 358
+    Height = 354
     Align = alClient
     Ctl3D = False
     DataSource = ds_QLista
@@ -39,22 +39,22 @@ object FormListarPadrao: TFormListarPadrao
     Left = 0
     Top = 0
     Width = 624
-    Height = 50
+    Height = 54
     AutoSize = True
     ButtonHeight = 50
     ButtonWidth = 50
     Ctl3D = False
     TabOrder = 1
     object RzToolButton1: TToolButton
-      Left = 4
-      Top = 0
+      Left = 0
+      Top = 2
       Caption = 'Editar'
       ImageIndex = 86
       OnClick = RzToolButton1Click
     end
     object RzToolButton2: TToolButton
-      Left = 54
-      Top = 0
+      Left = 50
+      Top = 2
       Caption = 'Incluir'
       ImageIndex = 82
     end

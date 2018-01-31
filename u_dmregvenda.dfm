@@ -1,5 +1,7 @@
 object DMRegVenda: TDMRegVenda
   OldCreateOrder = False
+  Left = 296
+  Top = 108
   Height = 365
   Width = 540
   object CDSItens: TClientDataSet
@@ -20,7 +22,7 @@ object DMRegVenda: TDMRegVenda
       end
       item
         Name = 'RegVenQtde'
-        DataType = ftFloat
+        DataType = ftInteger
       end
       item
         Name = 'RegVenVlrUnit'
@@ -51,16 +53,13 @@ object DMRegVenda: TDMRegVenda
       DisplayWidth = 20
       FieldName = 'ClienteID'
     end
-    object CDSItensRegVenQtde: TFloatField
-      DisplayLabel = 'Qtde.'
-      DisplayWidth = 20
-      FieldName = 'RegVenQtde'
-      DisplayFormat = '#0.00'
-    end
     object CDSItensRegVenVlrUnit: TFloatField
       DisplayLabel = 'Unit.'
       FieldName = 'RegVenVlrUnit'
       DisplayFormat = '#0.00'
+    end
+    object CDSItensRegVenQtde: TIntegerField
+      FieldName = 'RegVenQtde'
     end
     object CDSItensRegVenVlrTot: TFloatField
       DisplayLabel = 'Total'
@@ -106,9 +105,20 @@ object DMRegVenda: TDMRegVenda
     BeforeOpen = QProdutosBeforeOpen
     Parameters = <>
     SQL.Strings = (
-      'select *'
-      'from listaprecoatual'
-      'order by produtonome')
+      'select max(pv.prodprecovendata) prodprecovendata, '
+      'p.produtoid, '
+      'p.produtonome, '
+      'pv.prodprecovenvalor'
+      'from produtos p'
+      'join produtosprecovenda pv'
+      'on pv.produtoid = p.produtoid'
+      
+        'group by p.produtoid, p.produtonome, pv.prodprecovenvalor,  pv.p' +
+        'rodprecovendata'
+      
+        'having pv.prodprecovendata = (select max(prodprecovendata) from ' +
+        'produtosprecovenda pv2 where pv2.produtoid = p.produtoid)'
+      'order by p.produtonome')
     Left = 32
     Top = 8
     object QProdutosprodprecovendata: TDateTimeField
@@ -120,9 +130,6 @@ object DMRegVenda: TDMRegVenda
     object QProdutosprodutonome: TWideStringField
       FieldName = 'produtonome'
       Size = 255
-    end
-    object QProdutosmaxdeprodprecovendata: TDateTimeField
-      FieldName = 'maxdeprodprecovendata'
     end
     object QProdutosprodprecovenvalor: TFloatField
       FieldName = 'prodprecovenvalor'

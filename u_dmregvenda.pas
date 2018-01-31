@@ -3,14 +3,13 @@ unit u_dmregvenda;
 interface
 
 uses
-  SysUtils, Classes, DB, DBClient, Data.Win.ADODB;
+  SysUtils, Classes, DB, DBClient, ADODB, Variants;
 
 type
   TDMRegVenda = class(TDataModule)
     CDSItens: TClientDataSet;
     CDSItensProdutoID: TIntegerField;
     CDSItensClienteID: TIntegerField;
-    CDSItensRegVenQtde: TFloatField;
     CDSItensRegVenVlrUnit: TFloatField;
     CDSItensRegVenVlrTot: TFloatField;
     CDSItensRegVenDataRef: TDateField;
@@ -22,11 +21,11 @@ type
     QProdutosprodprecovendata: TDateTimeField;
     QProdutosprodutoid: TIntegerField;
     QProdutosprodutonome: TWideStringField;
-    QProdutosmaxdeprodprecovendata: TDateTimeField;
     QProdutosprodprecovenvalor: TFloatField;
     QClientes: TADOQuery;
     QClientesclienteid: TIntegerField;
     QClientesclientenome: TWideStringField;
+    CDSItensRegVenQtde: TIntegerField;
     procedure CDSItensBeforePost(DataSet: TDataSet);
     procedure CDSItensNewRecord(DataSet: TDataSet);
     procedure QProdutosBeforeOpen(DataSet: TDataSet);
@@ -54,14 +53,21 @@ end;
 
 procedure TDMRegVenda.CalculaItem;
 begin
-  CDSItensRegVenVlrUnit.AsCurrency := QProdutosProdPrecoVenValor.AsCurrency;
-  CDSItensRegVenVlrTot.AsCurrency := CDSItensRegVenQtde.AsFloat * CDSItensRegVenVlrUnit.AsCurrency;
+  QProdutos.Filter := 'produtoid = ' + CDSItensProdutoID.AsString;
+  QProdutos.Filtered := true;
+  if not QProdutos.Eof then
+  begin
+    CDSItensRegVenVlrUnit.AsFloat := QProdutosProdPrecoVenValor.AsFloat;
+    CDSItensRegVenVlrTot.AsFloat := CDSItensRegVenQtde.AsInteger * CDSItensRegVenVlrUnit.AsFloat;
+  end
+  else
+    raise Exception.Create('Produto não localizado -> ProdutoID: ' + CDSItensProdutoID.AsString);
 end;
 
 
 procedure TDMRegVenda.CDSItensNewRecord(DataSet: TDataSet);
 begin
-  CDSItensRegVenQtde.AsFloat := 1;
+  CDSItensRegVenQtde.AsInteger := 1;
   CDSItensRegVenDataRef.AsDateTime := GlobalDataRef;
 end;
 
@@ -73,6 +79,7 @@ end;
 procedure TDMRegVenda.QProdutosBeforeOpen(DataSet: TDataSet);
 begin
   QProdutos.Connection := DM.GetConexao;
+  
 end;
 
 procedure TDMRegVenda.QClientesBeforeOpen(DataSet: TDataSet);

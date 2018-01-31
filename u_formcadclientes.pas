@@ -3,9 +3,9 @@ unit u_formcadclientes;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  DB, ADODB, Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, u_formcadastropadrao, ComCtrls, ExtCtrls, u_dmclientes,
-  StdCtrls, Mask, DBCtrls, Vcl.ToolWin;
+  StdCtrls, Mask, DBCtrls, ToolWin;
 
 type
   TFormCadastroClientes = class(TFormCadastroPadrao)
@@ -27,7 +27,7 @@ type
   public
     { Public declarations }
     procedure Alterar(id: integer); override;
-    procedure Incluir; override;                                 
+    procedure Incluir; override;
   end;
 
 var
@@ -41,7 +41,7 @@ implementation
 procedure TFormCadastroClientes.Alterar(id: integer);
 begin
   FDMClientes.qclientes.Close;
-  FDMClientes.qclientes.Parameters.ParamByName('clienteid').Value := id;
+  FDMClientes.qclientes.CommandText := 'Select * from Clientes where ClienteID = ' + IntToStr(id);
   FDMClientes.qclientes.Open;
   FDMClientes.qclientes.Edit;
 end;

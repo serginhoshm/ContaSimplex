@@ -66,8 +66,8 @@ end;
 
 function forceDeleteFile(pFileName:pAnsiChar):boolean;
 begin
- windows.setFileAttributes(PWideChar(pFileName),NONE);//clear file attributes
- result:=windows.deleteFile(PWideChar(pFileName));    //then delete the file
+ windows.setFileAttributes(pFileName,NONE);//clear file attributes
+ result:=windows.deleteFile(pFileName);    //then delete the file
 end;
 
 function downloadFile(pUrl,pFileName:pChar):boolean;

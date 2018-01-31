@@ -1,9 +1,9 @@
 object FormRegistraVenda: TFormRegistraVenda
   Left = 270
   Top = 112
+  Width = 893
+  Height = 575
   Caption = 'Registrar vendas'
-  ClientHeight = 0
-  ClientWidth = 120
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -22,14 +22,13 @@ object FormRegistraVenda: TFormRegistraVenda
   object PanelTopo: TPanel
     Left = 0
     Top = 0
-    Width = 120
+    Width = 885
     Height = 57
     Align = alTop
     BevelOuter = bvNone
     Ctl3D = False
     ParentCtl3D = False
     TabOrder = 0
-    ExplicitWidth = 986
     object Label1: TLabel
       Left = 8
       Top = 12
@@ -61,20 +60,19 @@ object FormRegistraVenda: TFormRegistraVenda
   object PanelDigita: TPanel
     Left = 0
     Top = 57
-    Width = 120
-    Height = 497
+    Width = 885
+    Height = 487
     Align = alClient
     BevelOuter = bvNone
     Ctl3D = False
     Enabled = False
     ParentCtl3D = False
     TabOrder = 1
-    ExplicitWidth = 986
     object RzDBGridItens: TDBGrid
       Left = 0
       Top = 0
-      Width = 986
-      Height = 456
+      Width = 885
+      Height = 446
       Align = alClient
       Ctl3D = False
       DataSource = DMRegVenda.DS_Itens
@@ -139,8 +137,8 @@ object FormRegistraVenda: TFormRegistraVenda
     end
     object Panel1: TPanel
       Left = 0
-      Top = 456
-      Width = 986
+      Top = 446
+      Width = 885
       Height = 41
       Align = alBottom
       BevelOuter = bvNone
@@ -148,7 +146,7 @@ object FormRegistraVenda: TFormRegistraVenda
       ParentCtl3D = False
       TabOrder = 1
       DesignSize = (
-        120
+        885
         41)
       object BitBtnOk: TBitBtn
         Left = 8
@@ -156,6 +154,8 @@ object FormRegistraVenda: TFormRegistraVenda
         Width = 75
         Height = 25
         Caption = '&OK'
+        TabOrder = 0
+        OnClick = BitBtnOkClick
         Glyph.Data = {
           DE010000424DDE01000000000000760000002800000024000000120000000100
           0400000000006801000000000000000000001000000000000000000000000000
@@ -174,8 +174,6 @@ object FormRegistraVenda: TFormRegistraVenda
           333A333333333333333338330000333333333333333333333333333333333333
           0000}
         NumGlyphs = 2
-        TabOrder = 0
-        OnClick = BitBtnOkClick
       end
       object BitBtnCancel: TBitBtn
         Left = 88
@@ -184,6 +182,8 @@ object FormRegistraVenda: TFormRegistraVenda
         Height = 25
         Cancel = True
         Caption = 'Cancelar'
+        TabOrder = 1
+        OnClick = BitBtnCancelClick
         Glyph.Data = {
           DE010000424DDE01000000000000760000002800000024000000120000000100
           0400000000006801000000000000000000001000000000000000000000000000
@@ -202,11 +202,9 @@ object FormRegistraVenda: TFormRegistraVenda
           3333333333333333333888330000333333333333333333333333333333333333
           0000}
         NumGlyphs = 2
-        TabOrder = 1
-        OnClick = BitBtnCancelClick
       end
       object Button1: TButton
-        Left = 30
+        Left = 787
         Top = 8
         Width = 75
         Height = 25
@@ -215,10 +213,9 @@ object FormRegistraVenda: TFormRegistraVenda
         TabOrder = 2
         TabStop = False
         OnClick = Button1Click
-        ExplicitLeft = 896
       end
       object Button2: TButton
-        Left = -58
+        Left = 699
         Top = 8
         Width = 75
         Height = 25
@@ -227,7 +224,6 @@ object FormRegistraVenda: TFormRegistraVenda
         TabOrder = 3
         TabStop = False
         OnClick = Button2Click
-        ExplicitLeft = 808
       end
     end
     object Panel2: TPanel

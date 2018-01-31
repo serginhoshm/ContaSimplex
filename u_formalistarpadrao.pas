@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, ExtCtrls, Grids, DBGrids, DB, ADODB, Vcl.ComCtrls, Vcl.ToolWin;
+  Dialogs, ExtCtrls, Grids, DBGrids, DB, ADODB, ComCtrls, ToolWin;
 
 type
   TFormListarPadrao = class(TForm)

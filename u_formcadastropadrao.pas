@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, ImgList, ExtCtrls, ComCtrls, Vcl.ToolWin;
+  Dialogs, ImgList, ExtCtrls, ComCtrls, ToolWin;
 
 type
   TFormCadastroPadrao = class(TForm)

@@ -48,6 +48,10 @@ begin
   DMReg := TDMRegVenda.Create(nil);
   try
     try
+      DMReg.QProdutos.Close;
+      DMReg.QProdutos.Open;
+
+
       DMReg.CDSItens.Close;
       DMReg.CDSItens.CreateDataSet;
 
@@ -55,9 +59,9 @@ begin
       QItens.sql.add('select ');
       QItens.sql.add('itemid, produtoid, clienteid, itemquantidade, itemvalorunitario, itemvalortotal, datareferencia, faturamentoid');
       QItens.sql.add('from itensvendidos');
-      QItens.sql.add('where datareferencia = :datareferencia');
+      QItens.sql.add('where CAST(datareferencia AS DATE) = :datareferencia');
       QItens.Parameters.ParamByName('DataReferencia').DataType := ftDate;
-      QItens.Parameters.ParamByName('DataReferencia').Value := DataRef;
+      QItens.Parameters.ParamByName('DataReferencia').Value := DateOf(DataRef);
       QItens.Open;
 
       QItens.First;
@@ -75,7 +79,7 @@ begin
         DMReg.CDSItens.Append;
         DMReg.CDSItensProdutoID.AsInteger := QItens.FieldByName('ProdutoID').AsInteger;
         DMReg.CDSItensClienteID.AsInteger := QItens.FieldByName('ClienteID').AsInteger;
-        DMReg.CDSItensRegVenQtde.Value := QItens.FieldByName('itemquantidade').AsFloat;
+        DMReg.CDSItensRegVenQtde.AsInteger := QItens.FieldByName('itemquantidade').AsInteger;
         DMReg.CDSItensRegVenVlrUnit.Value := QItens.FieldByName('itemvalorunitario').AsFloat;
         DMReg.CDSItensRegVenVlrTot.Value := QItens.FieldByName('itemvalortotal').AsFloat;
         DMReg.CDSItensRegVenDataRef.Value := DateOf(QItens.FieldByName('datareferencia').AsDateTime);
@@ -87,8 +91,6 @@ begin
     except
       on E:Exception do
       begin
-  //      if DM.GetConexao.InTransaction then
-//          DM.GetConexao.;
         Result := EmptyStr;
         raise;
       end;
@@ -103,19 +105,29 @@ end;
 
 function TRegistraVenda.RegistrarVenda(AXMLData: string): Boolean;
 var
+  QDel,
   QIns: TADOQuery;
   ACDS: TClientDataSet;
   AFileName: string;
 begin
   Result := false;
   QIns := TADOQuery.Create(nil);
+  QDel := TADOQuery.Create(nil);
   ACDS := TClientDataSet.Create(nil);
   try
     try
       ACDS.XMLData := AXMLData;
-
+      ACDS.SaveToFile(ExtractFilePath(Application.ExeName) + 'RegistrarVenda.xml');
       if ACDS.RecordCount > 0then
       begin
+        //Remover os itens atuais
+        ACDS.First;
+        QDel.Connection := DM.GetConexao;
+        QDel.SQL.Text := 'delete from itensvendidos where datareferencia = :datareferencia';
+        QDel.Parameters.ParamByName('DataReferencia').DataType := ftDate;
+        QDel.Parameters.ParamByName('DataReferencia').Value := DateOf(ACDS.FieldByName('RegVenDataRef').AsDateTime);
+        QDel.ExecSQL;
+
         QIns.Connection := DM.GetConexao;
         qins.sql.add('insert into itensvendidos');
         qins.sql.add('(produtoid, clienteid, itemquantidade, itemvalorunitario, itemvalortotal, datareferencia)');
@@ -136,7 +148,7 @@ begin
           QIns.Close;
           QIns.Parameters.ParamByName('ProdutoID').Value := ACDS.FieldByName('ProdutoID').AsInteger;
           QIns.Parameters.ParamByName('ClienteID').Value := ACDS.FieldByName('ClienteID').AsInteger;
-          QIns.Parameters.ParamByName('ItemQuantidade').Value := ACDS.FieldByName('RegVenQtde').AsFloat;
+          QIns.Parameters.ParamByName('ItemQuantidade').Value := ACDS.FieldByName('RegVenQtde').AsInteger;
           QIns.Parameters.ParamByName('ItemValorUnitario').Value := ACDS.FieldByName('RegVenVlrUnit').AsFloat;
           QIns.Parameters.ParamByName('ItemValorTotal').Value := ACDS.FieldByName('RegVenVlrTot').AsFloat;
           QIns.Parameters.ParamByName('DataReferencia').Value := DateOf(ACDS.FieldByName('RegVenDataRef').AsDateTime);
@@ -165,6 +177,7 @@ begin
   finally
     FreeAndNil(QIns);
     FreeAndNil(ACDS);
+    FreeAndNil(QDel);
   end;
 end;
 

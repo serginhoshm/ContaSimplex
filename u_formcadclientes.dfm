@@ -8,8 +8,7 @@ inherited FormCadastroClientes: TFormCadastroClientes
   PixelsPerInch = 96
   TextHeight = 13
   inherited ScrollBox1: TScrollBox
-    Height = 207
-    ExplicitHeight = 207
+    Height = 203
     object RzLabel1: TLabel
       Left = 67
       Top = 19
@@ -89,6 +88,8 @@ inherited FormCadastroClientes: TFormCadastroClientes
       DataField = 'clientemktmail'
       DataSource = DMClientes.ds_qclientes
       TabOrder = 4
+      ValueChecked = 'True'
+      ValueUnchecked = 'False'
     end
   end
   inherited RzToolbar1: TToolBar
@@ -98,6 +99,5 @@ inherited FormCadastroClientes: TFormCadastroClientes
   end
   inherited StatusBar1: TStatusBar
     Top = 257
-    ExplicitTop = 257
   end
 end

@@ -34,7 +34,7 @@ uses
 begin
   Application.Initialize;
   DM := TDM.Create;
-  Application.Title := 'ContaSimples';
+  Application.Title := 'ContaSimplex';
   Application.CreateForm(TFormPrincipal, FormPrincipal);
   Application.Run;
 end.

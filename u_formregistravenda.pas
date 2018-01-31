@@ -89,6 +89,8 @@ begin
       end;
     finally
       FreeAndNil(AReg);
+      DMReg.QProdutos.Filter := '';
+      DMReg.QProdutos.Filtered := False;
     end;
 
   end
@@ -137,6 +139,10 @@ begin
         AXML := AReg.GetXMLRegistroVenda(RzDateTimePickerReg.Date);
         DMReg.CDSItens.EmptyDataSet;
         DMReg.CDSItens.XMLData := AXML;
+        DMReg.CDSItens.Active := True;
+        ShowMessage(IntToStr(DMReg.CDSItens.RecordCount) + ' registros carregados');
+
+        
         ModoDigitacao;
       except
         on E:Exception do
@@ -192,7 +198,7 @@ begin
     for aux := 1 to ANumLinhas do
     begin
       DMReg.CDSItens.Append;
-      DMReg.CDSItensRegVenQtde.AsFloat := 1;
+      DMReg.CDSItensRegVenQtde.AsInteger := 1;
       DMReg.CDSItensRegVenVlrUnit.AsFloat := 1;
       DMReg.CDSItensRegVenVlrTot.AsFloat := 1;
       DMReg.CDSItens.Post;
