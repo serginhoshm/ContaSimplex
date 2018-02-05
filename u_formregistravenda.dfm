@@ -22,7 +22,7 @@ object FormRegistraVenda: TFormRegistraVenda
   object PanelTopo: TPanel
     Left = 0
     Top = 0
-    Width = 885
+    Width = 877
     Height = 57
     Align = alTop
     BevelOuter = bvNone
@@ -60,8 +60,8 @@ object FormRegistraVenda: TFormRegistraVenda
   object PanelDigita: TPanel
     Left = 0
     Top = 57
-    Width = 885
-    Height = 487
+    Width = 877
+    Height = 479
     Align = alClient
     BevelOuter = bvNone
     Ctl3D = False
@@ -71,8 +71,9 @@ object FormRegistraVenda: TFormRegistraVenda
     object RzDBGridItens: TDBGrid
       Left = 0
       Top = 0
-      Width = 885
-      Height = 446
+      Width = 877
+      Height = 383
+      TabStop = False
       Align = alClient
       Ctl3D = False
       DataSource = DMRegVenda.DS_Itens
@@ -137,8 +138,8 @@ object FormRegistraVenda: TFormRegistraVenda
     end
     object Panel1: TPanel
       Left = 0
-      Top = 446
-      Width = 885
+      Top = 438
+      Width = 877
       Height = 41
       Align = alBottom
       BevelOuter = bvNone
@@ -146,7 +147,7 @@ object FormRegistraVenda: TFormRegistraVenda
       ParentCtl3D = False
       TabOrder = 1
       DesignSize = (
-        885
+        877
         41)
       object BitBtnOk: TBitBtn
         Left = 8
@@ -155,6 +156,7 @@ object FormRegistraVenda: TFormRegistraVenda
         Height = 25
         Caption = '&OK'
         TabOrder = 0
+        TabStop = False
         OnClick = BitBtnOkClick
         Glyph.Data = {
           DE010000424DDE01000000000000760000002800000024000000120000000100
@@ -183,6 +185,7 @@ object FormRegistraVenda: TFormRegistraVenda
         Cancel = True
         Caption = 'Cancelar'
         TabOrder = 1
+        TabStop = False
         OnClick = BitBtnCancelClick
         Glyph.Data = {
           DE010000424DDE01000000000000760000002800000024000000120000000100

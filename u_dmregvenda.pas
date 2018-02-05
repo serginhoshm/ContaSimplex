@@ -55,13 +55,19 @@ procedure TDMRegVenda.CalculaItem;
 begin
   QProdutos.Filter := 'produtoid = ' + CDSItensProdutoID.AsString;
   QProdutos.Filtered := true;
-  if not QProdutos.Eof then
-  begin
-    CDSItensRegVenVlrUnit.AsFloat := QProdutosProdPrecoVenValor.AsFloat;
-    CDSItensRegVenVlrTot.AsFloat := CDSItensRegVenQtde.AsInteger * CDSItensRegVenVlrUnit.AsFloat;
-  end
-  else
-    raise Exception.Create('Produto não localizado -> ProdutoID: ' + CDSItensProdutoID.AsString);
+  try
+    if not QProdutos.Eof then
+    begin
+      CDSItensRegVenVlrUnit.AsFloat := QProdutosProdPrecoVenValor.AsFloat;
+      CDSItensRegVenVlrTot.AsFloat := CDSItensRegVenQtde.AsInteger * CDSItensRegVenVlrUnit.AsFloat;
+    end
+    else
+      raise Exception.Create('Produto não localizado -> ProdutoID: ' + CDSItensProdutoID.AsString);
+  finally
+    QProdutos.Filter := '';
+    QProdutos.Filtered := false;
+  end;
+
 end;
 
 

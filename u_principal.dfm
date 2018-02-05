@@ -1,6 +1,6 @@
 object FormPrincipal: TFormPrincipal
-  Left = 231
-  Top = 142
+  Left = 211
+  Top = 136
   Width = 656
   Height = 462
   Caption = 'ContaSimplex'

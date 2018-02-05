@@ -1,7 +1,7 @@
 object DMRegVenda: TDMRegVenda
   OldCreateOrder = False
-  Left = 296
-  Top = 108
+  Left = 625
+  Top = 79
   Height = 365
   Width = 540
   object CDSItens: TClientDataSet
@@ -141,6 +141,7 @@ object DMRegVenda: TDMRegVenda
     SQL.Strings = (
       'select clienteid, clientenome'
       'from clientes'
+      'where ativo = 1'
       'order by clientenome')
     Left = 32
     Top = 64
@@ -152,6 +153,40 @@ object DMRegVenda: TDMRegVenda
       FieldName = 'clientenome'
       Required = True
       Size = 255
+    end
+  end
+  object qprodCarga: TADOQuery
+    BeforeOpen = QProdutosBeforeOpen
+    Parameters = <>
+    SQL.Strings = (
+      'select max(pv.prodprecovendata) prodprecovendata, '
+      'p.produtoid, '
+      'p.produtonome, '
+      'pv.prodprecovenvalor'
+      'from produtos p'
+      'join produtosprecovenda pv'
+      'on pv.produtoid = p.produtoid'
+      
+        'group by p.produtoid, p.produtonome, pv.prodprecovenvalor,  pv.p' +
+        'rodprecovendata'
+      
+        'having pv.prodprecovendata = (select max(prodprecovendata) from ' +
+        'produtosprecovenda pv2 where pv2.produtoid = p.produtoid)'
+      'order by p.produtonome')
+    Left = 176
+    Top = 8
+    object qprodCargaprodprecovendata: TDateTimeField
+      FieldName = 'prodprecovendata'
+    end
+    object qprodCargaprodutoid: TIntegerField
+      FieldName = 'produtoid'
+    end
+    object qprodCargaprodutonome: TWideStringField
+      FieldName = 'produtonome'
+      Size = 255
+    end
+    object qprodCargaprodprecovenvalor: TFloatField
+      FieldName = 'prodprecovenvalor'
     end
   end
 end

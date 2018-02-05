@@ -89,8 +89,6 @@ begin
       end;
     finally
       FreeAndNil(AReg);
-      DMReg.QProdutos.Filter := '';
-      DMReg.QProdutos.Filtered := False;
     end;
 
   end
