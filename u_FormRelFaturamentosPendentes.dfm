@@ -1,8 +1,13 @@
 inherited FormRelFaturamentosPendetes: TFormRelFaturamentosPendetes
+  Left = 142
+  Top = 103
   Caption = 'Faturamentos pendentes'
+  ClientHeight = 292
+  ClientWidth = 490
   PixelsPerInch = 96
   TextHeight = 13
   inherited QuickRep1: TQuickRep [0]
+    Left = 32
     Top = 64
     DataSet = qFatur
     Functions.DATA = (
@@ -17,7 +22,7 @@ inherited FormRelFaturamentosPendetes: TFormRelFaturamentosPendetes
       100.000000000000000000
       100.000000000000000000
       0.000000000000000000)
-    object QRBand1: TQRBand
+    object QRBandTitle: TQRBand
       Left = 38
       Top = 38
       Width = 718
@@ -36,9 +41,9 @@ inherited FormRelFaturamentosPendetes: TFormRelFaturamentosPendetes
         1899.708333333333000000)
       BandType = rbTitle
     end
-    object QRBand3: TQRBand
+    object QRBandDet: TQRBand
       Left = 38
-      Top = 78
+      Top = 118
       Width = 718
       Height = 40
       Frame.Color = clBlack
@@ -81,7 +86,7 @@ inherited FormRelFaturamentosPendetes: TFormRelFaturamentosPendetes
         FontSize = 10
       end
       object QRDBText2: TQRDBText
-        Left = 224
+        Left = 296
         Top = 16
         Width = 97
         Height = 17
@@ -92,7 +97,7 @@ inherited FormRelFaturamentosPendetes: TFormRelFaturamentosPendetes
         Frame.DrawRight = False
         Size.Values = (
           44.979166666666670000
-          592.666666666666700000
+          783.166666666666700000
           42.333333333333330000
           256.645833333333300000)
         Alignment = taLeftJustify
@@ -107,7 +112,7 @@ inherited FormRelFaturamentosPendetes: TFormRelFaturamentosPendetes
         FontSize = 10
       end
       object QRDBText3: TQRDBText
-        Left = 336
+        Left = 636
         Top = 16
         Width = 77
         Height = 17
@@ -118,10 +123,10 @@ inherited FormRelFaturamentosPendetes: TFormRelFaturamentosPendetes
         Frame.DrawRight = False
         Size.Values = (
           44.979166666666670000
-          889.000000000000000000
+          1682.750000000000000000
           42.333333333333330000
           203.729166666666700000)
-        Alignment = taLeftJustify
+        Alignment = taRightJustify
         AlignToBand = False
         AutoSize = True
         AutoStretch = False
@@ -133,28 +138,103 @@ inherited FormRelFaturamentosPendetes: TFormRelFaturamentosPendetes
         FontSize = 10
       end
     end
+    object QRGroupHeader: TQRGroup
+      Left = 38
+      Top = 78
+      Width = 718
+      Height = 40
+      Frame.Color = clBlack
+      Frame.DrawTop = False
+      Frame.DrawBottom = False
+      Frame.DrawLeft = False
+      Frame.DrawRight = False
+      AlignToBottom = False
+      Color = clWhite
+      ForceNewColumn = False
+      ForceNewPage = False
+      Size.Values = (
+        105.833333333333300000
+        1899.708333333333000000)
+      FooterBand = QRBandSoma
+      Master = QuickRep1
+      ReprintOnNewPage = False
+    end
+    object QRBandSoma: TQRBand
+      Left = 38
+      Top = 158
+      Width = 718
+      Height = 40
+      Frame.Color = clBlack
+      Frame.DrawTop = False
+      Frame.DrawBottom = False
+      Frame.DrawLeft = False
+      Frame.DrawRight = False
+      AfterPrint = QRBandSomaAfterPrint
+      AlignToBottom = False
+      Color = clWhite
+      ForceNewColumn = False
+      ForceNewPage = False
+      Size.Values = (
+        105.833333333333300000
+        1899.708333333333000000)
+      BandType = rbGroupFooter
+      object QRExpr1: TQRExpr
+        Left = 560
+        Top = 8
+        Width = 151
+        Height = 17
+        Frame.Color = clBlack
+        Frame.DrawTop = False
+        Frame.DrawBottom = False
+        Frame.DrawLeft = False
+        Frame.DrawRight = False
+        Size.Values = (
+          44.979166666666670000
+          1481.666666666667000000
+          21.166666666666670000
+          399.520833333333300000)
+        Alignment = taRightJustify
+        AlignToBand = False
+        AutoSize = True
+        AutoStretch = False
+        Color = clWhite
+        ResetAfterPrint = False
+        Transparent = False
+        WordWrap = True
+        Expression = 'sum(qFatur.faturvalortotal)'
+        FontSize = 10
+      end
+    end
   end
   inherited RzToolbar1: TToolBar [1]
+    Width = 490
+    Height = 25
+    ButtonHeight = 21
+    ButtonWidth = 51
+    ShowCaptions = True
     inherited RzToolButton1: TToolButton
+      AutoSize = True
       OnClick = RzToolButton1Click
     end
     object RzToolButton2: TToolButton
-      Left = 50
+      Left = 55
       Top = 2
       Caption = 'Recobrar'
       ImageIndex = 16
       OnClick = RzToolButton2Click
     end
     object RzToolButton3: TToolButton
-      Left = 100
+      Left = 106
       Top = 2
     end
   end
   inherited RzStatusBar1: TStatusBar [2]
+    Top = 273
+    Width = 490
   end
   object Memo1: TMemo
     Left = 0
-    Top = 56
+    Top = 24
     Width = 505
     Height = 249
     TabOrder = 2
@@ -182,6 +262,7 @@ inherited FormRelFaturamentosPendetes: TFormRelFaturamentosPendetes
     end
     object qFaturfaturvalortotal: TFloatField
       FieldName = 'faturvalortotal'
+      DisplayFormat = '#,0.00'
     end
     object qFaturfaturvalorbaixado: TFloatField
       FieldName = 'faturvalorbaixado'

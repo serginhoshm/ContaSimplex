@@ -24,13 +24,18 @@ type
     Memo1: TMemo;
     RzToolButton3: TToolButton;
     DS_qFatur: TDataSource;
-    QRBand1: TQRBand;
-    QRBand3: TQRBand;
+    QRBandTitle: TQRBand;
+    QRBandDet: TQRBand;
     QRDBText1: TQRDBText;
     QRDBText2: TQRDBText;
     QRDBText3: TQRDBText;
+    QRGroupHeader: TQRGroup;
+    QRBandSoma: TQRBand;
+    QRExpr1: TQRExpr;
     procedure RzToolButton1Click(Sender: TObject);
     procedure RzToolButton2Click(Sender: TObject);
+    procedure QRBandSomaAfterPrint(Sender: TQRCustomBand;
+      BandPrinted: Boolean);
   private
     { Private declarations }
   public
@@ -72,6 +77,13 @@ begin
   finally
     FreeAndNil(FatObj);
   end;
+end;
+
+procedure TFormRelFaturamentosPendetes.QRBandSomaAfterPrint(
+  Sender: TQRCustomBand; BandPrinted: Boolean);
+begin
+  inherited;
+  QRExpr1.Reset;
 end;
 
 end.
