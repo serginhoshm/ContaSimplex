@@ -9,15 +9,10 @@ uses
 
 type
   TFormCadastroClientes = class(TFormCadastroPadrao)
-    RzDBEdit1: TDBEdit;
-    RzLabel1: TLabel;
-    RzDBEdit2: TDBEdit;
+    EditNome: TEdit;
     RzLabel2: TLabel;
-    RzDBEdit3: TDBEdit;
+    EditEmail: TEdit;
     RzLabel3: TLabel;
-    RzDBLookupComboBox1: TDBLookupComboBox;
-    RzLabel4: TLabel;
-    DBCheckBox1: TDBCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure RzToolButton1Click(Sender: TObject);
@@ -34,6 +29,9 @@ var
   FormCadastroClientes: TFormCadastroClientes;
 
 implementation
+
+uses
+  u_dm;
 
 
 {$R *.dfm}
@@ -61,23 +59,31 @@ end;
 procedure TFormCadastroClientes.Incluir;
 begin
   inherited;
-  FDMClientes.qclientes.Close;
-  FDMClientes.qclientes.Open;
-  FDMClientes.qclientes.Append;
 end;
 
 procedure TFormCadastroClientes.RzToolButton1Click(Sender: TObject);
+var
+  qins: TADOQuery;
 begin
   inherited;
+  qins := TADOQuery.Create(nil);
   try
-    FDMClientes.qclientes.Post;
-    FDMClientes.qclientes.Refresh;
-  except
-    on E:Exception do
-    begin
-      FDMClientes.qclientes.Cancel;
-      ShowMessage(E.Message);
+    try
+      qins.Connection := DM.GetConexao;
+      qins.SQL.Text := 'INSERT INTO CLIENTES (clientenome, clienteemail, deptoid, clientemktmail, ativo) VALUES (:nome, :email, 1, 1 ,1)';
+      qins.Parameters.ParamByName('nome').Value := UpperCase(EditNome.Text);
+      qins.Parameters.ParamByName('email').Value := UpperCase(EditEmail.Text);
+      qins.ExecSQL;
+      Self.Close;
+    except
+      on E:Exception do
+      begin
+        qins.Close;
+        ShowMessage(E.Message);
+      end;
     end;
+  finally
+    FreeAndNil(qins);
   end;
 end;
 

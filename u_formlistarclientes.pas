@@ -33,6 +33,7 @@ uses
 procedure TFormListarClientes.SQLConsultaPadrao;
 begin
   inherited;
+  QLista.Close;
   QLista.Connection := DM.GetConexao;
   QLista.SQL.Add('select clienteid, clientenome');
   QLista.SQL.Add('from clientes');
@@ -66,6 +67,7 @@ begin
   try
     FormCadastroClientes.Incluir;
     FormCadastroClientes.ShowModal;
+    SQLConsultaPadrao;
   finally
     FreeAndNil(FormCadastroClientes);
   end;
