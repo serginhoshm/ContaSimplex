@@ -61,7 +61,7 @@ var
   begin
     if Recebido > ValorFatura then
     begin
-      if (Recebido - (ValorFatura + Troco + Credito) <> 0) then
+      if (RoundTo(Recebido, -2) - (RoundTo(ValorFatura+Troco+Credito, -2))) <> 0 then
         raise exception.Create('ATENÇÃO: Fatura + Crédito + Troco = Valor Recebido');
     end
     else
@@ -73,6 +73,12 @@ begin
   FatObj := TFatObj.Create;
   try
     try
+      NrFatura := 0;
+      ValorFatura := 0;
+      Recebido := 0;
+      Troco := 0;
+      Credito := 0;
+
       NrFatura := StrToIntDef(EditFaturID.Text, 0);
       if NrFatura <= 0 then
         raise Exception.Create('Informe a fatura');

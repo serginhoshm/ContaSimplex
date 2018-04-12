@@ -147,7 +147,7 @@ begin
             QItemVend.Next;
           end;
 
-          if QTotalVenda.FieldByName('TotalEmAberto').AsFloat = ATotalFatura then
+          if RoundTo(QTotalVenda.FieldByName('TotalEmAberto').AsFloat, -2) = RoundTo(ATotalFatura, -2) then
           begin
             ACreditoRestante := 0;
             ACreditoUsado := 0;
@@ -562,7 +562,7 @@ begin
 
     if not QFaturOrig.IsEmpty then
     begin
-      if (ValorRecebido - (QFaturOrig.FieldByName('faturvalortotal').AsFloat + ValorTroco + ValorACredito)) <> 0 then
+      if (RoundTo(ValorRecebido, -2) - (RoundTo(QFaturOrig.FieldByName('faturvalortotal').AsFloat + ValorTroco + ValorACredito, -2))) <> 0 then
         raise Exception.Create('ATENÇÃO: Fatura + Crédito + Troco = Valor Recebido')
       else
       begin
