@@ -1,6 +1,7 @@
 program ContaSimplex;
 
 uses
+  MidasLib,
   Forms,
   u_faturamento in 'u_faturamento.pas',
   u_mailmarketing in 'u_mailmarketing.pas',
