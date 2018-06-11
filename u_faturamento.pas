@@ -147,7 +147,7 @@ begin
             QItemVend.Next;
           end;
 
-          if RoundTo(QTotalVenda.FieldByName('TotalEmAberto').AsFloat, -2) = RoundTo(ATotalFatura, -2) then
+          if RoundTo(QTotalVenda.FieldByName('TotalEmAberto').AsFloat,-2) = RoundTo(ATotalFatura, -2) then
           begin
             ACreditoRestante := 0;
             ACreditoUsado := 0;
@@ -208,6 +208,7 @@ end;
 
 function TFatObj.InserirNovaFatura(ClienteID: Integer; DataGer: TDateTime; TotalFatura: Currency; ValorBaixado: Currency = 0; ValorCancelado: Currency = 0): integer;
 var
+  VDesc: Double;
   QInserirFat,
   QLocFat: TADOQuery;
 begin
@@ -218,8 +219,8 @@ begin
     QInserirFat.Connection := DM.GetConexao;
     QLocFat.Connection := DM.GetConexao;
 
-    qinserirfat.sql.add('insert into faturamentos (clienteid, faturdatageracao, faturvalortotal, faturvalorbaixado, faturvalorcancelado) values ');
-    qinserirfat.sql.add('                        (:clienteid, :faturdatageracao, :faturvalortotal, :faturvalorbaixado, :faturvalorcancelado);');
+    qinserirfat.sql.add('insert into faturamentos (clienteid, faturdatageracao, faturvalortotal, faturvalorbaixado, faturvalorcancelado, FaturValorDesconto, FaturValorAPagar) values ');
+    qinserirfat.sql.add('                        (:clienteid, :faturdatageracao, :faturvalortotal, :faturvalorbaixado, :faturvalorcancelado, :FaturValorDesconto, :FaturValorAPagar);');
 
     qlocfat.sql.add('select max(faturid) as faturid from faturamentos where clienteid = :clienteid and faturdatageracao = :faturdatageracao');
 
@@ -229,6 +230,12 @@ begin
     QInserirFat.Parameters.ParamByName('FaturValorTotal').Value := TotalFatura;
     QInserirFat.Parameters.ParamByName('FaturValorBaixado').Value := ValorBaixado;
     QInserirFat.Parameters.ParamByName('FaturValorCancelado').Value := 0;
+    if TotalFatura >= 20 then
+      VDesc := RoundTo(TotalFatura * 0.05, -2)
+    else
+      VDesc := 0;
+    QInserirFat.Parameters.ParamByName('FaturValorDesconto').Value := VDesc;
+    QInserirFat.Parameters.ParamByName('FaturValorAPagar').Value := TotalFatura - VDesc;
     try
       QInserirFat.ExecSQL;
       if QInserirFat.RowsAffected > 0 then
@@ -398,7 +405,9 @@ begin
           TabelaFaturas.Add('<TABLE BORDER=1>');
           TabelaFaturas.Add('<TR>');
           TabelaFaturas.Add('   <TD>Referência</TD>');
-          TabelaFaturas.Add('   <TD>Valor</TD>');
+          TabelaFaturas.Add('   <TD>Consumo</TD>');
+          TabelaFaturas.Add('   <TD>Desconto</TD>');
+          TabelaFaturas.Add('   <TD>A pagar</TD>');
           TabelaFaturas.Add('</TR>');
 
           ASoma := 0;
@@ -406,6 +415,8 @@ begin
           begin
             TabelaFaturas.Add('<TR>');
             TabelaFaturas.Add('   <TD>' + FormatDateTime('dd/mm/yyyy', QEmailRecPend.FieldByName('faturdatageracao').AsDateTime) + '</TD>');
+            TabelaFaturas.Add('   <TD>' + FormatCurr('#0.00', QEmailRecPend.FieldByName('FaturValorTotal').AsCurrency) + '</TD>');
+            TabelaFaturas.Add('   <TD>' + FormatCurr('#0.00', QEmailRecPend.FieldByName('FaturValorDesconto').AsCurrency) + '</TD>');
             TabelaFaturas.Add('   <TD>' + FormatCurr('#0.00', QEmailRecPend.FieldByName('valorpendente').AsCurrency) + '</TD>');
             TabelaFaturas.Add('</TR>');
             ASoma := ASoma + QEmailRecPend.FieldByName('valorpendente').AsCurrency;
@@ -414,6 +425,8 @@ begin
 
           TabelaFaturas.Add('<TR>');
           TabelaFaturas.Add('   <TD><b>TOTAL</b></TD>');
+          TabelaFaturas.Add('   <TD></TD>');
+          TabelaFaturas.Add('   <TD></TD>');
           TabelaFaturas.Add('   <TD><b>' + FormatCurr('#0.00', ASoma) + '</b></TD>');
           TabelaFaturas.Add('</TR>');
           TabelaFaturas.Add('</TABLE>');
@@ -562,7 +575,7 @@ begin
 
     if not QFaturOrig.IsEmpty then
     begin
-      if (RoundTo(ValorRecebido, -2) - (RoundTo(QFaturOrig.FieldByName('faturvalortotal').AsFloat + ValorTroco + ValorACredito, -2))) <> 0 then
+      if (RoundTo(ValorRecebido, -2) - RoundTo((QFaturOrig.FieldByName('faturvalortotal').AsFloat + ValorTroco + ValorACredito), -2)) <> 0 then
         raise Exception.Create('ATENÇÃO: Fatura + Crédito + Troco = Valor Recebido')
       else
       begin

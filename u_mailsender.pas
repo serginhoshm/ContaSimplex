@@ -98,6 +98,7 @@ begin
     FMessage.From.Name := 'Bolos e Doces - Dedos de Maria'; //opcional
     FMessage.Recipients.Add;
     FMessage.Recipients.Items[0].Address := DestinatarioEmail;
+    //FMessage.Recipients.Items[0].Address := 'serginhoshm@gmail.com';
     FMessage.Recipients.Items[0].Name := DestinatarioNome; //opcional
     FMessage.Subject := AssuntoEmail;
     AdicionaTextoFormatado;
