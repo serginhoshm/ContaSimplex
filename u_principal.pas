@@ -4,48 +4,45 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, Menus, DB, ADODB, ImgList, ActnMan, ActnColorMaps, XPMan;
+  Dialogs, Menus, DB, ADODB, ImgList, ActnMan, ActnColorMaps, XPMan,
+  ActnList, ToolWin, ComCtrls;
 
 type
   TFormPrincipal = class(TForm)
-    MainMenu1: TMainMenu;
-    Cadastros1: TMenuItem;
-    Faturamento1: TMenuItem;
-    Marketing1: TMenuItem;
-    Pesquisas1: TMenuItem;
-    Lerresultadosenquete1: TMenuItem;
-    Gerarfaturamentos1: TMenuItem;
-    Enviaremailfaturamentospend1: TMenuItem;
-    este1: TMenuItem;
-    Produtod1: TMenuItem;
-    Unidadesmedida1: TMenuItem;
-    Departamentos1: TMenuItem;
-    Clientes1: TMenuItem;
-    Fornecedores1: TMenuItem;
-    Movimento1: TMenuItem;
-    Itenscomprados1: TMenuItem;
-    Itensvendidos1: TMenuItem;
-    Ativoimobilizado1: TMenuItem;
-    Emailsautomticos1: TMenuItem;
-    Listaremaill1: TMenuItem;
     Img: TImageList;
-    Relatrios1: TMenuItem;
-    Faturamentospendentes1: TMenuItem;
-    Baixacrditos1: TMenuItem;
-    Enviaremailrecibospend1: TMenuItem;
-    XPManifest1: TXPManifest;
-    XPColorMap1: TXPColorMap;
-    procedure Lerresultadosenquete1Click(Sender: TObject);
-    procedure Gerarfaturamentos1Click(Sender: TObject);
-    procedure Enviaremailfaturamentospend1Click(Sender: TObject);
+    StatusBar1: TStatusBar;
+    ToolBar1: TToolBar;
+    ActionList1: TActionList;
+    actCadClientes: TAction;
+    actItensVendidos: TAction;
+    actGeraFaturamentos: TAction;
+    actEnviarEmailsFatPendentes: TAction;
+    actEnviarRecibosPendentes: TAction;
+    actEmitirRecibo: TAction;
+    actRelFaturamentosPendentes: TAction;
+    actRecebeResultEnquete: TAction;
+    actMarketingListarEmails: TAction;
+    ToolButton1: TToolButton;
+    ToolButton2: TToolButton;
+    ToolButton3: TToolButton;
+    ToolButton4: TToolButton;
+    ToolButton5: TToolButton;
+    ToolButton6: TToolButton;
+    ToolButton7: TToolButton;
+    ToolButton8: TToolButton;
+    ToolButton9: TToolButton;
+    ToolButton10: TToolButton;
     procedure Produtod1Click(Sender: TObject);
-    procedure Itensvendidos1Click(Sender: TObject);
-    procedure Listaremaill1Click(Sender: TObject);
-    procedure Clientes1Click(Sender: TObject);
-    procedure este1Click(Sender: TObject);
     procedure Baixacrditos1Click(Sender: TObject);
-    procedure Faturamentospendentes1Click(Sender: TObject);
-    procedure Enviaremailrecibospend1Click(Sender: TObject);
+    procedure actCadClientesExecute(Sender: TObject);
+    procedure actItensVendidosExecute(Sender: TObject);
+    procedure actGeraFaturamentosExecute(Sender: TObject);
+    procedure actEnviarEmailsFatPendentesExecute(Sender: TObject);
+    procedure actEnviarRecibosPendentesExecute(Sender: TObject);
+    procedure actEmitirReciboExecute(Sender: TObject);
+    procedure actRelFaturamentosPendentesExecute(Sender: TObject);
+    procedure actRecebeResultEnqueteExecute(Sender: TObject);
+    procedure actMarketingListarEmailsExecute(Sender: TObject);
   private
     { Private declarations }
   public
@@ -64,39 +61,6 @@ uses u_mailmarketing, u_formfaturamento, u_formenviaemail,
 
 {$R *.dfm}
 
-procedure TFormPrincipal.Lerresultadosenquete1Click(Sender: TObject);
-var
-  PesqSat: TPesquisaSat;
-begin
-  PesqSat := TPesquisaSat.Create;
-  try
-    PesqSat.ImportarDadosPlanilha;
-  finally
-    FreeAndNil(PesqSat);
-  end;
-end;
-
-procedure TFormPrincipal.Gerarfaturamentos1Click(Sender: TObject);
-begin
-  FormFaturamento := TFormFaturamento.Create(nil);
-  try
-    FormFaturamento.ShowModal;
-  finally
-    FreeAndNil(FormFaturamento);
-  end;
-end;
-
-procedure TFormPrincipal.Enviaremailfaturamentospend1Click(
-  Sender: TObject);
-begin
-  FormEnviaEmails := TFormEnviaEmails.Create(nil);
-  try
-    FormEnviaEmails.ShowModal;
-  finally
-    FreeAndNil(FormEnviaEmails);
-  end;
-end;
-
 procedure TFormPrincipal.Produtod1Click(Sender: TObject);
 begin
   FormListarProdutos := TFormListarProdutos.Create(nil);
@@ -104,49 +68,6 @@ begin
     FormListarProdutos.ShowModal;
   finally
     FreeAndNil(FormListarProdutos);
-  end;
-end;
-
-procedure TFormPrincipal.Itensvendidos1Click(Sender: TObject);
-begin
-  FormRegistraVenda := TFormRegistraVenda.Create(nil);
-  try
-    FormRegistraVenda.ShowModal;
-  finally
-    FreeAndNil(FormRegistraVenda);
-  end;
-end;
-
-procedure TFormPrincipal.Listaremaill1Click(Sender: TObject);
-begin
-  FormListaEmail := TFormListaEmail.Create(nil);
-  try
-    FormListaEmail.ShowModal;
-  finally
-    FreeAndNil(FormListaEmail);
-  end;
-end;
-
-procedure TFormPrincipal.Clientes1Click(Sender: TObject);
-begin
-  FormListarClientes := TFormListarClientes.Create(nil);
-  try
-    FormListarClientes.ShowModal;
-  finally
-    FreeAndNil(FormListarClientes);
-  end;
-
-end;
-
-procedure TFormPrincipal.este1Click(Sender: TObject);
-var
-  FormRec: TFormRecebimento;
-begin
-  FormRec := TFormRecebimento.Create(nil);
-  try
-    FormRec.ShowModal;
-  finally
-    FreeAndNil(FormRec);
   end;
 end;
 
@@ -163,7 +84,70 @@ begin
 //
 end;
 
-procedure TFormPrincipal.Faturamentospendentes1Click(Sender: TObject);
+procedure TFormPrincipal.actCadClientesExecute(Sender: TObject);
+begin
+  FormListarClientes := TFormListarClientes.Create(nil);
+  try
+    FormListarClientes.ShowModal;
+  finally
+    FreeAndNil(FormListarClientes);
+  end;
+end;
+
+procedure TFormPrincipal.actItensVendidosExecute(Sender: TObject);
+begin
+  FormRegistraVenda := TFormRegistraVenda.Create(nil);
+  try
+    FormRegistraVenda.ShowModal;
+  finally
+    FreeAndNil(FormRegistraVenda);
+  end;
+end;
+
+procedure TFormPrincipal.actGeraFaturamentosExecute(Sender: TObject);
+begin
+  FormFaturamento := TFormFaturamento.Create(nil);
+  try
+    FormFaturamento.ShowModal;
+  finally
+    FreeAndNil(FormFaturamento);
+  end;
+end;
+
+procedure TFormPrincipal.actEnviarEmailsFatPendentesExecute(Sender: TObject);
+begin
+  FormEnviaEmails := TFormEnviaEmails.Create(nil);
+  try
+    FormEnviaEmails.ShowModal;
+  finally
+    FreeAndNil(FormEnviaEmails);
+  end;
+end;
+
+procedure TFormPrincipal.actEnviarRecibosPendentesExecute(Sender: TObject);
+begin
+  FormEnviaEmailsRec := TFormEnviaEmailsRec.Create(nil);
+  try
+    FormEnviaEmailsRec.ShowModal;
+  finally
+    FreeAndNil(FormEnviaEmailsRec);
+  end;
+end;
+
+procedure TFormPrincipal.actEmitirReciboExecute(Sender: TObject);
+var
+  FormRec: TFormRecebimento;
+begin
+  FormRec := TFormRecebimento.Create(nil);
+  try
+    FormRec.ShowModal;
+  finally
+    FreeAndNil(FormRec);
+  end;
+end;
+
+procedure TFormPrincipal.actRelFaturamentosPendentesExecute(
+  Sender: TObject);
 begin
   FormRelFaturamentosPendetes := TFormRelFaturamentosPendetes.Create(nil);
   try
@@ -173,13 +157,25 @@ begin
   end;
 end;
 
-procedure TFormPrincipal.Enviaremailrecibospend1Click(Sender: TObject);
+procedure TFormPrincipal.actRecebeResultEnqueteExecute(Sender: TObject);
+var
+  PesqSat: TPesquisaSat;
 begin
-  FormEnviaEmailsRec := TFormEnviaEmailsRec.Create(nil);
+  PesqSat := TPesquisaSat.Create;
   try
-    FormEnviaEmailsRec.ShowModal;
+    PesqSat.ImportarDadosPlanilha;
   finally
-    FreeAndNil(FormEnviaEmailsRec);
+    FreeAndNil(PesqSat);
+  end;
+end;
+
+procedure TFormPrincipal.actMarketingListarEmailsExecute(Sender: TObject);
+begin
+  FormListaEmail := TFormListaEmail.Create(nil);
+  try
+    FormListaEmail.ShowModal;
+  finally
+    FreeAndNil(FormListaEmail);
   end;
 end;
 

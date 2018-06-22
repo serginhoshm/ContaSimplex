@@ -1,8 +1,8 @@
 object FormPrincipal: TFormPrincipal
-  Left = 211
-  Top = 136
-  Width = 656
-  Height = 462
+  Left = 184
+  Top = 124
+  Width = 644
+  Height = 460
   Caption = 'ContaSimplex'
   Color = clAppWorkSpace
   Font.Charset = DEFAULT_CHARSET
@@ -10,109 +10,89 @@ object FormPrincipal: TFormPrincipal
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
-  Menu = MainMenu1
   OldCreateOrder = False
   Position = poScreenCenter
   WindowState = wsMaximized
   PixelsPerInch = 96
   TextHeight = 13
-  object MainMenu1: TMainMenu
+  object StatusBar1: TStatusBar
+    Left = 0
+    Top = 402
+    Width = 628
+    Height = 19
+    Panels = <>
+  end
+  object ToolBar1: TToolBar
+    Left = 0
+    Top = 0
+    Width = 628
+    Height = 54
+    AutoSize = True
+    ButtonHeight = 52
+    ButtonWidth = 60
+    Caption = 'ToolBar1'
+    Flat = True
     Images = Img
-    Left = 32
-    Top = 24
-    object Cadastros1: TMenuItem
-      Caption = 'Cadastros'
-      object Ativoimobilizado1: TMenuItem
-        Caption = 'Ativo imobilizado'
-        Enabled = False
-      end
-      object Clientes1: TMenuItem
-        Caption = 'Clientes'
-        OnClick = Clientes1Click
-      end
-      object Departamentos1: TMenuItem
-        Caption = 'Departamentos'
-        Enabled = False
-      end
-      object Fornecedores1: TMenuItem
-        Caption = 'Fornecedores'
-        Enabled = False
-      end
-      object Produtod1: TMenuItem
-        Caption = 'Produtos'
-        Enabled = False
-        OnClick = Produtod1Click
-      end
-      object Unidadesmedida1: TMenuItem
-        Caption = 'Unidades medida'
-        Enabled = False
-      end
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 1
+    object ToolButton1: TToolButton
+      Left = 0
+      Top = 0
+      Action = actCadClientes
     end
-    object Movimento1: TMenuItem
-      Caption = 'Movimento'
-      object Itenscomprados1: TMenuItem
-        Caption = 'Itens comprados'
-        Enabled = False
-      end
-      object Itensvendidos1: TMenuItem
-        Caption = 'Itens vendidos'
-        ImageIndex = 44
-        OnClick = Itensvendidos1Click
-      end
+    object ToolButton2: TToolButton
+      Left = 60
+      Top = 0
+      Action = actItensVendidos
     end
-    object Faturamento1: TMenuItem
-      Caption = 'Faturamento'
-      object Gerarfaturamentos1: TMenuItem
-        Caption = 'Gerar faturamentos'
-        OnClick = Gerarfaturamentos1Click
-      end
-      object Enviaremailfaturamentospend1: TMenuItem
-        Caption = 'Enviar e-mail faturamentos pend.'
-        OnClick = Enviaremailfaturamentospend1Click
-      end
-      object Enviaremailrecibospend1: TMenuItem
-        Caption = 'Enviar e-mail recibos pend.'
-        OnClick = Enviaremailrecibospend1Click
-      end
-      object este1: TMenuItem
-        Caption = 'Emitir recibo'
-        OnClick = este1Click
-      end
-      object Relatrios1: TMenuItem
-        Caption = 'Relat'#243'rios'
-        object Faturamentospendentes1: TMenuItem
-          Caption = 'Faturamentos pendentes'
-          OnClick = Faturamentospendentes1Click
-        end
-      end
-      object Baixacrditos1: TMenuItem
-        Caption = 'Baixa cr'#233'ditos'
-        Enabled = False
-        OnClick = Baixacrditos1Click
-      end
+    object ToolButton3: TToolButton
+      Left = 120
+      Top = 0
+      Action = actGeraFaturamentos
     end
-    object Marketing1: TMenuItem
-      Caption = 'Marketing'
-      object Pesquisas1: TMenuItem
-        Caption = 'Pesquisas'
-        object Lerresultadosenquete1: TMenuItem
-          Caption = 'Importar resultados enquete'
-          OnClick = Lerresultadosenquete1Click
-        end
-      end
-      object Emailsautomticos1: TMenuItem
-        Caption = 'E-mails autom'#225'ticos'
-        Enabled = False
-      end
-      object Listaremaill1: TMenuItem
-        Caption = 'Listar e-mails'
-        OnClick = Listaremaill1Click
-      end
+    object ToolButton4: TToolButton
+      Left = 180
+      Top = 0
+      Action = actEmitirRecibo
+    end
+    object ToolButton10: TToolButton
+      Left = 240
+      Top = 0
+      Width = 8
+      Caption = 'ToolButton10'
+      ImageIndex = 8
+      Style = tbsSeparator
+    end
+    object ToolButton5: TToolButton
+      Left = 248
+      Top = 0
+      Action = actEnviarEmailsFatPendentes
+    end
+    object ToolButton6: TToolButton
+      Left = 308
+      Top = 0
+      Action = actEnviarRecibosPendentes
+    end
+    object ToolButton7: TToolButton
+      Left = 368
+      Top = 0
+      Action = actRelFaturamentosPendentes
+    end
+    object ToolButton8: TToolButton
+      Left = 428
+      Top = 0
+      Action = actMarketingListarEmails
+    end
+    object ToolButton9: TToolButton
+      Left = 488
+      Top = 0
+      Action = actRecebeResultEnquete
     end
   end
   object Img: TImageList
-    Left = 256
-    Top = 24
+    Left = 512
+    Top = 184
     Bitmap = {
       494C01019E009F000C0010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000008002000001002000000000000080
@@ -5401,15 +5381,63 @@ object FormPrincipal: TFormPrincipal
       C01FC01FFFBAFFBAFFFFFFFFFFC7FFC700000000000000000000000000000000
       000000000000}
   end
-  object XPManifest1: TXPManifest
-    Left = 312
-    Top = 216
-  end
-  object XPColorMap1: TXPColorMap
-    HighlightColor = clWhite
-    BtnSelectedColor = clBtnFace
-    UnusedColor = clWhite
-    Left = 312
-    Top = 264
+  object ActionList1: TActionList
+    Images = Img
+    Left = 456
+    Top = 192
+    object actCadClientes: TAction
+      Caption = 'Clientes'
+      Hint = 'Clientes'
+      ImageIndex = 110
+      OnExecute = actCadClientesExecute
+    end
+    object actItensVendidos: TAction
+      Caption = 'Itens vendidos'
+      Hint = 'Itens vendidos'
+      ImageIndex = 45
+      OnExecute = actItensVendidosExecute
+    end
+    object actGeraFaturamentos: TAction
+      Caption = 'Gera faturamentos'
+      Hint = 'Gera faturamentos'
+      ImageIndex = 156
+      OnExecute = actGeraFaturamentosExecute
+    end
+    object actEnviarEmailsFatPendentes: TAction
+      Caption = 'E-mail faturmentos pendented'
+      Hint = 'E-mail faturmentos pendented'
+      ImageIndex = 20
+      OnExecute = actEnviarEmailsFatPendentesExecute
+    end
+    object actEnviarRecibosPendentes: TAction
+      Caption = 'Enviar recibos pendentes'
+      Hint = 'Enviar recibos pendentes'
+      ImageIndex = 60
+      OnExecute = actEnviarRecibosPendentesExecute
+    end
+    object actEmitirRecibo: TAction
+      Caption = 'Emitir recibo'
+      Hint = 'Emitir recibo'
+      ImageIndex = 72
+      OnExecute = actEmitirReciboExecute
+    end
+    object actRelFaturamentosPendentes: TAction
+      Caption = 'Relat'#243'rio faturamentos pendentes'
+      Hint = 'Relat'#243'rio faturamentos pendentes'
+      ImageIndex = 63
+      OnExecute = actRelFaturamentosPendentesExecute
+    end
+    object actRecebeResultEnquete: TAction
+      Caption = 'Receber resultados enquete'
+      Hint = 'Receber resultados enquete'
+      ImageIndex = 66
+      OnExecute = actRecebeResultEnqueteExecute
+    end
+    object actMarketingListarEmails: TAction
+      Caption = 'Marketing listar emails'
+      Hint = 'Marketing listar emails'
+      ImageIndex = 115
+      OnExecute = actMarketingListarEmailsExecute
+    end
   end
 end
