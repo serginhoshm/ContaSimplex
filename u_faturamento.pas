@@ -18,15 +18,13 @@ type
     procedure SetDataFinal(const Value: TDateTime);
     procedure SetDataInicial(const Value: TDateTime);
     procedure SetLog(const Value: TStringList);
-    function InserirNovaFatura(ClienteID: Integer; DataGer: TDateTime; TotalFatura: Currency; ValorBaixado: Currency = 0; ValorCancelado: Currency = 0): integer;
-    function RegLctoFatura(FaturID: integer; FaturLctoTipo: TFatOpeTipo; FaturLctoData: TDateTime; FaturLctoDescricao: string; FaturLctoValor: Currency): boolean;
+    function InserirNovaFatura(ClienteID: Integer; DataGer: TDateTime; TotalFatura: Currency): integer;
     function AtualizaItensFaturados(NovaFaturID: Integer; ClienteID: Integer; ListaItens: TStringList): boolean;
     function AtualizarEmailFaturEnviado(FaturID: Integer; DataHoraEnvio: TDateTime): boolean;
     function AtualizarEmailRecebimentoEnviado(ReciboID: Integer; DataHoraEnvio: TDateTime):boolean;
     procedure SetDataPagamento(const Value: TDateTime);
     function RetornaCreditosPendentes(ClienteID: integer): Double;
-    function RetornaDebitosPendentes(ClienteID: integer): Double;
-    function GerarCredito(ClienteID: Integer; ValorCredito: Double; Observacao: string): Boolean;
+    function GerarCredito(ClienteID: Integer; ValorCredito: Double; FaturID: integer): Boolean;
     function BaixaFatura(FaturaID, ClienteID: Integer; ValorBaixado: Double):Boolean;
     function GerarAutenticacaoMecania(FaturID: integer): string;
     function CriarRecibo(Faturid: integer; recibodatageracao: TDateTime; recibovalorpago, recibovalorcredito, recibovalortroco: Double): string;
@@ -39,17 +37,13 @@ type
     property DataPagamento: TDateTime read FDataPagamento write SetDataPagamento;
     property Log: TStringList read FLog write SetLog;
     //
-    function BaixarCreditos(ClienteID: Integer; ValorBaixar: Double;  CreditoRestante, CreditoUsado: Currency): Currency;
+    procedure BaixarCreditos(ClienteID: Integer);
     procedure Exec;
     procedure EnviarEmailFaturPendentes;
     procedure EnviarEmailPagamentosRecebidosPendentes;
-    procedure EnviarRecobranca;
     function ReceberFatur(FaturID: Integer; ValorRecebido, ValorTroco, ValorACredito: Double): string;
     procedure EnviarHtmlMail;
   end;
-
-
-
 
 implementation
 
@@ -73,9 +67,7 @@ procedure TFatObj.Exec;
 var
   QTotalVenda,
   QItemVend: TADOQuery;
-  ATotalFatura,
-  ACreditoRestante,
-  ACreditoUsado: Currency;
+  ATotalFatura: Currency;
   ADataGer: TDateTime;
   ANovaFatur: integer;
   AListaItensFat: TStringList;
@@ -149,13 +141,8 @@ begin
 
           if RoundTo(QTotalVenda.FieldByName('TotalEmAberto').AsFloat,-2) = RoundTo(ATotalFatura, -2) then
           begin
-            ACreditoRestante := 0;
-            ACreditoUsado := 0;
-
-            ATotalFatura := BaixarCreditos(QTotalVenda.FieldByName('ClienteID').AsInteger, ATotalFatura, ACreditoRestante, ACreditoUsado);
-
-            //Inserir a nova fatura - crédito já descontado
-            ANovaFatur := InserirNovaFatura(QTotalVenda.FieldByName('ClienteID').AsInteger, ADataGer, ATotalFatura, ACreditoUsado);
+            //Inserir a nova fatura
+            ANovaFatur := InserirNovaFatura(QTotalVenda.FieldByName('ClienteID').AsInteger, ADataGer, ATotalFatura);
 
             if ANovaFatur > 0 then
             begin
@@ -206,13 +193,17 @@ begin
   FLog := Value;
 end;
 
-function TFatObj.InserirNovaFatura(ClienteID: Integer; DataGer: TDateTime; TotalFatura: Currency; ValorBaixado: Currency = 0; ValorCancelado: Currency = 0): integer;
+function TFatObj.InserirNovaFatura(ClienteID: Integer; DataGer: TDateTime; TotalFatura: Currency): integer;
 var
-  VDesc: Double;
+  VDesc,
+  VCanc,
+  VFat,
+  VNovoCred: Double;
   QInserirFat,
   QLocFat: TADOQuery;
 begin
   Result := -1;
+  VNovoCred := 0;
   QInserirFat := TADOQuery.Create(nil);
   QLocFat := TADOQuery.Create(nil);
   try
@@ -224,18 +215,44 @@ begin
 
     qlocfat.sql.add('select max(faturid) as faturid from faturamentos where clienteid = :clienteid and faturdatageracao = :faturdatageracao');
 
-    QInserirFat.Close;
-    QInserirFat.Parameters.ParamByName('ClienteID').Value := ClienteID;
-    QInserirFat.Parameters.ParamByName('FaturDataGeracao').Value := DataGer;
-    QInserirFat.Parameters.ParamByName('FaturValorTotal').Value := TotalFatura;
-    QInserirFat.Parameters.ParamByName('FaturValorBaixado').Value := ValorBaixado;
-    QInserirFat.Parameters.ParamByName('FaturValorCancelado').Value := 0;
+    VFat := TotalFatura;
+
+    //Descontos por consumo (maior ou igual a 20 reais)
     if TotalFatura >= 20 then
       VDesc := RoundTo(TotalFatura * 0.05, -2)
     else
       VDesc := 0;
     QInserirFat.Parameters.ParamByName('FaturValorDesconto').Value := VDesc;
-    QInserirFat.Parameters.ParamByName('FaturValorAPagar').Value := TotalFatura - VDesc;
+    VFat := VFat - VDesc;
+
+    //Valores cancelados por crédito
+    VCanc := RetornaCreditosPendentes(ClienteID);
+    if VCanc > 0 then
+    begin
+      //O valor do crédito é maior que o consumo
+      //Devemos descontar o total da fatura (zerar a mesma) e creditar o saldo residual
+      if VCanc >= VFat then
+      begin
+        VCanc := RoundTo(VCanc - VFat, -2);
+        VNovoCred := VCanc;
+        VFat := 0;
+      end
+      else
+      begin
+        VFat := RoundTo(VFat - VCanc, -2);
+        VNovoCred := 0;
+      end;
+      BaixarCreditos(ClienteID);
+    end;
+
+
+    QInserirFat.Close;
+    QInserirFat.Parameters.ParamByName('ClienteID').Value := ClienteID;
+    QInserirFat.Parameters.ParamByName('FaturDataGeracao').Value := DataGer;
+    QInserirFat.Parameters.ParamByName('FaturValorTotal').Value := TotalFatura;
+    QInserirFat.Parameters.ParamByName('FaturValorBaixado').Value := 0;
+    QInserirFat.Parameters.ParamByName('FaturValorCancelado').Value := VCanc;
+    QInserirFat.Parameters.ParamByName('FaturValorAPagar').Value := VFat;
     try
       QInserirFat.ExecSQL;
       if QInserirFat.RowsAffected > 0 then
@@ -247,8 +264,9 @@ begin
 
         Result := QLocFat.FieldByName('FaturID').AsInteger;
 
-        //Inserir o registro de lançamento
-        RegLctoFatura(Result, opeInclusao, DataGer, 'Inclusão de fatura automática', TotalFatura);
+        //Inserir o novo crédito se for o caso
+        if VNovoCred > 0 then
+          GerarCredito(ClienteID, VNovoCred, Result);
       end;
     except
       Result := 0;
@@ -307,78 +325,41 @@ begin
   end;
 end;
 
-function TFatObj.RegLctoFatura(FaturID: Integer; FaturLctoTipo: TFatOpeTipo;
-  FaturLctoData: TDateTime; FaturLctoDescricao: string;
-  FaturLctoValor: Currency): boolean;
-var
-  QFaturLcto: TADOQuery;
-begin
-  //esta parte do procedimento está sendo ignorada
-  {
-
-  QFaturLcto :=TADOQuery.Create(nil);
-  try
-    QFaturLcto.Connection := DM.GetConexao;
-    QFaturLcto.SQL.Add('INSERT INTO FaturamentosLancamentos');
-    QFaturLcto.SQL.Add('(FaturID,FaturLctoTipo,FaturLctoData,FaturLctoDescricao,FaturLctoValor)');
-    QFaturLcto.SQL.Add('VALUES');
-    QFaturLcto.SQL.Add('(:FaturID,:FaturLctoTipo,:FaturLctoData,:FaturLctoDescricao,:FaturLctoValor)');
-    QFaturLcto.Parameters.ParamByName('FaturID').Value := FaturID;
-    QFaturLcto.Parameters.ParamByName('FaturLctoTipo').Value := Integer(FaturLctoTipo);
-    QFaturLcto.Parameters.ParamByName('FaturLctoData').Value := FaturLctoData;
-    QFaturLcto.Parameters.ParamByName('FaturLctoDescricao').Value := FaturLctoDescricao;
-    QFaturLcto.Parameters.ParamByName('FaturLctoValor').Value := FaturLctoValor;
-    try
-      Result := QFaturLcto.ExecSQL > 0;
-    except
-      on E:Exception do
-      begin
-        Result := False;
-        raise;
-      end;
-    end;
-  finally
-    FreeAndNil(QFaturLcto);
-  end;
-  }
-end;
-
 procedure TFatObj.EnviarEmailFaturPendentes;
 var
-  QEmailRecPend: TADOQuery;
+  QRecP: TADOQuery;
   AMSend: TMailSender;
   MsgErro,
   ADt: string;
-  clienteid: Integer;
   ACDS: TClientDataSet;
   TabelaFaturas: TStringList;
   ASoma: Currency;
 
   procedure CriarCursorCliente;
   begin
-    QEmailRecPend.First;
-    while not QEmailRecPend.Eof do
+    QRecP.First;
+    while not QRecP.Eof do
     begin
-      if trim(QEmailRecPend.FieldByName('clienteemail').AsString) = EmptyStr then
+      if trim(QRecP.FieldByName('clienteemail').AsString) = EmptyStr then
       begin
-        QEmailRecPend.Next;
+        QRecP.Next;
         Continue;
       end;
-      if not ACDS.Locate('clienteid', QEmailRecPend.FieldByName('clienteid').AsInteger, [loCaseInsensitive]) then
+      if not ACDS.Locate('clienteid', QRecP.FieldByName('clienteid').AsInteger, [loCaseInsensitive]) then
       begin
         ACDS.Append;
-        ACDS.FieldByName('clienteid').AsInteger := QEmailRecPend.FieldByName('clienteid').AsInteger;
+        ACDS.FieldByName('clienteid').AsInteger := QRecP.FieldByName('clienteid').AsInteger;
         ACDS.Post;
       end;
-      QEmailRecPend.Next;
+      QRecP.Next;
     end;
     ACDS.IndexFieldNames := 'clienteid';
-    QEmailRecPend.First;
+    QRecP.First;
   end;
 
 begin
-  QEmailRecPend := TADOQuery.Create(nil);
-  QEmailRecPend.Connection := DM.GetConexao;
+  QRecP := TADOQuery.Create(nil);
+  QRecP.Connection := DM.GetConexao;
   ACDS := TClientDataSet.Create(nil);
   TabelaFaturas := TStringList.Create;
   try
@@ -386,11 +367,11 @@ begin
     ACDS.CreateDataSet;
     ACDS.LogChanges := false;
     try
-      QEmailRecPend.sql.add('SELECT * ');
-      QEmailRecPend.sql.add('  FROM faturamentospendentes order by 2');
-      QEmailRecPend.Open;
+      QRecP.sql.add('SELECT * ');
+      QRecP.sql.add('  FROM faturamentospendentes order by clientenome, faturdatageracao');
+      QRecP.Open;
 
-      if not QEmailRecPend.Eof then
+      if not QRecP.Eof then
       begin
         CriarCursorCliente;
         TabelaFaturas.Clear;
@@ -398,33 +379,37 @@ begin
         ACDS.First;
         while not ACDS.Eof do
         begin
-          QEmailRecPend.Filter := 'clienteid=' + ACDS.FieldByName('clienteid').AsString;
-          QEmailRecPend.Filtered := True;
-          //QEmailRecPend.IndexFieldNames := 'faturid';
+          QRecP.Filter := 'clienteid=' + ACDS.FieldByName('clienteid').AsString;
+          QRecP.Filtered := True;
+          //QRecP.IndexFieldNames := 'faturid';
 
           TabelaFaturas.Add('<TABLE BORDER=1>');
           TabelaFaturas.Add('<TR>');
           TabelaFaturas.Add('   <TD>Referência</TD>');
-          TabelaFaturas.Add('   <TD>Consumo</TD>');
-          TabelaFaturas.Add('   <TD>Desconto</TD>');
-          TabelaFaturas.Add('   <TD>A pagar</TD>');
+          TabelaFaturas.Add('   <TD>Consumo(+)</TD>');
+          TabelaFaturas.Add('   <TD>Desconto(-)</TD>');
+          TabelaFaturas.Add('   <TD>Crédito(-)</TD>');
+          TabelaFaturas.Add('   <TD>A pagar(=)</TD>');
           TabelaFaturas.Add('</TR>');
 
           ASoma := 0;
-          while not QEmailRecPend.Eof do
+          QRecP.First;
+          while not QRecP.Eof do
           begin
             TabelaFaturas.Add('<TR>');
-            TabelaFaturas.Add('   <TD>' + FormatDateTime('dd/mm/yyyy', QEmailRecPend.FieldByName('faturdatageracao').AsDateTime) + '</TD>');
-            TabelaFaturas.Add('   <TD>' + FormatCurr('#0.00', QEmailRecPend.FieldByName('FaturValorTotal').AsCurrency) + '</TD>');
-            TabelaFaturas.Add('   <TD>' + FormatCurr('#0.00', QEmailRecPend.FieldByName('FaturValorDesconto').AsCurrency) + '</TD>');
-            TabelaFaturas.Add('   <TD>' + FormatCurr('#0.00', QEmailRecPend.FieldByName('valorpendente').AsCurrency) + '</TD>');
+            TabelaFaturas.Add('   <TD>' + FormatDateTime('dd/mm/yyyy', QRecP.FieldByName('faturdatageracao').AsDateTime) + '</TD>');
+            TabelaFaturas.Add('   <TD>' + FormatCurr('#0.00', QRecP.FieldByName('FaturValorTotal').AsCurrency) + '</TD>');
+            TabelaFaturas.Add('   <TD>' + FormatCurr('#0.00', QRecP.FieldByName('FaturValorDesconto').AsCurrency) + '</TD>');
+            TabelaFaturas.Add('   <TD>' + FormatCurr('#0.00', QRecP.FieldByName('FaturValorCancelado').AsCurrency) + '</TD>');
+            TabelaFaturas.Add('   <TD>' + FormatCurr('#0.00', QRecP.FieldByName('valorpendente').AsCurrency) + '</TD>');
             TabelaFaturas.Add('</TR>');
-            ASoma := ASoma + QEmailRecPend.FieldByName('valorpendente').AsCurrency;
-            QEmailRecPend.Next;
+            ASoma := ASoma + QRecP.FieldByName('valorpendente').AsCurrency;
+            QRecP.Next;
           end;
 
           TabelaFaturas.Add('<TR>');
           TabelaFaturas.Add('   <TD><b>TOTAL</b></TD>');
+          TabelaFaturas.Add('   <TD></TD>');
           TabelaFaturas.Add('   <TD></TD>');
           TabelaFaturas.Add('   <TD></TD>');
           TabelaFaturas.Add('   <TD><b>' + FormatCurr('#0.00', ASoma) + '</b></TD>');
@@ -434,51 +419,95 @@ begin
           //Mandar o e-mail
           AMSend := TMailSender.Create;
           try
-            AMSend.DestinatarioNome := QEmailRecPend.FieldByName('clientenome').AsString;
-            AMSend.DestinatarioEmail := LowerCase(trim(QEmailRecPend.FieldByName('clienteemail').AsString));
+            AMSend.DestinatarioNome := QRecP.FieldByName('clientenome').AsString;
+            AMSend.DestinatarioEmail := LowerCase(trim(QRecP.FieldByName('clienteemail').AsString));
             //AMSend.DestinatarioEmail := 'serginhoshm@gmail.com'; //para testes
             AMSend.AssuntoEmail := 'Conta Bolos e Doces';
             AMSend.TextoEmail.Add('Olá ' + AMSend.DestinatarioNome + '!');
             AMSend.TextoEmail.Add('');
+            AMSend.TextoEmail.Add('');
+            AMSend.TextoEmail.Add('<h2><mark><font color="red">ATENÇÃO: MUDAMOS NOSSOS MEIOS DE PAGAMENTO</font></mark></h2>');
+            AMSend.TextoEmail.Add('');
+            AMSend.TextoEmail.Add('');
             AMSend.TextoEmail.Add('Segue abaixo faturamento do consumo de bolos e doces: ');
-
+            AMSend.TextoEmail.Add('');
             AMSend.TextoEmail.Add(TabelaFaturas.Text);
-
-            AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add('Métodos de pagamento:');
-            AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add('MÉTODO 1 - CAIXINHA (auto-atendimento)');
-            AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add(' - Situada no "Primeiro andar", mesmo local de venda, URNA azul');
-            AMSend.TextoEmail.Add(' - Deposite o valor na URNA, utilizando envelope plástico');
-            AMSend.TextoEmail.Add(' - Com papeleta existente no local, informe se deseja troco ou crédito.');
-            AMSend.TextoEmail.Add(' - No dia seguinte o troco será devolvido pessoalmente.');
-            AMSend.TextoEmail.Add(' - Não será devolvido TROCO no momento do pagamento.');
-            AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add('MÉTODO 2 - Depósito bancário (Santander e Viacredi)');
-            AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add(' - BANCO SANTANDER ');
-            AMSend.TextoEmail.Add(' - AG 4509 ');
-            AMSend.TextoEmail.Add(' - C/C 01064448-3');
-            AMSend.TextoEmail.Add(' - TITULAR: SERGIO HENRIQUE MARCHIORI');
-            AMSend.TextoEmail.Add(' - CPF: 047.034.269-27');
-            AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add(' - BANCO VIACREDI ');
-            AMSend.TextoEmail.Add(' - C/C 9337393');
-            AMSend.TextoEmail.Add(' - TITULAR: PAULO CESAR PEREIRA');
-            AMSend.TextoEmail.Add(' - CPF: 924.598.629-20');
-            AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add('MÉTODO 3 - PicPay');
-            AMSend.TextoEmail.Add(' - Adicione @sergiohm e efetue seu pagamento');
-            AMSend.TextoEmail.Add(' - Conheça PicPay https://goo.gl/QkGxdk');
-            AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add('MÉTODO 4 - Pessoalmente');
-            AMSend.TextoEmail.Add(' - SOMENTE após as 18h (não posso receber durante o expediente).');
-            AMSend.TextoEmail.Add(' ');
+            AMSend.TextoEmail.Add('<h2>Métodos de pagamento</h2>');
+            AMSend.TextoEmail.Add('<TABLE border=1>');
+            AMSend.TextoEmail.Add('<TR>');
+            AMSend.TextoEmail.Add('  <TD><b>PicPay</b></TD>');
+            AMSend.TextoEmail.Add('  <TD><img src="https://image.ibb.co/eY1snJ/picpay.jpg" alt="picpay" border="0"></TD>');
+            AMSend.TextoEmail.Add('</TR>  ');
+            AMSend.TextoEmail.Add('<TR>');
+            AMSend.TextoEmail.Add('	<TD colspan="2">');
+            AMSend.TextoEmail.Add('    	<ul>');
+            AMSend.TextoEmail.Add('    	<li>Adicione @paulocesar75 e efetue seu pagamento</li>');
+            AMSend.TextoEmail.Add('  		<li>Nome da conta: Paulo César Pereira</li>');
+            AMSend.TextoEmail.Add('  		<li>Conheça PicPay https://goo.gl/QkGxdk</li>');
+            AMSend.TextoEmail.Add('  		</ul>');
+            AMSend.TextoEmail.Add('    </TD>');
+            AMSend.TextoEmail.Add('</TR>  ');
+            AMSend.TextoEmail.Add('<TR>');
+            AMSend.TextoEmail.Add('<TD><b>Santander</b></TD>');
+            AMSend.TextoEmail.Add('  <TD><img src="https://image.ibb.co/mj9Ouy/santander.jpg" alt="santander" border="0"></TD>');
+            AMSend.TextoEmail.Add('</TR>  ');
+            AMSend.TextoEmail.Add('<TR>');
+            AMSend.TextoEmail.Add('	<TD colspan="2">');
+            AMSend.TextoEmail.Add('    	<ul>');
+            AMSend.TextoEmail.Add('          <li>Banco Santander Banespa - Código 033</li>');
+            AMSend.TextoEmail.Add('          <li>Ag. 1539</li>');
+            AMSend.TextoEmail.Add('          <li>C/C 770014243</li>');
+            AMSend.TextoEmail.Add('          <li>Titular: PAULO CESAR PEREIRA</li>');
+            AMSend.TextoEmail.Add('          <li>CPF: 924.598.629-20</li>');
+            AMSend.TextoEmail.Add('  		</ul>');
+            AMSend.TextoEmail.Add('    </TD>');
+            AMSend.TextoEmail.Add('</TR>  ');
+            AMSend.TextoEmail.Add('<TR>');
+            AMSend.TextoEmail.Add('  <TD><b>Viacredi</b></TD>');
+            AMSend.TextoEmail.Add('  <TD><img src="https://image.ibb.co/dfaJSJ/viacredi.jpg" alt="viacredi" border="0"></TD>');
+            AMSend.TextoEmail.Add('</TR>  ');
+            AMSend.TextoEmail.Add('<TR>');
+            AMSend.TextoEmail.Add('	<TD colspan="2">');
+            AMSend.TextoEmail.Add('    	<ul>');
+            AMSend.TextoEmail.Add('          <li>Banco Cecred (Viacredi) - Código 085</li>');
+            AMSend.TextoEmail.Add('          <li>Ag. 0101</li>');
+            AMSend.TextoEmail.Add('          <li>C/C 933739-3</li>');
+            AMSend.TextoEmail.Add('          <li>Titular: PAULO CESAR PEREIRA</li>');
+            AMSend.TextoEmail.Add('          <li>CPF: 924.598.629-20</li>');
+            AMSend.TextoEmail.Add('  		</ul>');
+            AMSend.TextoEmail.Add('    </TD>');
+            AMSend.TextoEmail.Add('</TR>  ');
+            AMSend.TextoEmail.Add('<TR>');
+            AMSend.TextoEmail.Add('  <TD><b>Caixinha</b></TD>');
+            AMSend.TextoEmail.Add('  <TD><img src="https://image.ibb.co/jvaJSJ/cofrinho.jpg" alt="cofrinho" border="0"></TD>  ');
+            AMSend.TextoEmail.Add('</TR>  ');
+            AMSend.TextoEmail.Add('<TR>');
+            AMSend.TextoEmail.Add('	<TD colspan="2">');
+            AMSend.TextoEmail.Add('    	<ul>');
+            AMSend.TextoEmail.Add('            <li>Situada no "Primeiro andar", mesmo local de venda, URNA azul</li>');
+            AMSend.TextoEmail.Add('            <li>Deposite o valor na URNA, utilizando envelope plástico</li>');
+            AMSend.TextoEmail.Add('            <li>Com post-it existente no local, informe se deseja troco ou crédito</li>');
+            AMSend.TextoEmail.Add('            <li>No dia seguinte o troco será devolvido pessoalmente</li>');
+            AMSend.TextoEmail.Add('            <li>Não será devolvido TROCO no momento do pagamento</li>');
+            AMSend.TextoEmail.Add('  		</ul>');
+            AMSend.TextoEmail.Add('    </TD>');
+            AMSend.TextoEmail.Add('</TR> ');
+            AMSend.TextoEmail.Add('<TR>');
+            AMSend.TextoEmail.Add('  <TD><b>Pessoalmente</b></TD>');
+            AMSend.TextoEmail.Add('  <TD><img src="https://image.ibb.co/e1bQ7J/mao.png" alt="mao" border="0">   	</TD>    ');
+            AMSend.TextoEmail.Add('</TR>  ');
+            AMSend.TextoEmail.Add('<TR>');
+            AMSend.TextoEmail.Add('	<TD colspan="2">');
+            AMSend.TextoEmail.Add('    	<ul>');
+            AMSend.TextoEmail.Add('            <li>SOMENTE após as 18h (não posso receber durante o expediente)</li>');
+            AMSend.TextoEmail.Add('            <li>Preferencialmente trazer o valor já trocado</li>');
+            AMSend.TextoEmail.Add('  		</ul>');
+            AMSend.TextoEmail.Add('    </TD>');
+            AMSend.TextoEmail.Add('</TR> ');
+            AMSend.TextoEmail.Add('  ');
+            AMSend.TextoEmail.Add('</TABLE>');
+            AMSend.TextoEmail.Add('');
+            AMSend.TextoEmail.Text := StringReplace(AMSend.TextoEmail.Text, #13#10, '', [rfReplaceAll, rfIgnoreCase]);
             AMSend.TextoEmail.Add(' ');
             AMSend.TextoEmail.Add('Em caso de alguma divergência possuo os registros para sua verificação.');
             AMSend.TextoEmail.Add(' ');
@@ -489,12 +518,12 @@ begin
             ADt := '[' + FormatDateTime('dd/mm/yyyy hh:nn:ss zzz', Now) + '] ';
             if not AMSend.Enviar(MsgErro) then
             begin
-              Log.Add(ADt + 'Erro: ' + QEmailRecPend.FieldByName('ClienteNome').AsString + MsgErro)
+              Log.Add(ADt + 'Erro: ' + QRecP.FieldByName('ClienteNome').AsString + MsgErro)
             end
             else
             begin
-              Log.Add(ADt + 'Enviado: ' + QEmailRecPend.FieldByName('ClienteNome').AsString);
-              AtualizarEmailFaturEnviado(QEmailRecPend.FieldByName('faturid').AsInteger, Now);
+              Log.Add(ADt + 'Enviado: ' + QRecP.FieldByName('ClienteNome').AsString);
+              AtualizarEmailFaturEnviado(QRecP.FieldByName('faturid').AsInteger, Now);
             end;
           finally
             FreeAndNil(AMSend);
@@ -515,7 +544,7 @@ begin
       end;
     end;
   finally
-    FreeAndNil(QEmailRecPend);
+    FreeAndNil(QRecP);
     FreeAndNil(ACDS);
     FreeAndNil(TabelaFaturas);
   end;
@@ -575,17 +604,22 @@ begin
 
     if not QFaturOrig.IsEmpty then
     begin
-      if (RoundTo(ValorRecebido, -2) - RoundTo((QFaturOrig.FieldByName('faturvalortotal').AsFloat + ValorTroco + ValorACredito), -2)) <> 0 then
+      if (RoundTo(ValorRecebido, -2) - RoundTo((QFaturOrig.FieldByName('FaturValorAPagar').AsFloat + ValorTroco + ValorACredito), -2)) <> 0 then
         raise Exception.Create('ATENÇÃO: Fatura + Crédito + Troco = Valor Recebido')
       else
       begin
 
         if BaixaFatura(QFaturOrig.FieldByName('faturid').AsInteger,
                     QFaturOrig.FieldByName('clienteid').AsInteger,
-                    QFaturOrig.FieldByName('faturvalortotal').AsFloat) then
+                    QFaturOrig.FieldByName('FaturValorAPagar').AsFloat) then
         begin
           //Criar o recibo
           ARecibo := CriarRecibo(QFaturOrig.FieldByName('faturid').AsInteger, Now, ValorRecebido, ValorACredito, ValorTroco);
+
+          if RoundTo(ValorACredito,-2) > 0 then
+          begin
+            GerarCredito(QFaturOrig.FieldByName('clienteid').AsInteger, ValorACredito, QFaturOrig.FieldByName('faturid').AsInteger);
+          end;
         end;
 
         Result := 'Recibo: ' + ARecibo;
@@ -600,31 +634,6 @@ begin
   end;
 end;
 
-function TFatObj.RetornaDebitosPendentes(ClienteID: integer): Double;
-var
-  QCred: TADOQuery;
-begin
-  QCred := TADOQuery.Create(nil);
-  try
-    QCred.Connection := DM.GetConexao;
-    QCred.SQL.Add('select coalesce(sum(clicredvalor), 0) debitos, cred.clienteid from clientescreditos cred');
-    QCred.SQL.Add('join clientes cli on cli.clienteid = cred.clienteid');
-    QCred.SQL.Add(' where (coalesce(cred.clicredvalor,0) < coalesce(cred.clicredvalorbaixado, 0))');
-    QCred.SQL.Add(' and coalesce(cred.clicredvalor,0) < 0');   //somente débitos
-    QCred.SQL.Add(' and cred.clienteid = :clienteid');
-    QCred.SQL.Add(' group by cred.clienteid ');
-    QCred.Parameters.ParamByName('clienteid').Value := ClienteID;
-    QCred.Open;
-    if QCred.RecordCount > 0 then
-      Result := QCred.FieldByName('debitos').AsFloat
-    else
-      Result := 0;
-  finally
-    FreeAndNil(QCred);
-  end;
-end;
-
-
 function TFatObj.RetornaCreditosPendentes(ClienteID: integer): Double;
 var
   QCred: TADOQuery;
@@ -632,16 +641,10 @@ begin
   QCred := TADOQuery.Create(nil);
   try
     QCred.Connection := DM.GetConexao;
-    QCred.SQL.Add('select coalesce(sum(cred.clicredvalor), 0) as creditos, cli.clienteid');
-    QCred.SQL.Add('from clientescreditos cred');
-    QCred.SQL.Add('join clientes cli on cli.clienteid = cred.clienteid');
-    QCred.SQL.Add(' where (coalesce(cred.clicredvalor,0) > coalesce(cred.clicredvalorbaixado, 0))');
-    QCred.SQL.Add(' and coalesce(cred.clicredvalor,0) > 0');
-    QCred.SQL.Add(' and cred.clienteid = :clienteid');
-    QCred.SQL.Add('group by cli.clienteid');
+    QCred.SQL.Add('select COALESCE(Saldo,0) creditos from ClientesCreditosPendentes where clienteid = :clienteid');
     QCred.Parameters.ParamByName('clienteid').Value := ClienteID;
     QCred.Open;
-    if QCred.RecordCount > 0 then
+    if not QCred.IsEmpty then
       Result := QCred.FieldByName('creditos').AsFloat
     else
       Result := 0;
@@ -650,69 +653,27 @@ begin
   end;
 end;
 
-function TFatObj.BaixarCreditos(ClienteID: Integer;
-  ValorBaixar: Double; CreditoRestante, CreditoUsado: Currency): Currency;
+procedure TFatObj.BaixarCreditos(ClienteID: Integer);
 var
-  TotalCredito: Currency;
   QBaixa: TADOQuery;
 begin
-  CreditoRestante := 0;
-  Result := ValorBaixar;
-
   QBaixa := TADOQuery.Create(nil);
+  QBaixa.Connection := DM.GetConexao;
   try
-    QBaixa.Connection := DM.GetConexao;
-    QBaixa.SQL.Add('select * from clientescreditos where clicredvalor > 0 and clicreddatabaixa is null and clienteid = :clienteid');
-    QBaixa.Parameters.ParamByName('clienteid').Value := ClienteID;
-    QBaixa.Open;
-    //Calcula o total de creditos do cliente
-    TotalCredito := 0;
-    while not QBaixa.Eof do
-    begin
-      TotalCredito := TotalCredito + QBaixa.FieldByName('clicredvalor').AsFloat;
-      QBaixa.Next;
-    end;
-
-    if TotalCredito > 0 then
-    begin
-      //Baixar todos os créditos existentes
-      QBaixa.SQL.Clear;
-      QBaixa.SQL.Text := 'update clientescreditos set clicreddatabaixa = :data where clicredvalor > 0 and clicreddatabaixa is null and clienteid = :clienteid';
-      QBaixa.Parameters.ParamByName('data').Value := Now;
-      QBaixa.Parameters.ParamByName('clienteid').Value := ClienteID;
-      QBaixa.ExecSQL;
-      if QBaixa.RowsAffected > 0 then
-      begin
-        if TotalCredito >= ValorBaixar  then
-        begin
-          Result := 0;
-          CreditoRestante := TotalCredito - ValorBaixar;
-          CreditoUsado := ValorBaixar;
-        end
-        else
-        begin
-          Result := ValorBaixar - TotalCredito;
-          CreditoRestante := 0;
-          CreditoUsado := TotalCredito;
-        end;
-
-        if CreditoRestante > 0 then
-        begin
-          if GerarCredito(ClienteID, CreditoRestante, 'Sobra de crédito gerada de forma automática') then
-            ShowMessage('Crédito restante: ' + FloatToStr(CreditoRestante))
-          else
-            raise Exception.Create('Erro ao gerar crédito para: ' + IntToStr(ClienteID));
-        end;
-
-      end;
-    end;
+    //Baixar todos os créditos existentes
+    QBaixa.SQL.Add('update ClientesCreditos');
+    QBaixa.SQL.Add('set CredDataBaixa = GetDate(),');
+    QBaixa.SQL.Add('CredValorBaixado = CredValorInclusao');
+    QBaixa.SQL.Add('where (clienteid = ' + IntToStr(ClienteID) + ')');
+    QBaixa.SQL.Add('and (CredValorBaixado <> CredValorInclusao)');
+    QBaixa.ExecSQL;
   finally
     FreeAndNil(QBaixa);
   end;
 end;
 
 function TFatObj.GerarCredito(ClienteID: Integer;
-  ValorCredito: Double; Observacao: string): Boolean;
+  ValorCredito: Double; FaturID: integer): Boolean;
 var
   QCred: TADOQuery;
 begin
@@ -720,14 +681,13 @@ begin
   try
     QCred.Connection := Dm.GetConexao;
     QCred.SQL.Clear;
-    QCred.SQL.Add('insert into clientescreditos ');
-    QCred.SQL.Add('(clienteid, clicreddataconcedido, clicredvalor, clicredobs)');
+    QCred.SQL.Add('insert into ClientesCreditos ');
+    QCred.SQL.Add('(clienteid, CredFaturOrigem, CredDataInclusao, CredValorInclusao)');
     QCred.SQL.Add(' values ');
-    QCred.SQL.Add('(:clienteid, :clicreddataconcedido, :clicredvalor, :clicredobs)');
+    QCred.SQL.Add('(:clienteid, :CredFaturOrigem, GetDate(), :CredValorInclusao)');
     QCred.Parameters.ParamByName('clienteid').Value := ClienteID;
-    QCred.Parameters.ParamByName('clicreddataconcedido').Value := Now;
-    QCred.Parameters.ParamByName('clicredvalor').Value := ValorCredito;
-    QCred.Parameters.ParamByName('clicredobs').Value := Observacao;
+    QCred.Parameters.ParamByName('CredFaturOrigem').Value := FaturID;
+    QCred.Parameters.ParamByName('CredValorInclusao').Value := ValorCredito;
     QCred.ExecSQL;
     Result := QCred.RowsAffected > 0;
   finally
@@ -793,7 +753,7 @@ begin
     Delete(AStrFatur, 1, 1);
     Inc(aux);
   until AStrFatur = EmptyStr;
-  
+
   Res[10] := Chr(RandomRange(65, 90));
   Result := Concat(Res[1], Res[2], Res[3], Res[4], Res[5], Res[6], Res[7], Res[8], Res[9], Res[10]);
 end;
@@ -829,61 +789,65 @@ end;
 
 procedure TFatObj.EnviarEmailPagamentosRecebidosPendentes;
 var
-  QEmailRecPend: TADOQuery;
+  QRecP: TADOQuery;
   AMSend: TMailSender;
   MsgErro,
   ADt: string;
 begin
-  QEmailRecPend := TADOQuery.Create(nil);
-  QEmailRecPend.Connection := DM.GetConexao;
+  QRecP := TADOQuery.Create(nil);
+  QRecP.Connection := DM.GetConexao;
   try
     try
-      QEmailRecPend.sql.add('SELECT reciboid, clienteid, clientenome, clienteemail, recibovalorpago,');
-      QEmailRecPend.sql.add('       recibovalortroco, reciboautentic, recibodatageracao, faturid');
-      QEmailRecPend.sql.add('  FROM maladiretaemailrecebimentos;');
+      QRecP.sql.add('SELECT *');
+      QRecP.sql.add('  FROM maladiretaemailrecebimentos');
 
-
-      QEmailRecPend.Open;
-      if not QEmailRecPend.Eof then
+      QRecP.Open;
+      if not QRecP.Eof then
       begin
-        while not QEmailRecPend.Eof do
+        while not QRecP.Eof do
         begin
-          if QEmailRecPend.FieldByName('clienteemail').AsString = EmptyStr then
+          if QRecP.FieldByName('clienteemail').AsString = EmptyStr then
           begin
-            QEmailRecPend.Next;
+            QRecP.Next;
             Continue;
           end;
 
           AMSend := TMailSender.Create;
           try
-            AMSend.DestinatarioNome := QEmailRecPend.FieldByName('clientenome').AsString;
-            AMSend.DestinatarioEmail := LowerCase(trim(QEmailRecPend.FieldByName('clienteemail').AsString));
+            AMSend.DestinatarioNome := QRecP.FieldByName('clientenome').AsString;
+            AMSend.DestinatarioEmail := LowerCase(trim(QRecP.FieldByName('clienteemail').AsString));
             AMSend.AssuntoEmail := 'Obrigado - recebido';
             AMSend.TextoEmail.Add('<b>Obrigado ' + AMSend.DestinatarioNome + '! </b>');
             AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add('Recebemos sua conta do consumo de bolos e doces no valor de: R$ ' + FormatCurr('#0.00', QEmailRecPend.FieldByName('recibovalorpago').AsCurrency));
-            if (QEmailRecPend.FieldByName('recibovalortroco').AsFloat > 0) then
-              AMSend.TextoEmail.Add('O troco no valor de : R$ ' + FormatCurr('#0.00', QEmailRecPend.FieldByName('recibovalortroco').AsCurrency) + ' será entregue em mãos');
+            AMSend.TextoEmail.Add('Recebemos sua conta do consumo de bolos e doces no valor de: R$ ' + FormatCurr('#0.00', QRecP.FieldByName('FaturValorAPagar').AsCurrency));
+
+            AMSend.TextoEmail.Add('<ul>');
+            AMSend.TextoEmail.Add('Valor recebido: R$ ' + FormatCurr('#0.00', QRecP.FieldByName('recibovalorpago').AsCurrency));
+            if (QRecP.FieldByName('recibovalortroco').AsFloat > 0) then
+              AMSend.TextoEmail.Add('<li>O troco no valor de: R$ ' + FormatCurr('#0.00', QRecP.FieldByName('recibovalortroco').AsCurrency) + ' será entregue em mãos</li>');
+            if (QRecP.FieldByName('recibovalorcredito').AsFloat > 0) then
+              AMSend.TextoEmail.Add('<li>Crédito para próximo ciclo: R$ ' + FormatCurr('#0.00', QRecP.FieldByName('recibovalorcredito').AsCurrency) + '</li>');
+            AMSend.TextoEmail.Add('</ul>');
             AMSend.TextoEmail.Add(' ');
             AMSend.TextoEmail.Add('<i>Obrigado por consumir nossos produtos e utilize este canal para efetuar sugestões ou críticas</i>');
             AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add('Autenticação: [' + QEmailRecPend.FieldByName('reciboautentic').AsString + ']');
+            AMSend.TextoEmail.Add('Autenticação: [' + QRecP.FieldByName('reciboautentic').AsString + ']');
             AMSend.TextoEmail.Add(' ');
             AMSend.TextoEmail.Add('Att. Sérgio e Paulo');
             ADt := '[' + FormatDateTime('dd/mm/yyyy hh:nn:ss zzz', Now) + '] ';
             if not AMSend.Enviar(MsgErro) then
             begin
-              Log.Add(ADt + 'Erro: ' + QEmailRecPend.FieldByName('ClienteNome').AsString + MsgErro)
+              Log.Add(ADt + 'Erro: ' + QRecP.FieldByName('ClienteNome').AsString + MsgErro)
             end
             else
             begin
-              Log.Add(ADt + 'Enviado: ' + QEmailRecPend.FieldByName('ClienteNome').AsString);
-              AtualizarEmailRecebimentoEnviado(QEmailRecPend.FieldByName('reciboid').AsInteger, Now);
+              Log.Add(ADt + 'Enviado: ' + QRecP.FieldByName('ClienteNome').AsString);
+              AtualizarEmailRecebimentoEnviado(QRecP.FieldByName('reciboid').AsInteger, Now);
             end;
           finally
             FreeAndNil(AMSend);
           end;
-          QEmailRecPend.Next;
+          QRecP.Next;
         end;
         Log.SaveToFile(ExtractFilePath(Application.ExeName) + 'LogEnviaRecibo_' + FormatDateTime('yyyy-mm-dd_hhnnsszzz', Now) + '.txt');
       end;
@@ -896,185 +860,9 @@ begin
       end;
     end;
   finally
-    FreeAndNil(QEmailRecPend);
-  end;
-
-
-
-end;
-
-procedure TFatObj.EnviarRecobranca;
-var
-  QEmailRecPend: TADOQuery;
-  AMSend: TMailSender;
-  MsgErro,
-  ADt: string;
-  clienteid: Integer;
-  ACDS: TClientDataSet;
-  TabelaFaturas: TStringList;
-  ASoma: Currency;
-
-  procedure CriarCursorCliente;
-  begin
-    QEmailRecPend.First;
-    while not QEmailRecPend.Eof do
-    begin
-      if trim(QEmailRecPend.FieldByName('clienteemail').AsString) = EmptyStr then
-      begin
-        QEmailRecPend.Next;
-        Continue;
-      end;
-      if not ACDS.Locate('clienteid', QEmailRecPend.FieldByName('clienteid').AsInteger, [loCaseInsensitive]) then
-      begin
-        ACDS.Append;
-        ACDS.FieldByName('clienteid').AsInteger := QEmailRecPend.FieldByName('clienteid').AsInteger;
-        ACDS.Post;
-      end;
-      QEmailRecPend.Next;
-    end;
-    ACDS.IndexFieldNames := 'clienteid';
-    QEmailRecPend.First;
-  end;
-
-begin
-  QEmailRecPend := TADOQuery.Create(nil);
-  QEmailRecPend.Connection := DM.GetConexao;
-  ACDS := TClientDataSet.Create(nil);
-  TabelaFaturas := TStringList.Create;
-  try
-    ACDS.FieldDefs.Add('clienteid', ftinteger);
-    ACDS.CreateDataSet;
-    ACDS.LogChanges := false;
-    try
-      QEmailRecPend.sql.add('SELECT * ');
-      QEmailRecPend.sql.add('  FROM faturamentospendentes;');
-      QEmailRecPend.Open;
-
-      if not QEmailRecPend.Eof then
-      begin
-        CriarCursorCliente;
-        TabelaFaturas.Clear;
-
-        ACDS.First;
-        while not ACDS.Eof do
-        begin
-          QEmailRecPend.Filter := 'clienteid=' + ACDS.FieldByName('clienteid').AsString;
-          QEmailRecPend.Filtered := True;
-          //QEmailRecPend.IndexFieldNames := 'faturid';
-
-          TabelaFaturas.Add('<TABLE BORDER=1>');
-          TabelaFaturas.Add('<TR>');
-          TabelaFaturas.Add('   <TD>Referência</TD>');
-          TabelaFaturas.Add('   <TD>Valor</TD>');
-          TabelaFaturas.Add('</TR>');
-
-          ASoma := 0;
-          while not QEmailRecPend.Eof do
-          begin
-            TabelaFaturas.Add('<TR>');
-            TabelaFaturas.Add('   <TD>' + FormatDateTime('dd/mm/yyyy', QEmailRecPend.FieldByName('faturdatageracao').AsDateTime) + '</TD>');
-            TabelaFaturas.Add('   <TD>' + FormatCurr('#0.00', QEmailRecPend.FieldByName('valorpendente').AsCurrency) + '</TD>');
-            TabelaFaturas.Add('</TR>');
-            ASoma := ASoma + QEmailRecPend.FieldByName('valorpendente').AsCurrency;
-            QEmailRecPend.Next;
-          end;
-          
-          TabelaFaturas.Add('<TR>');
-          TabelaFaturas.Add('   <TD><b>TOTAL</b></TD>');
-          TabelaFaturas.Add('   <TD><b>' + FormatCurr('#0.00', ASoma) + '</b></TD>');
-          TabelaFaturas.Add('</TR>');
-          TabelaFaturas.Add('</TABLE>');
-
-          //Mandar o e-mail
-          AMSend := TMailSender.Create;
-          try
-            AMSend.DestinatarioNome := QEmailRecPend.FieldByName('clientenome').AsString;
-            AMSend.DestinatarioEmail := LowerCase(trim(QEmailRecPend.FieldByName('clienteemail').AsString));
-            //AMSend.DestinatarioEmail := 'serginhoshm@gmail.com'; para testes
-            AMSend.AssuntoEmail := 'Acerto - conta bolos e doces';
-            AMSend.TextoEmail.Add('Olá ' + AMSend.DestinatarioNome + '!');
-            AMSend.TextoEmail.Add('');
-            AMSend.TextoEmail.Add('Sua conta abaixo relacionada ainda não foi quitada. Solicitamos por gentileza observar os valores abaixo: ');
-
-            AMSend.TextoEmail.Add(TabelaFaturas.Text);
-
-            AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add('Métodos de pagamento:');
-            AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add('MÉTODO 1 - CAIXINHA (auto-atendimento)');
-            AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add(' - Situada no "Primeiro andar", mesmo local de venda, URNA azul');
-            AMSend.TextoEmail.Add(' - Deposite o valor na URNA, utilizando envelope plástico');
-            AMSend.TextoEmail.Add(' - Com papeleta existente no local, informe se deseja troco ou crédito.');
-            AMSend.TextoEmail.Add(' - No dia seguinte o troco será devolvido pessoalmente.');
-            AMSend.TextoEmail.Add(' - Não será devolvido TROCO no momento do pagamento.');
-            AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add('MÉTODO 2 - Depósito bancário (Santander e Viacredi)');
-            AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add(' - BANCO SANTANDER ');
-            AMSend.TextoEmail.Add(' - AG 4509 ');
-            AMSend.TextoEmail.Add(' - C/C 01064448-3');
-            AMSend.TextoEmail.Add(' - TITULAR: SERGIO HENRIQUE MARCHIORI');
-            AMSend.TextoEmail.Add(' - CPF: 047.034.269-27');
-            AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add(' - BANCO VIACREDI ');
-            AMSend.TextoEmail.Add(' - C/C 9337393');
-            AMSend.TextoEmail.Add(' - TITULAR: PAULO CESAR PEREIRA');
-            AMSend.TextoEmail.Add(' - CPF: 924.598.629-20');
-            AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add('MÉTODO 3 - PicPay');
-            AMSend.TextoEmail.Add(' - Adicione @sergiohm e efetue seu pagamento');
-            AMSend.TextoEmail.Add(' - Conheça PicPay https://goo.gl/QkGxdk');
-            AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add('MÉTODO 4 - Pessoalmente');
-            AMSend.TextoEmail.Add(' - SOMENTE após as 18h (não posso receber durante o expediente).');
-            AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add('Em caso de alguma divergência possuo os registros para sua verificação.');
-            AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add('Obrigado por consumir nossos produtos e utilize este canal de comunicação para efetuar sugestões ou críticas');
-            AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add('Att. Sérgio e Paulo');
-
-            ADt := '[' + FormatDateTime('dd/mm/yyyy hh:nn:ss zzz', Now) + '] ';
-            if not AMSend.Enviar(MsgErro) then
-            begin
-              Log.Add(ADt + 'Erro: ' + QEmailRecPend.FieldByName('ClienteNome').AsString + MsgErro)
-            end
-            else
-            begin
-              Log.Add(ADt + 'Enviado: ' + QEmailRecPend.FieldByName('ClienteNome').AsString);
-              AtualizarEmailFaturEnviado(QEmailRecPend.FieldByName('faturid').AsInteger, Now);
-            end;
-          finally
-            FreeAndNil(AMSend);
-          end;
-          TabelaFaturas.Clear;
-
-          ACDS.Next;
-        end;
-        Log.SaveToFile(ExtractFilePath(Application.ExeName) + 'LogEnviaRecobranca_' + FormatDateTime('yyyy-mm-dd_hhnnsszzz', Now) + '.txt');
-      end
-      else
-        Log.Add('Não há e-mails pendentes para enviar');
-    except
-      on E:Exception do
-      begin
-        ShowMessage(E.Message);
-        raise;
-      end;
-    end;
-  finally
-    FreeAndNil(QEmailRecPend);
-    FreeAndNil(ACDS);
-    FreeAndNil(TabelaFaturas);
+    FreeAndNil(QRecP);
   end;
 end;
-
 
 procedure TFatObj.EnviarHtmlMail;
 var

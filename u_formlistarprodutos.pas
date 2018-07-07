@@ -12,9 +12,9 @@ type
     procedure RzToolButton1Click(Sender: TObject);
   private
     { Private declarations }
-    procedure SQLConsultaPadrao;
   public
     { Public declarations }
+    procedure SQLConsultaPadrao; override;
   end;
 
 var

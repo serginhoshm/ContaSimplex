@@ -40,7 +40,6 @@ end;
 function TRegistraVenda.GetXMLRegistroVenda(DataRef: TDate): string;
 var
   QItens: TADOQuery;
-  AFileName: string;
   DMReg: TDMRegVenda;
 begin
   Result := EmptyStr;

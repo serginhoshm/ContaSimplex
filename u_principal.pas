@@ -33,7 +33,6 @@ type
     ToolButton9: TToolButton;
     ToolButton10: TToolButton;
     procedure Produtod1Click(Sender: TObject);
-    procedure Baixacrditos1Click(Sender: TObject);
     procedure actCadClientesExecute(Sender: TObject);
     procedure actItensVendidosExecute(Sender: TObject);
     procedure actGeraFaturamentosExecute(Sender: TObject);
@@ -56,7 +55,7 @@ implementation
 
 uses u_mailmarketing, u_formfaturamento, u_formenviaemail,
   u_formlistarprodutos, u_formregistravenda, u_formlistaremail, 
-  u_formlistarclientes, u_formrecebimento, u_formprocbaixarcreditos,
+  u_formlistarclientes, u_formrecebimento,
   u_FormRelFaturamentosPendentes, u_formenviaemailrec;
 
 {$R *.dfm}
@@ -69,19 +68,6 @@ begin
   finally
     FreeAndNil(FormListarProdutos);
   end;
-end;
-
-procedure TFormPrincipal.Baixacrditos1Click(Sender: TObject);
-var
-  FormBaixarCreditosManual: TFormBaixarCreditosManual;
-begin
-  FormBaixarCreditosManual := TFormBaixarCreditosManual.Create(nil);
-  try
-    FormBaixarCreditosManual.ShowModal;
-  finally
-    FreeAndNil(FormBaixarCreditosManual);
-  end;
-//
 end;
 
 procedure TFormPrincipal.actCadClientesExecute(Sender: TObject);

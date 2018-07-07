@@ -20,7 +20,6 @@ type
     qFaturvalorpendente: TFloatField;
     qFaturfaturvalorcancelado: TFloatField;
     qFaturclienteid: TIntegerField;
-    RzToolButton2: TToolButton;
     Memo1: TMemo;
     RzToolButton3: TToolButton;
     DS_qFatur: TDataSource;
@@ -32,10 +31,9 @@ type
     QRGroupHeader: TQRGroup;
     QRBandSoma: TQRBand;
     QRExpr1: TQRExpr;
-    procedure RzToolButton1Click(Sender: TObject);
-    procedure RzToolButton2Click(Sender: TObject);
     procedure QRBandSomaAfterPrint(Sender: TQRCustomBand;
       BandPrinted: Boolean);
+    procedure FormShow(Sender: TObject);
   private
     { Private declarations }
   public
@@ -51,9 +49,15 @@ uses u_principal, u_dm, u_faturamento;
 
 {$R *.dfm}
 
-procedure TFormRelFaturamentosPendetes.RzToolButton1Click(Sender: TObject);
+procedure TFormRelFaturamentosPendetes.QRBandSomaAfterPrint(
+  Sender: TQRCustomBand; BandPrinted: Boolean);
 begin
   inherited;
+  QRExpr1.Reset;
+end;
+
+procedure TFormRelFaturamentosPendetes.FormShow(Sender: TObject);
+begin
   Memo1.Lines.Clear;
   qFatur.Close;
   qFatur.Connection := DM.GetConexao;
@@ -63,27 +67,6 @@ begin
   qFatur.Last;
   Memo1.Lines.Add('Pendentes: ' + IntToStr(qFatur.RecordCount));
   qFatur.First;
-end;
-
-procedure TFormRelFaturamentosPendetes.RzToolButton2Click(Sender: TObject);
-var
-  FatObj: TFatObj;
-begin
-  Memo1.Lines.Clear;
-  FatObj := TFatObj.Create;
-  try
-    FatObj.EnviarRecobranca;
-    Memo1.Lines := FatObj.Log;
-  finally
-    FreeAndNil(FatObj);
-  end;
-end;
-
-procedure TFormRelFaturamentosPendetes.QRBandSomaAfterPrint(
-  Sender: TQRCustomBand; BandPrinted: Boolean);
-begin
-  inherited;
-  QRExpr1.Reset;
 end;
 
 end.

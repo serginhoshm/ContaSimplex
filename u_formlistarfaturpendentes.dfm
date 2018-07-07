@@ -30,8 +30,9 @@ inherited FormListarFaturPendente: TFormListarFaturPendente
       end
       item
         Expanded = False
-        FieldName = 'faturvalortotal'
-        Width = 63
+        FieldName = 'valorpendente'
+        Title.Caption = 'Valor a pagar'
+        Width = 70
         Visible = True
       end
       item
@@ -80,7 +81,7 @@ inherited FormListarFaturPendente: TFormListarFaturPendente
     end
     object QListafaturvalortotal: TFloatField
       DisplayLabel = 'Valor total'
-      FieldName = 'faturvalortotal'
+      FieldName = 'valorpendente'
       DisplayFormat = '#0.00'
     end
     object QListafaturvalorbaixado: TFloatField
