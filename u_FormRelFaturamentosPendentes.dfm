@@ -4,6 +4,7 @@ inherited FormRelFaturamentosPendetes: TFormRelFaturamentosPendetes
   Caption = 'Faturamentos pendentes'
   ClientHeight = 292
   ClientWidth = 490
+  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
   inherited QuickRep1: TQuickRep [0]
@@ -210,22 +211,17 @@ inherited FormRelFaturamentosPendetes: TFormRelFaturamentosPendetes
     Width = 490
     Height = 25
     ButtonHeight = 21
-    ButtonWidth = 51
+    ButtonWidth = 10
     ShowCaptions = True
     inherited RzToolButton1: TToolButton
       AutoSize = True
-      OnClick = RzToolButton1Click
-    end
-    object RzToolButton2: TToolButton
-      Left = 55
-      Top = 2
-      Caption = 'Recobrar'
-      ImageIndex = 16
-      OnClick = RzToolButton2Click
+      Caption = ''
+      Visible = False
     end
     object RzToolButton3: TToolButton
-      Left = 106
+      Left = 14
       Top = 2
+      Visible = False
     end
   end
   inherited RzStatusBar1: TStatusBar [2]
