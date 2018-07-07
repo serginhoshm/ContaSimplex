@@ -13,9 +13,9 @@ type
     procedure RzToolButton2Click(Sender: TObject);
   private
     { Private declarations }
-    procedure SQLConsultaPadrao; override;
   public
     { Public declarations }
+    procedure SQLConsultaPadrao; override;
   end;
 
 var

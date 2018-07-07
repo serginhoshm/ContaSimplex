@@ -24,7 +24,6 @@ uses
   u_formlistarfaturpendentes in 'u_formlistarfaturpendentes.pas' {FormListarFaturPendente},
   u_formrecebimento in 'u_formrecebimento.pas' {FormRecebimento},
   u_formprocpadrao in 'u_formprocpadrao.pas' {FormProcPadrao},
-  u_formprocbaixarcreditos in 'u_formprocbaixarcreditos.pas' {FormBaixarCreditosManual},
   u_formrelpadrao in 'u_formrelpadrao.pas' {FormRelPadrao},
   u_FormRelFaturamentosPendentes in 'u_FormRelFaturamentosPendentes.pas' {FormRelFaturamentosPendetes},
   u_formenviaemail in 'u_formenviaemail.pas' {FormEnviaEmails},

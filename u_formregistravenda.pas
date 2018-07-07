@@ -186,8 +186,7 @@ end;
 procedure TFormRegistraVenda.Button2Click(Sender: TObject);
 var
   ANumLinhas,
-  aux,
-  Ultimo: Integer;
+  aux: Integer;
   ABmk: TBookmark;
 begin
   ANumLinhas := StrToIntDef(InputBox('Adicionar linhas', 'Número de linhas', '1'),0);

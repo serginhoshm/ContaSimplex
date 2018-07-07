@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, Mask, Buttons, ExtCtrls, DB, ComCtrls, ADODB;
+  Dialogs, StdCtrls, Mask, Buttons, ExtCtrls, DB, ComCtrls, ADODB, ActnList;
 
 type
   TFormRecebimento = class(TForm)
@@ -25,12 +25,15 @@ type
     EditValorFatura: TEdit;
     Label3: TLabel;
     qry1: TADOQuery;
+    actList: TActionList;
+    SelecionarFatura: TAction;
+    SpeedButton1: TSpeedButton;
     procedure BitBtn1Click(Sender: TObject);
-    procedure AdvToolButton1Click(Sender: TObject);
     procedure BitBtn2Click(Sender: TObject);
     procedure EditTrocoEnter(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure EditCreditoEnter(Sender: TObject);
+    procedure SelecionarFaturaExecute(Sender: TObject);
   private
     { Private declarations }
     procedure LimparTela;
@@ -97,21 +100,6 @@ begin
   end;
 end;
 
-procedure TFormRecebimento.AdvToolButton1Click(Sender: TObject);
-begin
-  FormListarFaturPendente := TFormListarFaturPendente.Create(nil);
-  try
-    FormListarFaturPendente.ShowModal;
-    LimparTela;
-    if FormListarFaturPendente.FaturID > 0 then
-    begin
-      CarregarFatura(FormListarFaturPendente.FaturID);
-    end;
-  finally
-    FreeAndNil(FormListarFaturPendente);
-  end;
-end;
-
 procedure TFormRecebimento.LimparTela;
 begin
   EditFaturID.Text :='0';
@@ -133,7 +121,7 @@ begin
   try
     try
       QueFatura.Close;
-      QueFatura.SQL.Text := 'select faturid, clienteid, clientenome, faturvalortotal  from faturamentospendentes where faturid = :faturid';
+      QueFatura.SQL.Text := 'select faturid, clienteid, clientenome, valorpendente  from faturamentospendentes where faturid = :faturid';
       QueFatura.Parameters.ParamByName('faturid').Value := FaturaID;
       QueFatura.Open;
       if not QueFatura.IsEmpty then
@@ -141,7 +129,7 @@ begin
         EditFaturID.Text := QueFatura.FieldByName('faturid').AsString;
         EditClienteID.Text := QueFatura.FieldByName('clienteid').AsString;
         EditClienteNome.Text := QueFatura.FieldByName('clientenome').AsString;
-        EditValorFatura.Text := QueFatura.FieldByName('faturvalortotal').AsString;
+        EditValorFatura.Text := QueFatura.FieldByName('valorpendente').AsString;
         EditValorRecebido.Text := EditValorFatura.Text;
       end
       else
@@ -180,6 +168,21 @@ procedure TFormRecebimento.EditCreditoEnter(Sender: TObject);
 begin
   if StrToFloatDef(EditCredito.Text, 0) = 0 then
     EditCredito.Text := FloatToStr(StrToFloatDef(EditValorRecebido.Text, 0) - (StrToFloatDef(EditValorFatura.Text, 0)+StrToFloatDef(EditTroco.Text, 0)));
+end;
+
+procedure TFormRecebimento.SelecionarFaturaExecute(Sender: TObject);
+begin
+  FormListarFaturPendente := TFormListarFaturPendente.Create(nil);
+  try
+    FormListarFaturPendente.ShowModal;
+    LimparTela;
+    if FormListarFaturPendente.FaturID > 0 then
+    begin
+      CarregarFatura(FormListarFaturPendente.FaturID);
+    end;
+  finally
+    FreeAndNil(FormListarFaturPendente);
+  end;
 end;
 
 end.
