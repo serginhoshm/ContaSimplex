@@ -19,12 +19,11 @@ type
     BitBtnOk: TBitBtn;
     BitBtnCancel: TBitBtn;
     Button1: TButton;
-    Button2: TButton;
     Panel2: TPanel;
     Label2: TLabel;
     DBEditItem: TDBEdit;
     Label3: TLabel;
-    DBLookupComboBox1: TDBLookupComboBox;
+    DBLookupComboBoxCliente: TDBLookupComboBox;
     Label4: TLabel;
     DBLookupComboBox2: TDBLookupComboBox;
     Label5: TLabel;
@@ -35,7 +34,6 @@ type
     procedure BitBtnCancelClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure Button1Click(Sender: TObject);
-    procedure Button2Click(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure DBEdit2Exit(Sender: TObject);
   private
@@ -117,9 +115,11 @@ begin
   BitBtnOk.Enabled := True;
   BitBtnCancel.Enabled := True;
   DMReg.GlobalDataRef := RzDateTimePickerReg.DateTime;
-  DMReg.CDSItens.First;
-  if DBEditItem.CanFocus then
-    DBEditItem.SetFocus;
+  DMReg.CDSItens.IndexFieldNames := 'ItemNro';
+  DMReg.CDSItens.Last;
+  DMReg.CDSItens.Append;
+  if DBLookupComboBoxCliente.CanFocus then
+    DBLookupComboBoxCliente.SetFocus;
 end;
 
 procedure TFormRegistraVenda.ButtonIniciarClick(Sender: TObject);
@@ -139,8 +139,6 @@ begin
         DMReg.CDSItens.XMLData := AXML;
         DMReg.CDSItens.Active := True;
         ShowMessage(IntToStr(DMReg.CDSItens.RecordCount) + ' registros carregados');
-
-        
         ModoDigitacao;
       except
         on E:Exception do
@@ -183,33 +181,6 @@ begin
 
 end;
 
-procedure TFormRegistraVenda.Button2Click(Sender: TObject);
-var
-  ANumLinhas,
-  aux: Integer;
-  ABmk: TBookmark;
-begin
-  ANumLinhas := StrToIntDef(InputBox('Adicionar linhas', 'Número de linhas', '1'),0);
-  ABmk := DMReg.CDSItens.GetBookmark;
-  try
-    for aux := 1 to ANumLinhas do
-    begin
-      DMReg.CDSItens.Append;
-      DMReg.CDSItensRegVenQtde.AsInteger := 1;
-      DMReg.CDSItensRegVenVlrUnit.AsFloat := 1;
-      DMReg.CDSItensRegVenVlrTot.AsFloat := 1;
-      DMReg.CDSItens.Post;
-    end;
-  finally
-    if ABmk <> nil then
-    begin
-      if DMReg.CDSItens.BookmarkValid(ABmk) then
-        DMReg.CDSItens.GotoBookmark(ABmk);
-    end;
-  end;
-end;
-
-
 procedure TFormRegistraVenda.FormDestroy(Sender: TObject);
 begin
   FreeAndNil(DMReg);
@@ -219,8 +190,7 @@ procedure TFormRegistraVenda.DBEdit2Exit(Sender: TObject);
 begin
   if DMReg.CDSItens.State in [dsEdit, dsInsert] then
     DMReg.CDSItens.Post;
-  DMReg.CDSItens.Insert;
-
+  ModoDigitacao;
 end;
 
 end.

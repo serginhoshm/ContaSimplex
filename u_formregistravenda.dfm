@@ -82,7 +82,7 @@ object FormRegistraVenda: TFormRegistraVenda
       Font.Height = -12
       Font.Name = 'Consolas'
       Font.Style = []
-      Options = [dgTitles, dgIndicator, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit]
+      Options = [dgTitles, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit]
       ParentCtl3D = False
       ParentFont = False
       TabOrder = 0
@@ -217,17 +217,6 @@ object FormRegistraVenda: TFormRegistraVenda
         TabStop = False
         OnClick = Button1Click
       end
-      object Button2: TButton
-        Left = 699
-        Top = 8
-        Width = 75
-        Height = 25
-        Anchors = [akTop, akRight]
-        Caption = 'Adic. linhas'
-        TabOrder = 3
-        TabStop = False
-        OnClick = Button2Click
-      end
     end
     object Panel2: TPanel
       Left = 0
@@ -250,7 +239,7 @@ object FormRegistraVenda: TFormRegistraVenda
         Width = 33
         Height = 13
         Caption = 'Cliente'
-        FocusControl = DBLookupComboBox1
+        FocusControl = DBLookupComboBoxCliente
       end
       object Label4: TLabel
         Left = 391
@@ -276,10 +265,11 @@ object FormRegistraVenda: TFormRegistraVenda
         TabStop = False
         DataField = 'ItemNro'
         DataSource = DMRegVenda.DS_Itens
+        Enabled = False
         ReadOnly = True
         TabOrder = 0
       end
-      object DBLookupComboBox1: TDBLookupComboBox
+      object DBLookupComboBoxCliente: TDBLookupComboBox
         Left = 87
         Top = 24
         Width = 300
