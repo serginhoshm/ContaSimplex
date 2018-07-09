@@ -823,8 +823,8 @@ begin
 
             AMSend.TextoEmail.Add('<ul>');
             AMSend.TextoEmail.Add('Valor recebido: R$ ' + FormatCurr('#0.00', QRecP.FieldByName('recibovalorpago').AsCurrency));
-              AMSend.TextoEmail.Add('<li>O troco no valor de: R$ ' + FormatCurr('#0.00', QRecP.FieldByName('recibovalortroco').AsCurrency) + ' ser� entregue em m�os</li>');
             if (QRecP.FieldByName('recibovalortroco').AsFloat > 0) then
+              AMSend.TextoEmail.Add('<li>O troco no valor de: R$ ' + FormatCurr('#0.00', QRecP.FieldByName('recibovalortroco').AsCurrency) + ' ser� entregue em m�os</li>');
             if (QRecP.FieldByName('recibovalorcredito').AsFloat > 0) then
               AMSend.TextoEmail.Add('<li>Cr�dito para pr�ximo ciclo: R$ ' + FormatCurr('#0.00', QRecP.FieldByName('recibovalorcredito').AsCurrency) + '</li>');
             AMSend.TextoEmail.Add('</ul>');
