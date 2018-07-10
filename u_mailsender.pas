@@ -1,12 +1,12 @@
 unit u_mailsender;
 
 interface
+
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, Menus, ComCtrls, {Psock, NMsmtp,} IdBaseComponent, IdComponent,
   IdTCPConnection, IdTCPClient, IdMessageClient, IdSMTP, IdIOHandler,
-  IdIOHandlerSocket, IdSSLOpenSSL, IdMessage;
-
+  IdIOHandlerSocket, IdSSLOpenSSL, IdMessage, IdExplicitTLSClientServerBase;
 
 type
   TMailSender = class
@@ -15,7 +15,8 @@ type
     FDestinatarioNome: string;
     FTextoEmail: TStringList;
     FMailClient: TIdSMTP;
-    FIOHandler: TIdSSLIOHandlerSocket;
+    // FIOHandler: TIdSSLIOHandlerSocket;
+    FIOHandler: TIdSSLIOHandlerSocketOpenSSL;
     FMessage: TIdMessage;
     FAssuntoEmail: string;
     function ConfigComponente: Boolean;
@@ -26,13 +27,14 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    property DestinatarioNome: string read FDestinatarioNome write SetDestinatarioNome;
-    property DestinatarioEmail: string read FDestinatarioEmail write SetDestinatarioEmail;
+    property DestinatarioNome: string read FDestinatarioNome
+      write SetDestinatarioNome;
+    property DestinatarioEmail: string read FDestinatarioEmail
+      write SetDestinatarioEmail;
     property TextoEmail: TStringList read FTextoEmail write SetTextoEmail;
     property AssuntoEmail: string read FAssuntoEmail write SetAssuntoEmail;
     function Enviar(var RetMsg: string): Boolean;
   end;
-
 
 implementation
 
@@ -41,18 +43,23 @@ implementation
 function TMailSender.ConfigComponente: Boolean;
 begin
   try
-    FMailClient.AuthenticationType := atLogin;
+    FIOHandler.SSLOptions.Method := sslvSSLv23;
+    FIOHandler.SSLOptions.Mode := sslmClient;
+
+    FMailClient.IOHandler := FIOHandler;
+
+    FMailClient.AuthType := satDefault;
+    FMailClient.UseTLS := TIdUseTLS.utUseImplicitTLS;
+
     FMailClient.Host := 'smtp.gmail.com';
     FMailClient.IOHandler := FIOHandler;
     FMailClient.Password := '1unix()*';
     FMailClient.Port := 465;
-    FMailClient.Username := 'dedosdemariabolos@gmail.com'; //não esqueça o @gmail.com!!
+    FMailClient.Username := 'dedosdemariabolos@gmail.com';
 
-    FIOHandler.SSLOptions.Method := sslvTLSv1;
-    FIOHandler.SSLOptions.Mode := sslmClient;
     Result := true;
   except
-    on E:Exception do
+    on E: Exception do
     begin
       Result := False;
       ShowMessage(E.Message);
@@ -65,7 +72,7 @@ begin
   inherited;
   FTextoEmail := TStringList.Create;
   FMailClient := TIdSMTP.Create(nil);
-  FIOHandler := TIdSSLIOHandlerSocket.Create(nil);
+  FIOHandler := TIdSSLIOHandlerSocketOpenSSL.Create(nil);
   FMessage := TIdMessage.Create(nil);
   ConfigComponente;
 end;
@@ -85,25 +92,26 @@ function TMailSender.Enviar(var RetMsg: string): Boolean;
   var
     i: Integer;
   begin
-    //Adiciona quebras de linha <br> ao texto
+    // Adiciona quebras de linha <br> ao texto
     FMessage.Body.Clear;
-    for i:= 0 to TextoEmail.Count -1 do
+    for i := 0 to TextoEmail.Count - 1 do
       FMessage.Body.Add('<br>' + TextoEmail.Strings[i]);
   end;
 
 begin
   try
     FMessage.ContentType := 'text/html';
-    FMessage.From.Address := 'dedosdemariabolos@gmail.com'; //opcional
-    FMessage.From.Name := 'Bolos e Doces - Dedos de Maria'; //opcional
+    FMessage.From.Address := 'dedosdemariabolos@gmail.com'; // opcional
+    FMessage.From.Name := 'Bolos e Doces - Dedos de Maria'; // opcional
     FMessage.Recipients.Add;
-    FMessage.Recipients.Items[0].Address := DestinatarioEmail;
-    //FMessage.Recipients.Items[0].Address := 'serginhoshm@gmail.com';
-    FMessage.Recipients.Items[0].Name := DestinatarioNome; //opcional
+    // FMessage.Recipients.Items[0].Address := DestinatarioEmail;
+    FMessage.Recipients.Items[0].Address := 'serginhoshm@gmail.com';
+    FMessage.Recipients.Items[0].Name := DestinatarioNome; // opcional
     FMessage.Subject := AssuntoEmail;
     AdicionaTextoFormatado;
 
-    FMessage.Body.SaveToFile(ExtractFilePath(Application.ExeName) + 'EnviarEmail.html');
+    FMessage.Body.SaveToFile(ExtractFilePath(Application.ExeName) +
+      'EnviarEmail.html');
 
     FMailClient.Connect();
     FMailClient.Send(FMessage);
@@ -111,9 +119,9 @@ begin
     Result := true;
     RetMsg := EmptyStr;
   except
-    on E:Exception do
+    on E: Exception do
     begin
-      Result := false;
+      Result := False;
       RetMsg := E.Message;
     end;
   end;

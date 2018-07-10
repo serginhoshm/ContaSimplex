@@ -1,9 +1,9 @@
 object FormPrincipal: TFormPrincipal
   Left = 184
   Top = 124
-  Width = 644
-  Height = 460
   Caption = 'ContaSimplex'
+  ClientHeight = 651
+  ClientWidth = 937
   Color = clAppWorkSpace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -17,25 +17,28 @@ object FormPrincipal: TFormPrincipal
   TextHeight = 13
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 402
-    Width = 628
+    Top = 632
+    Width = 937
     Height = 19
     Panels = <>
+    ExplicitTop = -19
+    ExplicitWidth = 120
   end
   object ToolBar1: TToolBar
     Left = 0
     Top = 0
-    Width = 628
-    Height = 54
+    Width = 937
+    Height = 52
     AutoSize = True
     ButtonHeight = 52
     ButtonWidth = 60
     Caption = 'ToolBar1'
-    Flat = True
     Images = Img
     ParentShowHint = False
     ShowHint = True
     TabOrder = 1
+    ExplicitWidth = 120
+    ExplicitHeight = 268
     object ToolButton1: TToolButton
       Left = 0
       Top = 0
@@ -94,7 +97,7 @@ object FormPrincipal: TFormPrincipal
     Left = 512
     Top = 184
     Bitmap = {
-      494C01019E009F000C0010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01019E009F00100010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000008002000001002000000000000080
       0200000000000000000000000000000000000000000000000000000000000000
       00000000000066CCCC0000000000000000000000000000000000000000000000
