@@ -1,4 +1,4 @@
-unit u_faturamento;
+﻿unit u_faturamento;
 
 interface
 
@@ -150,14 +150,14 @@ begin
               AtualizaItensFaturados(ANovaFatur, QTotalVenda.FieldByName('ClienteID').AsInteger, AListaItensFat);
             end
             else
-              raise Exception.Create('Era esperado um registro de inser��o na tabela de faturas');
+              raise Exception.Create('Era esperado um registro de inserção na tabela de faturas');
 
           end
           else
           begin
             raise Exception.Create('O valor a ser faturado retornado pelo mecanismo de consulta diverge da soma realizada dos itens pendentes' + #10#13 +
                                    'Total em aberto: ' + FormatCurr('#0.00',QTotalVenda.FieldByName('TotalEmAberto').AsFloat) + #10#13 +
-                                   'SomaFat: ' + FormatCurr('#0.00', ATotalFatura))
+                                   'Soma Fat: ' + FormatCurr('#0.00', ATotalFatura))
           end;
           QTotalVenda.Next;
         end;
@@ -321,7 +321,7 @@ begin
   end
   else
   begin
-    raise Exception.Create('Era esperada uma lista de itens v�lida');
+    raise Exception.Create('Era esperada uma lista de itens válida');
   end;
 end;
 
@@ -367,7 +367,7 @@ begin
     ACDS.CreateDataSet;
     ACDS.LogChanges := false;
     try
-      QRecP.sql.add('SELECT * ');
+      QRecP.sql.add('SELECT  * ');
       QRecP.sql.add('  FROM faturamentospendentes order by clientenome, faturdatageracao');
       QRecP.Open;
 
@@ -385,10 +385,10 @@ begin
 
           TabelaFaturas.Add('<TABLE BORDER=1>');
           TabelaFaturas.Add('<TR>');
-          TabelaFaturas.Add('   <TD>Refer�ncia</TD>');
+          TabelaFaturas.Add('   <TD>Referência</TD>');
           TabelaFaturas.Add('   <TD>Consumo(+)</TD>');
           TabelaFaturas.Add('   <TD>Desconto(-)</TD>');
-          TabelaFaturas.Add('   <TD>Cr�dito(-)</TD>');
+          TabelaFaturas.Add('   <TD>Crédito(-)</TD>');
           TabelaFaturas.Add('   <TD>A pagar(=)</TD>');
           TabelaFaturas.Add('</TR>');
 
@@ -423,16 +423,16 @@ begin
             AMSend.DestinatarioEmail := LowerCase(trim(QRecP.FieldByName('clienteemail').AsString));
             //AMSend.DestinatarioEmail := 'serginhoshm@gmail.com'; //para testes
             AMSend.AssuntoEmail := 'Conta Bolos e Doces';
-            AMSend.TextoEmail.Add('Ol� ' + AMSend.DestinatarioNome + '!');
+            AMSend.TextoEmail.Add('Olá ' + AMSend.DestinatarioNome + '!');
             AMSend.TextoEmail.Add('');
             AMSend.TextoEmail.Add('');
-            AMSend.TextoEmail.Add('<h2><mark><font color="red">ATEN��O: MUDAMOS NOSSOS MEIOS DE PAGAMENTO</font></mark></h2>');
+            AMSend.TextoEmail.Add('<h2><mark><font color="red">ATENÇÃO: MUDAMOS NOSSOS MEIOS DE PAGAMENTO</font></mark></h2>');
             AMSend.TextoEmail.Add('');
             AMSend.TextoEmail.Add('');
             AMSend.TextoEmail.Add('Segue abaixo faturamento do consumo de bolos e doces: ');
             AMSend.TextoEmail.Add('');
             AMSend.TextoEmail.Add(TabelaFaturas.Text);
-            AMSend.TextoEmail.Add('<h2>M�todos de pagamento</h2>');
+            AMSend.TextoEmail.Add('<h2>Métodos de pagamento</h2>');
             AMSend.TextoEmail.Add('<TABLE border=1>');
             AMSend.TextoEmail.Add('<TR>');
             AMSend.TextoEmail.Add('  <TD><b>PicPay</b></TD>');
@@ -442,8 +442,8 @@ begin
             AMSend.TextoEmail.Add('	<TD colspan="2">');
             AMSend.TextoEmail.Add('    	<ul>');
             AMSend.TextoEmail.Add('    	<li>Adicione @paulocesar75 e efetue seu pagamento</li>');
-            AMSend.TextoEmail.Add('  		<li>Nome da conta: Paulo C�sar Pereira</li>');
-            AMSend.TextoEmail.Add('  		<li>Conhe�a PicPay https://goo.gl/QkGxdk</li>');
+            AMSend.TextoEmail.Add('  		<li>Nome da conta: Paulo César Pereira</li>');
+            AMSend.TextoEmail.Add('  		<li>Conheça o PicPay https://goo.gl/QkGxdk</li>');
             AMSend.TextoEmail.Add('  		</ul>');
             AMSend.TextoEmail.Add('    </TD>');
             AMSend.TextoEmail.Add('</TR>  ');
@@ -454,7 +454,7 @@ begin
             AMSend.TextoEmail.Add('<TR>');
             AMSend.TextoEmail.Add('	<TD colspan="2">');
             AMSend.TextoEmail.Add('    	<ul>');
-            AMSend.TextoEmail.Add('          <li>Banco Santander Banespa - C�digo 033</li>');
+            AMSend.TextoEmail.Add('          <li>Banco Santander Banespa - Código 033</li>');
             AMSend.TextoEmail.Add('          <li>Ag. 1539</li>');
             AMSend.TextoEmail.Add('          <li>C/C 770014243</li>');
             AMSend.TextoEmail.Add('          <li>Titular: PAULO CESAR PEREIRA</li>');
@@ -469,7 +469,7 @@ begin
             AMSend.TextoEmail.Add('<TR>');
             AMSend.TextoEmail.Add('	<TD colspan="2">');
             AMSend.TextoEmail.Add('    	<ul>');
-            AMSend.TextoEmail.Add('          <li>Banco Cecred (Viacredi) - C�digo 085</li>');
+            AMSend.TextoEmail.Add('          <li>Banco Cecred (Viacredi) - Código 085</li>');
             AMSend.TextoEmail.Add('          <li>Ag. 0101</li>');
             AMSend.TextoEmail.Add('          <li>C/C 933739-3</li>');
             AMSend.TextoEmail.Add('          <li>Titular: PAULO CESAR PEREIRA</li>');
@@ -485,10 +485,10 @@ begin
             AMSend.TextoEmail.Add('	<TD colspan="2">');
             AMSend.TextoEmail.Add('    	<ul>');
             AMSend.TextoEmail.Add('            <li>Situada no "Primeiro andar", mesmo local de venda, URNA azul</li>');
-            AMSend.TextoEmail.Add('            <li>Deposite o valor na URNA, utilizando envelope pl�stico</li>');
-            AMSend.TextoEmail.Add('            <li>Com post-it existente no local, informe se deseja troco ou cr�dito</li>');
-            AMSend.TextoEmail.Add('            <li>No dia seguinte o troco ser� devolvido pessoalmente</li>');
-            AMSend.TextoEmail.Add('            <li>N�o ser� devolvido TROCO no momento do pagamento</li>');
+            AMSend.TextoEmail.Add('            <li>Deposite o valor na URNA, utilizando envelope plástico</li>');
+            AMSend.TextoEmail.Add('            <li>Com post-it existente no local, informe se deseja troco ou crédito</li>');
+            AMSend.TextoEmail.Add('            <li>No dia seguinte o troco será devolvido pessoalmente</li>');
+            AMSend.TextoEmail.Add('            <li>Não será devolvido TROCO no momento do pagamento</li>');
             AMSend.TextoEmail.Add('  		</ul>');
             AMSend.TextoEmail.Add('    </TD>');
             AMSend.TextoEmail.Add('</TR> ');
@@ -499,8 +499,8 @@ begin
             AMSend.TextoEmail.Add('<TR>');
             AMSend.TextoEmail.Add('	<TD colspan="2">');
             AMSend.TextoEmail.Add('    	<ul>');
-            AMSend.TextoEmail.Add('            <li>SOMENTE ap�s as 18h (n�o posso receber durante o expediente)</li>');
-            AMSend.TextoEmail.Add('            <li>Preferencialmente trazer o valor j� trocado</li>');
+            AMSend.TextoEmail.Add('            <li>SOMENTE após as 18h (não posso receber durante o expediente)</li>');
+            AMSend.TextoEmail.Add('            <li>Preferencialmente trazer o valor já trocado</li>');
             AMSend.TextoEmail.Add('  		</ul>');
             AMSend.TextoEmail.Add('    </TD>');
             AMSend.TextoEmail.Add('</TR> ');
@@ -509,11 +509,11 @@ begin
             AMSend.TextoEmail.Add('');
             AMSend.TextoEmail.Text := StringReplace(AMSend.TextoEmail.Text, #13#10, '', [rfReplaceAll, rfIgnoreCase]);
             AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add('Em caso de alguma diverg�ncia possuo os registros para sua verifica��o.');
+            AMSend.TextoEmail.Add('Em caso de alguma divergência possuo os registros para sua verificação.');
             AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add('Obrigado por consumir nossos produtos e utilize este canal de comunica��o para efetuar sugest�es ou cr�ticas');
+            AMSend.TextoEmail.Add('Obrigado por consumir nossos produtos e utilize este canal de comunicação para efetuar sugestões ou críticas');
             AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add('Att. S�rgio e Paulo');
+            AMSend.TextoEmail.Add('Att. Sérgio e Paulo');
 
             ADt := '[' + FormatDateTime('dd/mm/yyyy hh:nn:ss zzz', Now) + '] ';
             if not AMSend.Enviar(MsgErro) then
@@ -529,13 +529,13 @@ begin
             FreeAndNil(AMSend);
           end;
           TabelaFaturas.Clear;
-
+          Application.ProcessMessages;
           ACDS.Next;
         end;
         Log.SaveToFile(ExtractFilePath(Application.ExeName) + 'LogFatur_' + FormatDateTime('yyyy-mm-dd_hhnnsszzz', Now) + '.txt');
       end
       else
-        Log.Add('N�o h� e-mails pendentes para enviar');
+        Log.Add('Não há e-mails pendentes para enviar');
     except
       on E:Exception do
       begin
@@ -605,7 +605,7 @@ begin
     if not QFaturOrig.IsEmpty then
     begin
       if (RoundTo(ValorRecebido, -2) - RoundTo((QFaturOrig.FieldByName('FaturValorAPagar').AsFloat + ValorTroco + ValorACredito), -2)) <> 0 then
-        raise Exception.Create('ATEN��O: Fatura + Cr�dito + Troco = Valor Recebido')
+        raise Exception.Create('ATENÇÃO: Fatura + Crédito + Troco = Valor Recebido')
       else
       begin
 
@@ -627,7 +627,7 @@ begin
 
     end
     else
-      raise Exception.Create('Contagem de registros de fatura � diferente do esperado ' + IntToStr(QFaturOrig.RecordCount));
+      raise Exception.Create('Contagem de registros de fatura é diferente do esperado ' + IntToStr(QFaturOrig.RecordCount));
 
   finally
     FreeAndNil(QFaturOrig);
@@ -824,16 +824,16 @@ begin
             AMSend.TextoEmail.Add('<ul>');
             AMSend.TextoEmail.Add('Valor recebido: R$ ' + FormatCurr('#0.00', QRecP.FieldByName('recibovalorpago').AsCurrency));
             if (QRecP.FieldByName('recibovalortroco').AsFloat > 0) then
-              AMSend.TextoEmail.Add('<li>O troco no valor de: R$ ' + FormatCurr('#0.00', QRecP.FieldByName('recibovalortroco').AsCurrency) + ' ser� entregue em m�os</li>');
+              AMSend.TextoEmail.Add('<li>O troco no valor de: R$ ' + FormatCurr('#0.00', QRecP.FieldByName('recibovalortroco').AsCurrency) + ' será entregue em mãos</li>');
             if (QRecP.FieldByName('recibovalorcredito').AsFloat > 0) then
-              AMSend.TextoEmail.Add('<li>Cr�dito para pr�ximo ciclo: R$ ' + FormatCurr('#0.00', QRecP.FieldByName('recibovalorcredito').AsCurrency) + '</li>');
+              AMSend.TextoEmail.Add('<li>Crédito para próximo ciclo: R$ ' + FormatCurr('#0.00', QRecP.FieldByName('recibovalorcredito').AsCurrency) + '</li>');
             AMSend.TextoEmail.Add('</ul>');
             AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add('<i>Obrigado por consumir nossos produtos e utilize este canal para efetuar sugest�es ou cr�ticas</i>');
+            AMSend.TextoEmail.Add('<i>Obrigado por consumir nossos produtos e utilize este canal para efetuar sugestões ou críticas</i>');
             AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add('Autentica��o: [' + QRecP.FieldByName('reciboautentic').AsString + ']');
+            AMSend.TextoEmail.Add('Autenticação: [' + QRecP.FieldByName('reciboautentic').AsString + ']');
             AMSend.TextoEmail.Add(' ');
-            AMSend.TextoEmail.Add('Att. S�rgio e Paulo');
+            AMSend.TextoEmail.Add('Att. Sérgio e Paulo');
             ADt := '[' + FormatDateTime('dd/mm/yyyy hh:nn:ss zzz', Now) + '] ';
             if not AMSend.Enviar(MsgErro) then
             begin
@@ -851,7 +851,7 @@ begin
         end;
         Log.SaveToFile(ExtractFilePath(Application.ExeName) + 'LogEnviaRecibo_' + FormatDateTime('yyyy-mm-dd_hhnnsszzz', Now) + '.txt');
       end;
-      Log.Add('N�o h� e-mails pendentes para enviar');
+      Log.Add('Não há e-mails pendentes para enviar');
     except
       on E:Exception do
       begin
@@ -872,10 +872,10 @@ var
 begin
   AMSend := TMailSender.Create;
   try
-    AMSend.DestinatarioNome := 'S�rgio Henrique Marchiori';
+    AMSend.DestinatarioNome := 'Sérgio Henrique Marchiori';
     AMSend.DestinatarioEmail := 'serginhoshm@gmail.com';
     AMSend.AssuntoEmail := 'Teste HTML';
-    AMSend.TextoEmail.Add('<b>Ol� ' + AMSend.DestinatarioNome + '!</b>');
+    AMSend.TextoEmail.Add('<b>Olá ' + AMSend.DestinatarioNome + '!</b>');
     AMSend.TextoEmail.Add('<i>zazazaza</i>');
     AMSend.TextoEmail.Add(' ');
 

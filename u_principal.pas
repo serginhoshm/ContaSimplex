@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, Menus, DB, ADODB, ImgList, ActnMan, ActnColorMaps, XPMan,
-  ActnList, ToolWin, ComCtrls;
+  ActnList, ToolWin, ComCtrls, System.Actions;
 
 type
   TFormPrincipal = class(TForm)
@@ -20,7 +20,6 @@ type
     actEnviarRecibosPendentes: TAction;
     actEmitirRecibo: TAction;
     actRelFaturamentosPendentes: TAction;
-    actRecebeResultEnquete: TAction;
     actMarketingListarEmails: TAction;
     ToolButton1: TToolButton;
     ToolButton2: TToolButton;
