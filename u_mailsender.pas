@@ -102,8 +102,8 @@ function TMailSender.Enviar(var RetMsg: string): Boolean;
     for i := 0 to TextoEmail.Count - 1 do
     begin
       Prep := TextoEmail.Strings[i];
-      FMessage.Body.Add('<br>' + Prep);
     end;
+      FMessage.Body.Add('<br>' + Prep);
   end;
 
 begin
