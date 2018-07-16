@@ -75,7 +75,7 @@
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <DCC_ExeOutput>c:\temp</DCC_ExeOutput>
+        <DCC_ExeOutput>C:\Users\sergio.marchiori\Dropbox\Programas\ContaSimplex\</DCC_ExeOutput>
         <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
     </PropertyGroup>
     <ItemGroup>
@@ -132,9 +132,6 @@
         <DCCReference Include="u_formprocpadrao.pas">
             <Form>FormProcPadrao</Form>
         </DCCReference>
-        <DCCReference Include="u_formprocbaixarcreditos.pas">
-            <Form>FormBaixarCreditosManual</Form>
-        </DCCReference>
         <DCCReference Include="u_formrelpadrao.pas">
             <Form>FormRelPadrao</Form>
         </DCCReference>
@@ -169,7 +166,7 @@
                     <Source Name="MainSource">ContaSimplex.dpr</Source>
                 </Source>
                 <Language>
-                    <Language Name="RootDir">C:\Users\sergio.marchiori\Dropbox\Sistemas\ContaSimplex\trunk\</Language>
+                    <Language Name="RootDir">C:\Particular\ContaSimplex\</Language>
                 </Language>
                 <VersionInfo>
                     <VersionInfo Name="IncludeVerInfo">False</VersionInfo>
@@ -207,11 +204,13 @@
                     <VersionInfoKeys Name="CFBundleExecutable"/>
                 </VersionInfoKeys>
                 <Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\\DataExplorerDBXPluginEnt170.bpl">File c:\program files (x86)\embarcadero\rad studio\10.0\bin\\DataExplorerDBXPluginEnt170.bpl not found</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\\dclDBXDriversEnt170.bpl">File c:\program files (x86)\embarcadero\rad studio\10.0\bin\\dclDBXDriversEnt170.bpl not found</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\\dclDataSnapClient170.bpl">Embarcadero DBExpress DataSnap Client Components</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\\dclDataSnapIndy10ServerTransport170.bpl">Embarcadero DBExpress DataSnap Server Transport Components</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\\dclDataSnapProviderClient170.bpl">Embarcadero DBExpress DataSnap Provider Client Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k170.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp170.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\\dclDataSnapConnectors170.bpl">File c:\program files (x86)\embarcadero\rad studio\10.0\bin\\dclDataSnapConnectors170.bpl not found</Excluded_Packages>
+                    <Excluded_Packages Name="C:\\Program Files (x86)\\FastReports\\LibD17\\dclfs17.bpl">File C:\\Program Files (x86)\\FastReports\\LibD17\\dclfs17.bpl not found</Excluded_Packages>
                 </Excluded_Packages>
             </Delphi.Personality>
             <Platforms>

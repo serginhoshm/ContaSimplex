@@ -1,9 +1,9 @@
 object FormPrincipal: TFormPrincipal
   Left = 184
   Top = 124
-  Width = 644
-  Height = 460
   Caption = 'ContaSimplex'
+  ClientHeight = 651
+  ClientWidth = 937
   Color = clAppWorkSpace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -17,8 +17,8 @@ object FormPrincipal: TFormPrincipal
   TextHeight = 13
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 402
-    Width = 628
+    Top = 632
+    Width = 937
     Height = 19
     Panels = <>
     ExplicitTop = -19
@@ -27,76 +27,80 @@ object FormPrincipal: TFormPrincipal
   object ToolBar1: TToolBar
     Left = 0
     Top = 0
-    Width = 628
-    Height = 54
+    Width = 937
+    Height = 80
     AutoSize = True
-    ButtonHeight = 52
-    ButtonWidth = 60
-    Caption = 'ToolBar1'
-    Flat = True
+    ButtonHeight = 36
+    ButtonWidth = 125
     Images = Img
     ParentShowHint = False
+    ShowCaptions = True
     ShowHint = True
     TabOrder = 1
+    ExplicitLeft = -48
     object ToolButton1: TToolButton
       Left = 0
       Top = 0
       Action = actCadClientes
     end
     object ToolButton2: TToolButton
-      Left = 60
+      Left = 125
       Top = 0
       Action = actItensVendidos
     end
     object ToolButton3: TToolButton
-      Left = 120
+      Left = 250
       Top = 0
       Action = actGeraFaturamentos
     end
     object ToolButton4: TToolButton
-      Left = 180
+      Left = 375
       Top = 0
       Action = actEmitirRecibo
     end
     object ToolButton10: TToolButton
-      Left = 240
+      Left = 0
       Top = 0
       Width = 8
       Caption = 'ToolButton10'
       ImageIndex = 8
+      Wrap = True
       Style = tbsSeparator
     end
     object ToolButton5: TToolButton
-      Left = 248
-      Top = 0
+      Left = 0
+      Top = 44
       Action = actEnviarEmailsFatPendentes
     end
     object ToolButton6: TToolButton
-      Left = 308
-      Top = 0
+      Left = 125
+      Top = 44
       Action = actEnviarRecibosPendentes
     end
     object ToolButton7: TToolButton
-      Left = 368
-      Top = 0
+      Left = 250
+      Top = 44
       Action = actRelFaturamentosPendentes
     end
     object ToolButton8: TToolButton
-      Left = 428
-      Top = 0
+      Left = 375
+      Top = 44
       Action = actMarketingListarEmails
     end
     object ToolButton9: TToolButton
-      Left = 488
-      Top = 0
-      Action = actRecebeResultEnquete
+      Left = 500
+      Top = 44
+      Hint = 'Receber resultados enquete'
+      Caption = 'Rec. resultados enquete'
+      ImageIndex = 66
+      OnClick = actRecebeResultEnqueteExecute
     end
   end
   object Img: TImageList
     Left = 512
     Top = 184
     Bitmap = {
-      494C01019E009F000C0010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01019E009F00180010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000008002000001002000000000000080
       0200000000000000000000000000000000000000000000000000000000000000
       00000000000066CCCC0000000000000000000000000000000000000000000000
@@ -5394,25 +5398,25 @@ object FormPrincipal: TFormPrincipal
       OnExecute = actCadClientesExecute
     end
     object actItensVendidos: TAction
-      Caption = 'Itens vendidos'
+      Caption = 'Itens vend'
       Hint = 'Itens vendidos'
       ImageIndex = 45
       OnExecute = actItensVendidosExecute
     end
     object actGeraFaturamentos: TAction
-      Caption = 'Gera faturamentos'
+      Caption = 'Gera fat.'
       Hint = 'Gera faturamentos'
       ImageIndex = 156
       OnExecute = actGeraFaturamentosExecute
     end
     object actEnviarEmailsFatPendentes: TAction
-      Caption = 'E-mail faturmentos pendented'
+      Caption = 'E-mail fat pend.'
       Hint = 'E-mail faturmentos pendented'
       ImageIndex = 20
       OnExecute = actEnviarEmailsFatPendentesExecute
     end
     object actEnviarRecibosPendentes: TAction
-      Caption = 'Enviar recibos pendentes'
+      Caption = 'Env. rec. pend.'
       Hint = 'Enviar recibos pendentes'
       ImageIndex = 60
       OnExecute = actEnviarRecibosPendentesExecute
@@ -5424,19 +5428,13 @@ object FormPrincipal: TFormPrincipal
       OnExecute = actEmitirReciboExecute
     end
     object actRelFaturamentosPendentes: TAction
-      Caption = 'Relat'#243'rio faturamentos pendentes'
+      Caption = 'Rel. fat. pend'
       Hint = 'Relat'#243'rio faturamentos pendentes'
       ImageIndex = 63
       OnExecute = actRelFaturamentosPendentesExecute
     end
-    object actRecebeResultEnquete: TAction
-      Caption = 'Receber resultados enquete'
-      Hint = 'Receber resultados enquete'
-      ImageIndex = 66
-      OnExecute = actRecebeResultEnqueteExecute
-    end
     object actMarketingListarEmails: TAction
-      Caption = 'Marketing listar emails'
+      Caption = 'Listar e-mails'
       Hint = 'Marketing listar emails'
       ImageIndex = 115
       OnExecute = actMarketingListarEmailsExecute
