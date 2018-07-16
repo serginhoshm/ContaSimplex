@@ -21,6 +21,8 @@ object FormPrincipal: TFormPrincipal
     Width = 628
     Height = 19
     Panels = <>
+    ExplicitTop = -19
+    ExplicitWidth = 120
   end
   object ToolBar1: TToolBar
     Left = 0

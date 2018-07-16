@@ -46,7 +46,7 @@ begin
     FMailClient.IOHandler := FIOHandler;
     FMailClient.Password := '1unix()*';
     FMailClient.Port := 465;
-    FMailClient.Username := 'dedosdemariabolos@gmail.com'; //não esqueça o @gmail.com!!
+    FMailClient.Username := 'dedosdemariabolos@gmail.com'; //nï¿½o esqueï¿½a o @gmail.com!!
 
     FIOHandler.SSLOptions.Method := sslvTLSv1;
     FIOHandler.SSLOptions.Mode := sslmClient;
@@ -85,10 +85,13 @@ function TMailSender.Enviar(var RetMsg: string): Boolean;
   var
     i: Integer;
   begin
-    //Adiciona quebras de linha <br> ao texto
-    FMessage.Body.Clear;
-    for i:= 0 to TextoEmail.Count -1 do
-      FMessage.Body.Add('<br>' + TextoEmail.Strings[i]);
+    // Adiciona quebras de linha <br> ao texto
+    FMessage.ClearBody;
+    for i := 0 to TextoEmail.Count - 1 do
+    begin
+      Prep := TextoEmail.Strings[i];
+    end;
+      FMessage.Body.Add('<br>' + Prep);
   end;
 
 begin
