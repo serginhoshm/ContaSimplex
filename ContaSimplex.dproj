@@ -75,7 +75,7 @@
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <DCC_ExeOutput>C:\Users\sergio.marchiori\Dropbox\Programas\ContaSimplex\</DCC_ExeOutput>
+        <DCC_ExeOutput>C:\Users\sergio.marchiori\OneDrive\ContaSimplex\</DCC_ExeOutput>
         <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
     </PropertyGroup>
     <ItemGroup>
@@ -165,9 +165,6 @@
                 <Source>
                     <Source Name="MainSource">ContaSimplex.dpr</Source>
                 </Source>
-                <Language>
-                    <Language Name="RootDir">C:\Particular\ContaSimplex\</Language>
-                </Language>
                 <VersionInfo>
                     <VersionInfo Name="IncludeVerInfo">False</VersionInfo>
                     <VersionInfo Name="AutoIncBuild">False</VersionInfo>

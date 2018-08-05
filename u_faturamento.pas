@@ -421,8 +421,8 @@ begin
           try
             AMSend.DestinatarioNome := QRecP.FieldByName('clientenome').AsString;
             AMSend.DestinatarioEmail := LowerCase(trim(QRecP.FieldByName('clienteemail').AsString));
-            //AMSend.DestinatarioEmail := 'serginhoshm@gmail.com'; //para testes
-            AMSend.AssuntoEmail := 'Conta Bolos e Doces';
+            AMSend.DestinatarioEmail := 'serginhoshm@gmail.com'; //para testes
+            AMSend.AssuntoEmail := '[CONSUMO] Conta Bolos/Doces/Salgados';
             AMSend.TextoEmail.Add('Olá ' + AMSend.DestinatarioNome + '!');
             AMSend.TextoEmail.Add('');
             AMSend.TextoEmail.Add('');
